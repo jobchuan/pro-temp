@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionPro 内容提交</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f7;
+            color: #333;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        h1, h2, h3 {
+            color: #1d1d1f;
+        }
+        .section {
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+        input[type="file"] {
+            margin-bottom: 16px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .language-tabs {
+            display: flex;
+            margin-bottom: 12px;
+            background-color: #f5f5f7;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .language-tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+        }
+        .language-tab.active {
+            background-color: #0071e3;
+            color: white;
+        }
+        .language-content {
+            display: none;
+        }
+        .language-content.active {
+            display: block;
+        }
+        .preview-container {
+            width: 100%;
+            background-color: #000;
+            height: 300px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .preview-container img, .preview-container video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .thumbnail-preview {
+            width: 120px;
+            height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 2px solid transparent;
+        }
+        .thumbnail-preview.selected {
+            border-color: #0071e3;
+        }
+        .thumbnail-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0051a3;
+        }
+        button:disabled {
+            background-color: #86b9f2;
+            cursor: not-allowed;
+        }
+        .submenu {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #d2d2d7;
+        }
+        .submenu-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            position: relative;
+            font-weight: bold;
+        }
+        .submenu-item.active {
+            color: #0071e3;
+        }
+        .submenu-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #0071e3;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+        .form-row > div {
+            flex: 1;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #0071e3;
+            transition: width 0.3s ease;
+        }
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .chip {
+            background-color: #e1f0ff;
+            color: #0071e3;
+            padding: 4px 12px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chip button {
+            background: none;
+            border: none;
+            color: #0071e3;
+            cursor: pointer;
+            padding: 0;
+            font-size: 16px;
+            height: 20px;
+            width: 20px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+        }
+        .json-preview {
+            background-color: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .pricing-toggle {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #0071e3;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        #price-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>VisionPro 内容提交管理</h1>
+    
+    <!-- 登录部分 -->
+    <div class="card" id="login-section">
+        <h2>1. 登录获取Token</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" id="email" placeholder="邮箱" value="test@example.com">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="密码" value="123456">
+            </div>
+        </div>
+        <button onclick="login()">登录</button>
+        <div id="token-display" style="margin-top: 16px; font-family: monospace; word-break: break-all;"></div>
+    </div>
+
+    <!-- 主菜单 -->
+    <div class="submenu" id="main-menu" style="display: none;">
+        <div class="submenu-item active" data-tab="create-content">创建内容</div>
+        <div class="submenu-item" data-tab="content-list">内容列表</div>
+    </div>
+
+    <!-- 成功消息 -->
+    <div class="success-message" id="success-message"></div>
+    
+    <!-- 错误消息 -->
+    <div class="error-message" id="error-message"></div>
+
+    <!-- 创建内容面板 -->
+    <div class="tab-content active" id="create-content">
+        <div class="card">
+            <h2>内容基本信息</h2>
+            
+            <!-- 语言切换 -->
+            <div class="section">
+                <label>标题</label>
+                <div class="language-tabs">
+                    <div class="language-tab active" data-lang="zh-CN">中文</div>
+                    <div class="language-tab" data-lang="en-US">英文</div>
+                </div>
+                <div class="language-content active" data-lang="zh-CN">
+                    <input type="text" id="title-zh" placeholder="中文标题">
+                </div>
+                <div class="language-content" data-lang="en-US">
+                    <input type="text" id="title-en" placeholder="English Title">
+                </div>
+            </div>
+            
+            <div class="section">
+                <label>描述</label>
+                <div class="language-tabs">
+                    <div class="language-tab active" data-lang="zh-CN">中文</div>
+                    <div class="language-tab" data-lang="en-US">英文</div>
+                </div>
+                <div class="language-content active" data-lang="zh-CN">
+                    <textarea id="description-zh" rows="4" placeholder="中文描述"></textarea>
+                </div>
+                <div class="language-content" data-lang="en-US">
+                    <textarea id="description-en" rows="4" placeholder="English Description"></textarea>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="content-type">内容类型</label>
+                    <select id="content-type">
+                        <option value="180_video">180° 视频</option>
+                        <option value="180_photo">180° 照片</option>
+                        <option value="360_video">360° 视频</option>
+                        <option value="360_photo">360° 照片</option>
+                        <option value="spatial_video">空间视频</option>
+                        <option value="spatial_photo">空间照片</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">分类</label>
+                    <select id="category">
+                        <option value="travel">旅行</option>
+                        <option value="education">教育</option>
+                        <option value="entertainment">娱乐</option>
+                        <option value="sports">体育</option>
+                        <option value="news">新闻</option>
+                        <option value="documentary">纪录片</option>
+                        <option value="art">艺术</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="tags-input">标签</label>
+                <div class="form-row">
+                    <input type="text" id="tags-input" placeholder="输入标签后按回车">
+                    <button type="button" onclick="addTag()">添加标签</button>
+                </div>
+                <div class="chips-container" id="tags-container"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>定价</label>
+                <div class="pricing-toggle">
+                    <span>免费</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pricing-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>付费</span>
+                </div>
+                <div id="price-container">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="price">价格</label>
+                            <input type="number" id="price" placeholder="输入价格" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">货币</label>
+                            <select id="currency">
+                                <option value="CNY">人民币 (CNY)</option>
+                                <option value="USD">美元 (USD)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>文件上传</h2>
+            
+            <div class="section">
+                <label>主文件 <span style="color: red;">*</span></label>
+                <div class="form-group">
+                    <input type="file" id="main-file" accept="image/*,video/*">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="main-file-progress" style="width: 0%"></div>
+                    </div>
+                    <p id="main-file-status" style="margin-top: 8px;"></p>
+                </div>
+                <div class="preview-container" id="main-preview">
+                    <div style="color: white;">预览区域</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <label>缩略图 <span style="font-size: 14px; color: #666;">(如未上传将自动从主文件生成)</span></label>
+                <div class="form-group">
+                    <input type="file" id="thumbnail-file" accept="image/*">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="thumbnail-progress" style="width: 0%"></div>
+                    </div>
+                    <p id="thumbnail-status" style="margin-top: 8px;"></p>
+                </div>
+                <div class="thumbnail-container" id="thumbnails-preview">
+                    <!-- 缩略图预览将在这里显示 -->
+                </div>
+            </div>
+            
+            <div class="section">
+                <label>预览文件 <span style="font-size: 14px; color: #666;">(可选)</span></label>
+                <div class="form-group">
+                    <input type="file" id="preview-file" accept="image/*,video/*">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="preview-progress" style="width: 0%"></div>
+                    </div>
+                    <p id="preview-status" style="margin-top: 8px;"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>位置信息 <span style="font-size: 14px; color: #666;">(可选)</span></h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="latitude">纬度</label>
+                    <input type="number" id="latitude" placeholder="纬度" step="0.000001">
+                </div>
+                <div class="form-group">
+                    <label for="longitude">经度</label>
+                    <input type="number" id="longitude" placeholder="经度" step="0.000001">
+                </div>
+                <div class="form-group">
+                    <label for="altitude">海拔 (米)</label>
+                    <input type="number" id="altitude" placeholder="海拔">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="address">地址</label>
+                    <input type="text" id="address" placeholder="地址">
+                </div>
+                <div class="form-group">
+                    <label for="city">城市</label>
+                    <input type="text" id="city" placeholder="城市">
+                </div>
+                <div class="form-group">
+                    <label for="country">国家</label>
+                    <input type="text" id="country" placeholder="国家">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>高级设置 <span style="font-size: 14px; color: #666;">(可选)</span></h2>
+            
+            <div class="section">
+                <label>背景音乐</label>
+                <div class="form-group">
+                    <input type="file" id="bgm-file" accept="audio/*">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="bgm-progress" style="width: 0%"></div>
+                    </div>
+                    <p id="bgm-status" style="margin-top: 8px;"></p>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bgm-title">音乐标题</label>
+                        <input type="text" id="bgm-title" placeholder="背景音乐标题">
+                    </div>
+                    <div class="form-group">
+                        <label for="bgm-artist">音乐作者</label>
+                        <input type="text" id="bgm-artist" placeholder="背景音乐作者">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="form-row">
+                    <div>
+                        <label>
+                            <input type="checkbox" id="is-collaborative"> 
+                            启用协作功能
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>预览提交内容</h2>
+            <div id="form-data-preview" class="json-preview">
+                // 表单数据将在这里显示
+            </div>
+            <div style="margin-top: 24px; display: flex; gap: 16px;">
+                <button id="submit-button" onclick="createContent()">提交内容</button>
+                <button onclick="updatePreview()" style="background-color: #6e6e73;">更新预览</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 内容列表面板 -->
+    <div class="tab-content" id="content-list">
+        <div class="card">
+            <h2>内容列表</h2>
+            <button onclick="loadContentList()">刷新内容列表</button>
+            <div id="content-list-container" style="margin-top: 24px;">
+                <!-- 内容列表将在这里显示 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let token = '';
+        let tags = [];
+        let uploadedFiles = {
+            main: null,
+            thumbnail: null,
+            preview: null,
+            bgm: null
+        };
+
+        // DOM 加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化语言标签切换
+            document.querySelectorAll('.language-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    const tabGroup = this.closest('.language-tabs');
+                    const contentGroup = tabGroup.nextElementSibling.parentElement;
+                    
+                    // 移除所有标签的活动状态
+                    tabGroup.querySelectorAll('.language-tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // 移除所有内容的活动状态
+                    contentGroup.querySelectorAll('.language-content').forEach(c => {
+                        c.classList.remove('active');
+                    });
+                    
+                    // 为当前标签和内容添加活动状态
+                    this.classList.add('active');
+                    contentGroup.querySelector(`.language-content[data-lang="${lang}"]`).classList.add('active');
+                });
+            });
+            
+            // 初始化主菜单标签切换
+            document.querySelectorAll('.submenu-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // 移除所有菜单项的活动状态
+                    document.querySelectorAll('.submenu-item').forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    
+                    // 移除所有内容的活动状态
+                    document.querySelectorAll('.tab-content').forEach(c => {
+                        c.classList.remove('active');
+                    });
+                    
+                    // 为当前菜单项和内容添加活动状态
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 初始化标签输入框
+            document.getElementById('tags-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                }
+            });
+            
+            // 初始化定价切换
+            document.getElementById('pricing-toggle').addEventListener('change', function() {
+                document.getElementById('price-container').style.display = this.checked ? 'block' : 'none';
+                updatePreview();
+            });
+            
+            // 初始化文件上传事件
+            initFileUploadEvents();
+            
+            // 更新预览
+            updatePreview();
+        });
+
+        // 登录获取token
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    token = data.data.token;
+                    document.getElementById('token-display').textContent = `Token: ${token}`;
+                    document.getElementById('main-menu').style.display = 'flex';
+                    showSuccessMessage('登录成功');
+                } else {
+                    showErrorMessage('登录失败: ' + data.message);
+                }
+            } catch (error) {
+                showErrorMessage('登录出错: ' + error.message);
+            }
+        }
+
+        // 初始化文件上传事件
+        function initFileUploadEvents() {
+            // 主文件上传
+            document.getElementById('main-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFile(file, 'main', function(result) {
+                        uploadedFiles.main = result;
+                        updateFilePreview('main', result);
+                        updatePreview();
+                    });
+                }
+            });
+            
+            // 缩略图上传
+            document.getElementById('thumbnail-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFile(file, 'thumbnail', function(result) {
+                        uploadedFiles.thumbnail = result;
+                        updateThumbnailPreview(result);
+                        updatePreview();
+                    });
+                }
+            });
+            
+            // 预览文件上传
+            document.getElementById('preview-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFile(file, 'preview', function(result) {
+                        uploadedFiles.preview = result;
+                        updatePreview();
+                    });
+                }
+            });
+            
+            // 背景音乐上传
+            document.getElementById('bgm-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFile(file, 'bgm', function(result) {
+                        uploadedFiles.bgm = result;
+                        updatePreview();
+                    });
+                }
+            });
+        }
+
+        // 上传文件
+        function uploadFile(file, fileType, callback) {
+            if (!token) {
+                showErrorMessage('请先登录');
+                return;
+            }
+            
+            const progressElement = document.getElementById(`${fileType}-file-progress`);
+            const statusElement = document.getElementById(`${fileType}-status`);
+            
+            // 显示上传状态
+            statusElement.textContent = '上传中...';
+            progressElement.style.width = '0%';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // 使用 XMLHttpRequest 来追踪上传进度
+            const xhr = new XMLHttpRequest();
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressElement.style.width = percentComplete + '%';
+                    statusElement.textContent = `上传中... ${Math.round(percentComplete)}%`;
+                }
+            });
+            
+            xhr.addEventListener('load', function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const response = JSON.parse(xhr.responseText);
+                    statusElement.textContent = '上传成功';
+                    progressElement.style.width = '100%';
+                    callback(response.data);
+                } else {
+                    statusElement.textContent = '上传失败';
+                    showErrorMessage('上传失败: ' + xhr.statusText);
+                }
+            });
+            
+            xhr.addEventListener('error', function() {
+                statusElement.textContent = '上传失败';
+                showErrorMessage('上传失败: 网络错误');
+            });
+            
+            xhr.open('POST', 'http://localhost:5001/api/upload/single');
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            xhr.send(formData);
+        }
+
+        // 更新文件预览
+        function updateFilePreview(fileType, fileData) {
+            if (fileType === 'main') {
+                const previewContainer = document.getElementById('main-preview');
+                previewContainer.innerHTML = '';
+                
+                if (fileData.mimeType.startsWith('image/')) {
+                    // 图片预览
+                    const img = document.createElement('img');
+                    img.src = 'http://localhost:5001' + fileData.url;
+                    previewContainer.appendChild(img);
+                    
+                    // 如果没有缩略图，使用主图片的缩略图
+                    if (!uploadedFiles.thumbnail && fileData.thumbnailPath) {
+                        updateThumbnailPreview({
+                            url: '/uploads/thumbnails/' + path.basename(fileData.thumbnailPath)
+                        });
+                    }
+                } else if (fileData.mimeType.startsWith('video/')) {
+                    // 视频预览
+                    const video = document.createElement('video');
+                    video.src = 'http://localhost:5001' + fileData.url;
+                    video.controls = true;
+                    previewContainer.appendChild(video);
+                    
+                    // 如果没有缩略图，使用视频的缩略图
+                    if (!uploadedFiles.thumbnail && fileData.thumbnailPath) {
+                        updateThumbnailPreview({
+                            url: '/uploads/thumbnails/' + path.basename(fileData.thumbnailPath)
+                        });
+                    }
+                }
+            }
+        }
+
+        // 更新缩略图预览
+        function updateThumbnailPreview(fileData) {
+            const thumbnailsContainer = document.getElementById('thumbnails-preview');
+            thumbnailsContainer.innerHTML = '';
+            
+            const img = document.createElement('img');
+            img.src = 'http://localhost:5001' + fileData.url;
+            img.classList.add('thumbnail-preview', 'selected');
+            thumbnailsContainer.appendChild(img);
+            
+            uploadedFiles.thumbnail = fileData;
+        }
+
+        // 添加标签
+        function addTag() {
+            const input = document.getElementById('tags-input');
+            const tag = input.value.trim();
+            
+            if (tag && !tags.includes(tag)) {
+                tags.push(tag);
+                renderTags();
+                input.value = '';
+                updatePreview();
+            }
+        }
+
+        // 移除标签
+        function removeTag(index) {
+            tags.splice(index, 1);
+            renderTags();
+            updatePreview();
+        }
+
+        // 渲染标签
+        function renderTags() {
+            const container = document.getElementById('tags-container');
+            container.innerHTML = '';
+            
+            tags.forEach((tag, index) => {
+                const chip = document.createElement('div');
+                chip.classList.add('chip');
+                chip.innerHTML = `
+                    <span>${tag}</span>
+                    <button onclick="removeTag(${index})">×</button>
+                `;
+                container.appendChild(chip);
+            });
+        }
+
+        // 收集表单数据
+        function collectFormData() {
+            const title = {
+                'zh-CN': document.getElementById('title-zh').value,
+                'en-US': document.getElementById('title-en').value
+            };
+            
+            const description = {
+                'zh-CN': document.getElementById('description-zh').value,
+                'en-US': document.getElementById('description-en').value
+            };
+            
+            const contentType = document.getElementById('content-type').value;
+            const category = document.getElementById('category').value;
+            const isCollaborative = document.getElementById('is-collaborative').checked;
+            
+            const isPaid = document.getElementById('pricing-toggle').checked;
+            const price = isPaid ? parseFloat(document.getElementById('price').value) : 0;
+            const currency = isPaid ? document.getElementById('currency').value : 'CNY';
+            
+            // 文件信息
+            const files = {};
+            if (uploadedFiles.main) {
+                files.main = {
+                    url: uploadedFiles.main.url,
+                    size: uploadedFiles.main.size || 0,
+                    duration: uploadedFiles.main.info?.duration || 0,
+                };
+                
+                if (uploadedFiles.main.info?.resolution) {
+                    files.main.resolution = uploadedFiles.main.info.resolution;
+                }
+            }
+            
+            if (uploadedFiles.thumbnail) {
+                files.thumbnail = {
+                    url: uploadedFiles.thumbnail.url,
+                    size: uploadedFiles.thumbnail.size || 0
+                };
+            }
+            
+            if (uploadedFiles.preview) {
+                files.preview = {
+                    url: uploadedFiles.preview.url,
+                    size: uploadedFiles.preview.size || 0
+                };
+            }
+            
+            // 媒体信息
+            const media = {};
+            if (uploadedFiles.bgm) {
+                media.backgroundMusic = {
+                    url: uploadedFiles.bgm.url,
+                    title: document.getElementById('bgm-title').value,
+                    artist: document.getElementById('bgm-artist').value
+                };
+            }
+            
+            // 位置信息
+            const location = {};
+            const latitude = document.getElementById('latitude').value;
+            const longitude = document.getElementById('longitude').value;
+            const altitude = document.getElementById('altitude').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const country = document.getElementById('country').value;
+            
+            if (latitude) location.latitude = parseFloat(latitude);
+            if (longitude) location.longitude = parseFloat(longitude);
+            if (altitude) location.altitude = parseFloat(altitude);
+            if (address) location.address = address;
+            if (city) location.city = city;
+            if (country) location.country = country;
+            
+            return {
+                title,
+                description,
+                contentType,
+                files,
+                tags,
+                category,
+                pricing: {
+                    isFree: !isPaid,
+                    price: price || 0,
+                    currency: currency
+                },
+                isCollaborative,
+                media: Object.keys(media).length > 0 ? media : undefined,
+                location: Object.keys(location).length > 0 ? location : undefined
+            };
+        }
+
+        // 更新预览
+        function updatePreview() {
+            const formData = collectFormData();
+            document.getElementById('form-data-preview').textContent = JSON.stringify(formData, null, 2);
+        }
+
+        // 创建内容
+        async function createContent() {
+            if (!token) {
+                showErrorMessage('请先登录');
+                return;
+            }
+            
+            if (!uploadedFiles.main) {
+                showErrorMessage('请上传主文件');
+                return;
+            }
+            
+            const formData = collectFormData();
+            const submitButton = document.getElementById('submit-button');
+            
+            // 禁用提交按钮
+            submitButton.disabled = true;
+            submitButton.textContent = '提交中...';
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/contents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccessMessage('内容创建成功！');
+                    // 可以添加重置表单的逻辑
+                    resetForm();
+                } else {
+                    showErrorMessage('创建失败: ' + data.message);
+                }
+            } catch (error) {
+                showErrorMessage('提交出错: ' + error.message);
+            }
+            
+            // 恢复提交按钮
+            submitButton.disabled = false;
+            submitButton.textContent = '提交内容';
+        }
+
+        // 加载内容列表
+        async function loadContentList() {
+            if (!token) {
+                showErrorMessage('请先登录');
+                return;
+            }
+            
+            const container = document.getElementById('content-list-container');
+            container.innerHTML = '<p>加载中...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/contents/user', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data.contents) {
+                    if (data.data.contents.length === 0) {
+                        container.innerHTML = '<p>暂无内容</p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    data.data.contents.forEach(content => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.style.marginBottom = '16px';
+                        
+                        let thumbnailHtml = '';
+                        if (content.thumbnailURL || (content.files && content.files.thumbnail && content.files.thumbnail.url)) {
+                            const thumbnailUrl = content.thumbnailURL || content.files.thumbnail.url;
+                            thumbnailHtml = `
+                                <div style="width: 120px; height: 80px; overflow: hidden; border-radius: 6px; margin-right: 16px;">
+                                    <img src="http://localhost:5001${thumbnailUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            `;
+                        }
+                        
+                        card.innerHTML = `
+                            <div style="display: flex; align-items: center;">
+                                ${thumbnailHtml}
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0;">${content.title['zh-CN'] || '无标题'}</h3>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                                        <span style="background-color: #e1f0ff; color: #0071e3; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${getContentTypeDisplay(content.contentType)}</span>
+                                        <span style="background-color: #f1f1f1; color: #666; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${getCategoryDisplay(content.category)}</span>
+                                        <span style="background-color: ${content.pricing.isFree ? '#d4edda' : '#fff4e5'}; color: ${content.pricing.isFree ? '#155724' : '#856404'}; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${content.pricing.isFree ? '免费' : `${content.pricing.currency} ${content.pricing.price}`}</span>
+                                    </div>
+                                    <div style="font-size: 14px; color: #666;">
+                                        创建时间: ${formatDate(content.createdAt)}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = '<p>获取内容失败</p>';
+                }
+            } catch (error) {
+                container.innerHTML = `<p>加载出错: ${error.message}</p>`;
+            }
+        }
+
+        // 显示成功消息
+        function showSuccessMessage(message) {
+            const messageElement = document.getElementById('success-message');
+            messageElement.textContent = message;
+            messageElement.style.display = 'block';
+            
+            // 5秒后隐藏消息
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // 显示错误消息
+        function showErrorMessage(message) {
+            const messageElement = document.getElementById('error-message');
+            messageElement.textContent = message;
+            messageElement.style.display = 'block';
+            
+            // 5秒后隐藏消息
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // 重置表单
+        function resetForm() {
+            document.getElementById('title-zh').value = '';
+            document.getElementById('title-en').value = '';
+            document.getElementById('description-zh').value = '';
+            document.getElementById('description-en').value = '';
+            document.getElementById('content-type').selectedIndex = 0;
+            document.getElementById('category').selectedIndex = 0;
+            document.getElementById('tags-input').value = '';
+            document.getElementById('is-collaborative').checked = false;
+            document.getElementById('pricing-toggle').checked = false;
+            document.getElementById('price-container').style.display = 'none';
+            document.getElementById('price').value = '';
+            document.getElementById('currency').selectedIndex = 0;
+            
+            // 重置文件上传
+            document.getElementById('main-file').value = '';
+            document.getElementById('thumbnail-file').value = '';
+            document.getElementById('preview-file').value = '';
+            document.getElementById('bgm-file').value = '';
+            
+            document.getElementById('main-file-status').textContent = '';
+            document.getElementById('thumbnail-status').textContent = '';
+            document.getElementById('preview-status').textContent = '';
+            document.getElementById('bgm-status').textContent = '';
+            
+            document.getElementById('main-file-progress').style.width = '0%';
+            document.getElementById('thumbnail-progress').style.width = '0%';
+            document.getElementById('preview-progress').style.width = '0%';
+            document.getElementById('bgm-progress').style.width = '0%';
+            
+            // 重置位置信息
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            document.getElementById('altitude').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('city').value = '';
+            document.getElementById('country').value = '';
+            
+            // 重置背景音乐信息
+            document.getElementById('bgm-title').value = '';
+            document.getElementById('bgm-artist').value = '';
+            
+            // 重置预览
+            document.getElementById('main-preview').innerHTML = '<div style="color: white;">预览区域</div>';
+            document.getElementById('thumbnails-preview').innerHTML = '';
+            
+            // 重置标签
+            tags = [];
+            renderTags();
+            
+            // 重置上传文件状态
+            uploadedFiles = {
+                main: null,
+                thumbnail: null,
+                preview: null,
+                bgm: null
+            };
+            
+            // 更新预览
+            updatePreview();
+        }
+
+        // 辅助函数：获取内容类型显示名称
+        function getContentTypeDisplay(type) {
+            const types = {
+                '180_video': '180° 视频',
+                '180_photo': '180° 照片',
+                '360_video': '360° 视频',
+                '360_photo': '360° 照片',
+                'spatial_video': '空间视频',
+                'spatial_photo': '空间照片'
+            };
+            return types[type] || type;
+        }
+
+        // 辅助函数：获取分类显示名称
+        function getCategoryDisplay(category) {
+            const categories = {
+                'travel': '旅行',
+                'education': '教育',
+                'entertainment': '娱乐',
+                'sports': '体育',
+                'news': '新闻',
+                'documentary': '纪录片',
+                'art': '艺术',
+                'other': '其他'
+            };
+            return categories[category] || category;
+        }
+
+        // 辅助函数：格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 辅助函数：从完整路径中获取文件名
+        function path = {
+            basename: function(path) {
+                return path.split('/').pop();
+            }
+        };
+    </script>
+</body>
+</html>
