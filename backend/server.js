@@ -8,6 +8,7 @@ const i18n = require('./middleware/i18n');
 const { authenticate, optionalAuthenticate } = require('./middleware/auth');
 const ensureDirectories = require('./scripts/ensureDirectories');
 
+
 // 检查JWT Secret
 if (!process.env.JWT_SECRET) {
     console.warn('Warning: JWT_SECRET not set in environment. Using default secret for development.');
@@ -64,6 +65,7 @@ const collaborationRoutes = require('./routes/collaborationRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const interactionRoutes = require('./routes/interactionRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/contents', contentRoutes);
@@ -71,6 +73,7 @@ app.use('/api/collaborations', collaborationRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/interactions', interactionRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 静态文件服务
 app.use('/uploads', express.static('uploads'));

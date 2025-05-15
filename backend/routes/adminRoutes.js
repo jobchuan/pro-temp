@@ -58,17 +58,4 @@ router.put('/settings', adminController.updateSystemSettings);
 // 管理员日志
 router.get('/logs', adminController.getAdminLogs);
 
-module.exports = {
-    router,
-    getWithdrawalRequests,
-    processWithdrawal,
-    getCreatorIncomeStats,
-    getUserGrowthStats,
-    getContentPublishStats,
-    getRevenueTrends,
-    listNotifications,
-    createNotification,
-    updateNotification,
-    publishNotification,
-    deleteNotification
-};
+module.exports = router;

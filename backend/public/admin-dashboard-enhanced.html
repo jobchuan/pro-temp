@@ -1,0 +1,3396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Vision Pro管理后台系统">
+    <title>Vision Pro 管理中心</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+        <!-- 添加主题色（用于移动浏览器） -->
+    <meta name="theme-color" content="#34495e">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #06d6a0;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --info: #118ab2;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --gray-dark: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 240px;
+            background: #fff;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+        
+        .menu-item {
+            list-style: none;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--gray-dark);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-link:hover {
+            background-color: var(--gray-light);
+            color: var(--primary);
+        }
+        
+        .menu-link.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .menu-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* 主内容区样式 */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            padding: 0;
+            transition: var(--transition);
+        }
+        
+        .sidebar-collapsed .sidebar {
+            width: 70px;
+        }
+        
+        .sidebar-collapsed .brand-name,
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+        
+        .sidebar-collapsed .main-content {
+            margin-left: 70px;
+        }
+        
+        .sidebar-collapsed .menu-link {
+            justify-content: center;
+            padding: 0.75rem;
+        }
+        
+        .sidebar-collapsed .menu-icon {
+            margin-right: 0;
+            font-size: 1.25rem;
+        }
+        
+        /* 顶部导航栏样式 */
+        .topbar {
+            background-color: #fff;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+        
+        .page-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .topbar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--gray-light);
+            color: var(--gray-dark);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .topbar-icon:hover {
+            background-color: var(--primary);
+            color: #fff;
+        }
+        
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: none;
+        }
+        
+        .user-dropdown:hover .user-info {
+            display: block;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #fff;
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            min-width: 200px;
+            z-index: 1000;
+        }
+        
+        .user-name {
+            font-weight: 600;
+        }
+        
+        .user-role {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .dropdown-menu {
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--gray-light);
+            padding-top: 0.5rem;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0;
+            color: var(--gray-dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .dropdown-item:hover {
+            color: var(--primary);
+        }
+        
+        /* 内容区域样式 */
+        .content-wrapper {
+            padding: 1.5rem;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-description {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* 仪表盘统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card.primary { border-left: 4px solid var(--primary); }
+        .stat-card.secondary { border-left: 4px solid var(--secondary); }
+        .stat-card.success { border-left: 4px solid var(--success); }
+        .stat-card.danger { border-left: 4px solid var(--danger); }
+        .stat-card.warning { border-left: 4px solid var(--warning); }
+        .stat-card.info { border-left: 4px solid var(--info); }
+        
+        .stat-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2.5rem;
+            opacity: 0.2;
+            color: var(--primary);
+        }
+        
+        .stat-card.primary .stat-icon { color: var(--primary); }
+        .stat-card.secondary .stat-icon { color: var(--secondary); }
+        .stat-card.success .stat-icon { color: var(--success); }
+        .stat-card.danger .stat-icon { color: var(--danger); }
+        .stat-card.warning .stat-icon { color: var(--warning); }
+        .stat-card.info .stat-icon { color: var(--info); }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-change {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .stat-change.positive {
+            color: var(--success);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* 表单元素样式 */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-bar .form-control {
+            margin-bottom: 0;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a0791;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: #fff;
+        }
+        
+        .btn-success:hover {
+            background-color: #05b285;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: #fff;
+        }
+        
+        .btn-danger:hover {
+            background-color: #e02f59;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background-color: #ffc533;
+        }
+        
+        .btn-info {
+            background-color: var(--info);
+            color: #fff;
+        }
+        
+        .btn-info:hover {
+            background-color: #0e7590;
+        }
+        
+        .btn-light {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid var(--gray-light);
+        }
+        
+        .btn-light:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .btn-dark {
+            background-color: var(--dark);
+            color: #fff;
+        }
+        
+        .btn-dark:hover {
+            background-color: #1a1e21;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: #fff;
+        }
+        
+        .btn-outline-secondary {
+            background-color: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: var(--secondary);
+            color: #fff;
+        }
+        
+        /* 表格样式 */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        th {
+            font-weight: 600;
+            color: var(--dark);
+            background-color: var(--gray-light);
+        }
+        
+        tbody tr {
+            transition: var(--transition);
+        }
+        
+        tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .table-action {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        /* 状态标签 */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        
+        .badge-primary {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+        
+        .badge-secondary {
+            background-color: rgba(114, 9, 183, 0.1);
+            color: var(--secondary);
+        }
+        
+        .badge-success {
+            background-color: rgba(6, 214, 160, 0.1);
+            color: var(--success);
+        }
+        
+        .badge-danger {
+            background-color: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+        }
+        
+        .badge-warning {
+            background-color: rgba(255, 209, 102, 0.1);
+            color: #ff9800;
+        }
+        
+        .badge-info {
+            background-color: rgba(17, 138, 178, 0.1);
+            color: var(--info);
+        }
+        
+        /* 分页控件 */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .page-item {
+            display: inline-flex;
+        }
+        
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 0.75rem;
+            border-radius: var(--border-radius);
+            color: var(--dark);
+            background-color: #fff;
+            border: 1px solid var(--gray-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .page-link:hover {
+            background-color: var(--gray-light);
+            color: var(--primary);
+        }
+        
+        .page-item.active .page-link {
+            background-color: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        
+        .page-item.disabled .page-link {
+            color: var(--gray);
+            pointer-events: none;
+            background-color: #fff;
+        }
+        
+        /* 模态框样式 */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .modal-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transition: var(--transition);
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        
+        .modal-backdrop.show .modal {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            color: var(--danger);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-light);
+        }
+        
+        /* 登录部分样式 */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f7fb;
+        }
+        
+        .login-card {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-logo {
+            width: 64px;
+            height: 64px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .login-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+        
+        .login-form {
+            margin-top: 1.5rem;
+        }
+        
+        /* 加载器 */
+        .loader {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(67, 97, 238, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 响应式样式 */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar.show {
+                width: 240px;
+            }
+            
+            .sidebar.show ~ .main-content {
+                margin-left: 240px;
+            }
+        }
+        
+        /* 工具提示 */
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            width: max-content;
+            max-width: 200px;
+            background-color: var(--dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+            pointer-events: none;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* 自定义开关 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray-light);
+            transition: .4s;
+            border-radius: 20px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* 自定义单选框和复选框 */
+        .custom-control {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-left: 1.5rem;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+        }
+        
+        .custom-control-input {
+            position: absolute;
+            z-index: -1;
+            opacity: 0;
+        }
+        
+        .custom-control-label {
+            cursor: pointer;
+        }
+        
+        .custom-control-label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border: 1px solid var(--gray);
+            background-color: #fff;
+            transition: var(--transition);
+        }
+        
+        .custom-radio .custom-control-label::before {
+            border-radius: 50%;
+        }
+        
+        .custom-checkbox .custom-control-label::before {
+            border-radius: 0.25rem;
+        }
+        
+        .custom-control-input:checked ~ .custom-control-label::before {
+            border-color: var(--primary);
+            background-color: var(--primary);
+        }
+        
+        .custom-control-input:focus ~ .custom-control-label::before {
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .custom-radio .custom-control-input:checked ~ .custom-control-label::after {
+            content: '';
+            position: absolute;
+            left: 0.25rem;
+            top: 0.5rem;
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background-color: #fff;
+        }
+        
+        .custom-checkbox .custom-control-input:checked ~ .custom-control-label::after {
+            content: '✓';
+            position: absolute;
+            left: 0.25rem;
+            top: -0.1rem;
+            font-size: 0.875rem;
+            color: #fff;
+        }
+        
+        /* 提示框 */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1060;
+        }
+        
+        .toast {
+            width: 350px;
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            animation: slideIn 0.3s ease forwards;
+            opacity: 0;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background-color: rgba(0, 0, 0, 0.03);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .toast-body {
+            padding: 0.75rem 1rem;
+        }
+        
+        .toast-success {
+            border-left: 4px solid var(--success);
+        }
+        
+        .toast-warning {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .toast-error {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .toast-info {
+            border-left: 4px solid var(--info);
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录部分 -->
+    <div id="login-section" style="display:none;">
+        <div class="login-container">
+            <div class="login-card animate__animated animate__fadeIn">
+                <div class="login-header">
+                    <div class="login-logo">
+                        <i class="fas fa-vr-cardboard"></i>
+                    </div>
+                    <h1 class="login-title">Vision Pro 管理系统</h1>
+                    <p class="login-subtitle">请登录以继续</p>
+                </div>
+                <div class="login-form">
+                    <div class="form-group">
+                        <label for="email" class="form-label">邮箱</label>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                            <input type="email" id="email" class="form-control" placeholder="请输入邮箱" value="admin@example.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="form-label">密码</label>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
+                            <input type="password" id="password" class="form-control" placeholder="请输入密码" value="123456">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" id="remember-me" class="custom-control-input">
+                            <label for="remember-me" class="custom-control-label">记住我</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-lg w-100" onclick="login()">
+                        <i class="fas fa-sign-in-alt"></i> 登录
+                    </button>
+                    <div id="login-result" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主要内容部分 -->
+    <div id="content-container" class="layout">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="brand">
+                    <div class="brand-logo">
+                        <i class="fas fa-vr-cardboard"></i>
+                    </div>
+                    <span class="brand-name">Vision Pro</span>
+                </a>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item">
+                    <a href="#" class="menu-link active" onclick="showSection('dashboard')">
+                        <span class="menu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                        <span class="menu-text">仪表盘</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('users')">
+                        <span class="menu-icon"><i class="fas fa-users"></i></span>
+                        <span class="menu-text">用户管理</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('contents')">
+                        <span class="menu-icon"><i class="fas fa-film"></i></span>
+                        <span class="menu-text">内容管理</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('orders')">
+                        <span class="menu-icon"><i class="fas fa-shopping-cart"></i></span>
+                        <span class="menu-text">订单管理</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('payments')">
+                        <span class="menu-icon"><i class="fas fa-credit-card"></i></span>
+                        <span class="menu-text">支付管理</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('comments')">
+                        <span class="menu-icon"><i class="fas fa-comments"></i></span>
+                        <span class="menu-text">评论管理</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('settings')">
+                        <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                        <span class="menu-text">系统设置</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('logs')">
+                        <span class="menu-icon"><i class="fas fa-history"></i></span>
+                        <span class="menu-text">操作日志</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部导航栏 -->
+            <div class="topbar">
+                <h1 class="page-title" id="current-section-title">仪表盘</h1>
+                <div class="topbar-right">
+                    <div class="topbar-icon tooltip">
+                        <i class="fas fa-bell"></i>
+                        <span class="tooltip-text">通知</span>
+                    </div>
+                    <div class="topbar-icon tooltip">
+                        <i class="fas fa-envelope"></i>
+                        <span class="tooltip-text">消息</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name" id="admin-name">加载中...</div>
+                            <div class="user-role">管理员</div>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-user-cog"></i> 个人设置
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="logout()">
+                                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 内容区域 -->
+            <div class="content-wrapper">
+                <!-- 仪表盘 -->
+                <div id="dashboard" class="section active">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-tachometer-alt"></i> 系统概览
+                            </h2>
+                            <p class="section-description">查看平台的关键指标和统计数据</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="loadDashboardStats()">
+                            <i class="fas fa-sync"></i> 刷新数据
+                        </button>
+                    </div>
+                    
+                    <div class="stats-grid" id="dashboard-stats">
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-label">总用户数</div>
+                            <div class="stat-value" id="total-users">-</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 5.2% 较上周
+                            </div>
+                        </div>
+                        <div class="stat-card secondary">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-label">活跃用户数</div>
+                            <div class="stat-value" id="active-users">-</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 3.7% 较上周
+                            </div>
+                        </div>
+                        <div class="stat-card info">
+                            <div class="stat-icon">
+                                <i class="fas fa-photo-video"></i>
+                            </div>
+                            <div class="stat-label">总内容数</div>
+                            <div class="stat-value" id="total-contents">-</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 8.3% 较上周
+                            </div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-label">已发布内容</div>
+                            <div class="stat-value" id="published-contents">-</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 6.1% 较上周
+                            </div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="stat-label">待审核内容</div>
+                            <div class="stat-value" id="pending-review">-</div>
+                            <div class="stat-change negative">
+                                <i class="fas fa-arrow-down"></i> 2.8% 较上周
+                            </div>
+                        </div>
+                        <div class="stat-card danger">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="stat-label">总订单数</div>
+                            <div class="stat-value" id="total-orders">-</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 12.5% 较上周
+                            </div>
+                        </div>
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-yen-sign"></i>
+                            </div>
+                            <div class="stat-label">总收入</div>
+                            <div class="stat-value" id="total-revenue">¥0</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 15.3% 较上周
+                            </div>
+                        </div>
+                        <div class="stat-card secondary">
+                            <div class="stat-icon">
+                                <i class="fas fa-sync"></i>
+                            </div>
+                            <div class="stat-label">活跃订阅数</div>
+                            <div class="stat-value" id="active-subscriptions">-</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 4.9% 较上周
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">近期注册用户</h3>
+                                    <div class="card-actions">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle">
+                                                <i class="fas fa-calendar"></i> 本周
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="registrationChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">订单金额统计</h3>
+                                    <div class="card-actions">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle">
+                                                <i class="fas fa-calendar"></i> 本月
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 用户管理 -->
+                <div id="users" class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-users"></i> 用户管理
+                            </h2>
+                            <p class="section-description">管理平台所有用户账号</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-success btn-sm" onclick="showAddUserModal()">
+                                <i class="fas fa-user-plus"></i> 添加用户
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="exportUsers()">
+                                <i class="fas fa-file-export"></i> 导出数据
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="search-bar">
+                            <input type="text" id="user-search" class="form-control" placeholder="搜索用户名或邮箱">
+                            <select id="user-role" class="form-control">
+                                <option value="">所有角色</option>
+                                <option value="user">普通用户</option>
+                                <option value="creator">创作者</option>
+                                <option value="admin">管理员</option>
+                            </select>
+                            <select id="user-status" class="form-control">
+                                <option value="">所有状态</option>
+                                <option value="active">活跃</option>
+                                <option value="suspended">已暂停</option>
+                                <option value="deleted">已删除</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="loadUsers()">
+                                <i class="fas fa-search"></i> 搜索
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table id="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>用户名</th>
+                                        <th>邮箱</th>
+                                        <th>角色</th>
+                                        <th>状态</th>
+                                        <th>注册时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" class="text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="user-pagination" class="pagination"></div>
+                    </div>
+                </div>
+                
+                <!-- 内容管理 -->
+                <div id="contents" class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-film"></i> 内容管理
+                            </h2>
+                            <p class="section-description">管理平台上的所有VR内容</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-success btn-sm" onclick="showAddContentModal()">
+                                <i class="fas fa-plus"></i> 添加内容
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="exportContents()">
+                                <i class="fas fa-file-export"></i> 导出数据
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="search-bar">
+                            <input type="text" id="content-search" class="form-control" placeholder="搜索标题或标签">
+                            <select id="content-type" class="form-control">
+                                <option value="">所有类型</option>
+                                <option value="180_video">180°视频</option>
+                                <option value="180_photo">180°照片</option>
+                                <option value="360_video">360°视频</option>
+                                <option value="360_photo">360°照片</option>
+                                <option value="spatial_video">空间视频</option>
+                                <option value="spatial_photo">空间照片</option>
+                            </select>
+                            <select id="content-status" class="form-control">
+                                <option value="">所有状态</option>
+                                <option value="draft">草稿</option>
+                                <option value="pending_review">待审核</option>
+                                <option value="approved">已批准</option>
+                                <option value="rejected">已拒绝</option>
+                                <option value="published">已发布</option>
+                                <option value="archived">已归档</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="loadContents()">
+                                <i class="fas fa-search"></i> 搜索
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table id="contents-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>缩略图</th>
+                                        <th>标题</th>
+                                        <th>类型</th>
+                                        <th>创作者</th>
+                                        <th>状态</th>
+                                        <th>创建时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="8" class="text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="content-pagination" class="pagination"></div>
+                    </div>
+                </div>
+                
+                <!-- 订单管理 -->
+                <div id="orders" class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-shopping-cart"></i> 订单管理
+                            </h2>
+                            <p class="section-description">管理平台上的所有订单记录</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-sm" onclick="exportOrders()">
+                                <i class="fas fa-file-export"></i> 导出数据
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="search-bar">
+                            <input type="text" id="order-search" class="form-control" placeholder="搜索订单号或描述">
+                            <select id="order-type" class="form-control">
+                                <option value="">所有类型</option>
+                                <option value="subscription">订阅</option>
+                                <option value="content">内容购买</option>
+                                <option value="tip">打赏</option>
+                            </select>
+                            <select id="order-status" class="form-control">
+                                <option value="">所有状态</option>
+                                <option value="pending">待支付</option>
+                                <option value="paid">已支付</option>
+                                <option value="failed">支付失败</option>
+                                <option value="cancelled">已取消</option>
+                                <option value="refunded">已退款</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="loadOrders()">
+                                <i class="fas fa-search"></i> 搜索
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table id="orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>订单号</th>
+                                        <th>类型</th>
+                                        <th>用户</th>
+                                        <th>金额</th>
+                                        <th>状态</th>
+                                        <th>创建时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" class="text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="order-pagination" class="pagination"></div>
+                    </div>
+                </div>
+                
+                <!-- 支付管理 -->
+                <div id="payments" class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-credit-card"></i> 支付管理
+                            </h2>
+                            <p class="section-description">管理平台的收入和创作者提现</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">平台收入</h3>
+                            <div class="card-actions">
+                                <select id="income-period" class="form-control">
+                                    <option value="today">今日</option>
+                                    <option value="week">本周</option>
+                                    <option value="month" selected>本月</option>
+                                    <option value="year">本年</option>
+                                </select>
+                                <button class="btn btn-primary btn-sm ml-2" onclick="loadPlatformIncome()">
+                                    <i class="fas fa-search"></i> 查询
+                                </button>
+                            </div>
+                        </div>
+                        <div id="income-stats" class="card-body"></div>
+                        <div class="chart-container">
+                            <canvas id="incomeChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">提现请求</h3>
+                            <div class="card-actions">
+                                <select id="withdrawal-status" class="form-control">
+                                    <option value="processing" selected>处理中</option>
+                                    <option value="withdrawn">已处理</option>
+                                    <option value="failed">已拒绝</option>
+                                </select>
+                                <button class="btn btn-primary btn-sm ml-2" onclick="loadWithdrawalRequests()">
+                                    <i class="fas fa-search"></i> 查询
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table id="withdrawals-table">
+                                <thead>
+                                    <tr>
+                                        <th>创作者</th>
+                                        <th>金额</th>
+                                        <th>申请时间</th>
+                                        <th>提现方式</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 评论管理 -->
+                <div id="comments" class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-comments"></i> 评论管理
+                            </h2>
+                            <p class="section-description">管理平台上的所有用户评论</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="search-bar">
+                            <select id="comment-status" class="form-control">
+                                <option value="flagged" selected>被举报</option>
+                                <option value="active">正常</option>
+                                <option value="hidden">已隐藏</option>
+                                <option value="deleted">已删除</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="loadComments()">
+                                <i class="fas fa-search"></i> 查询
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table id="comments-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>用户</th>
+                                        <th>内容</th>
+                                        <th>评论内容</th>
+                                        <th>举报数</th>
+                                        <th>创建时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" class="text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="comment-pagination" class="pagination"></div>
+                    </div>
+                </div>
+                
+                <!-- 系统设置 -->
+                <div id="settings" class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-cog"></i> 系统设置
+                            </h2>
+                            <p class="section-description">配置平台的核心功能和参数</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">平台设置</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="system-settings">
+                                <div class="form-group">
+                                    <label class="form-label">平台分成比例：</label>
+                                    <div class="input-group">
+                                        <input type="number" id="platformFee" class="form-control" min="0" max="1" step="0.01">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">平台从创作者收入中抽取的比例，范围 0-1</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">最低提现金额：</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">¥</span>
+                                        </div>
+                                        <input type="number" id="minimumWithdrawal" class="form-control" min="0">
+                                    </div>
+                                    <small class="form-text text-muted">创作者申请提现的最低金额</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">内容需要审核：</label>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" id="contentReviewRequired" class="custom-control-input">
+                                        <label class="custom-control-label" for="contentReviewRequired"></label>
+                                    </div>
+                                    <small class="form-text text-muted">新上传的内容是否需要经过审核</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">最大上传大小 (MB)：</label>
+                                    <input type="number" id="maxUploadSize" class="form-control" min="0">
+                                    <small class="form-text text-muted">允许上传的最大文件大小，单位为MB</small>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-primary" onclick="saveSystemSettings()">
+                                        <i class="fas fa-save"></i> 保存设置
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">支付设置</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="form-label">支付宝支付：</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" id="enableAlipay" class="custom-control-input" checked>
+                                            <label class="custom-control-label" for="enableAlipay"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">微信支付：</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" id="enableWechatPay" class="custom-control-input" checked>
+                                            <label class="custom-control-label" for="enableWechatPay"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">银联支付：</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" id="enableUnionPay" class="custom-control-input" checked>
+                                            <label class="custom-control-label" for="enableUnionPay"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-primary" onclick="savePaymentSettings()">
+                                            <i class="fas fa-save"></i> 保存设置
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">安全设置</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="form-label">双因素认证：</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" id="enable2FA" class="custom-control-input">
+                                            <label class="custom-control-label" for="enable2FA"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">密码有效期 (天)：</label>
+                                        <input type="number" id="passwordExpiry" class="form-control" min="0" value="90">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">登录失败锁定尝试次数：</label>
+                                        <input type="number" id="maxLoginAttempts" class="form-control" min="0" value="5">
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-primary" onclick="saveSecuritySettings()">
+                                            <i class="fas fa-save"></i> 保存设置
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作日志 -->
+                <div id="logs" class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-history"></i> 操作日志
+                            </h2>
+                            <p class="section-description">查看管理员的所有操作记录</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-sm" onclick="exportLogs()">
+                                <i class="fas fa-file-export"></i> 导出日志
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="search-bar">
+                            <select id="log-admin" class="form-control">
+                                <option value="">所有管理员</option>
+                            </select>
+                            <select id="log-action" class="form-control">
+                                <option value="">所有操作</option>
+                                <option value="list_users">查看用户列表</option>
+                                <option value="view_user_details">查看用户详情</option>
+                                <option value="update_user">更新用户</option>
+                                <option value="update_user_status">更新用户状态</option>
+                                <option value="list_contents">查看内容列表</option>
+                                <option value="view_content_details">查看内容详情</option>
+                                <option value="update_content_status">更新内容状态</option>
+                                <option value="review_content">审核内容</option>
+                                <option value="list_orders">查看订单列表</option>
+                                <option value="view_order_details">查看订单详情</option>
+                                <option value="update_order_status">更新订单状态</option>
+                                <option value="view_platform_income">查看平台收入</option>
+                                <option value="view_withdrawal_requests">查看提现请求</option>
+                                <option value="process_withdrawal">处理提现</option>
+                                <option value="list_flagged_comments">查看举报评论</option>
+                                <option value="update_comment_status">更新评论状态</option>
+                                <option value="view_system_settings">查看系统设置</option>
+                                <option value="update_system_settings">更新系统设置</option>
+                            </select>
+                            <input type="date" id="log-date" class="form-control">
+                            <button class="btn btn-primary" onclick="loadAdminLogs()">
+                                <i class="fas fa-search"></i> 查询
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table id="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>时间</th>
+                                        <th>管理员</th>
+                                        <th>操作</th>
+                                        <th>资源类型</th>
+                                        <th>资源ID</th>
+                                        <th>详情</th>
+                                        <th>IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" class="text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="log-pagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 模态框 -->
+    <!-- 用户详情模态框 -->
+    <div id="user-details-modal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">用户详情</h3>
+                <button class="modal-close" onclick="hideUserDetails()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="user-details-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" onclick="hideUserDetails()">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 内容详情模态框 -->
+    <div id="content-details-modal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">内容详情</h3>
+                <button class="modal-close" onclick="hideContentDetails()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="content-details-content"></div>
+                <div id="content-review-form" style="display:none;">
+                    <h4>审核内容</h4>
+                    <div class="form-group">
+                        <label class="form-label">审核意见：</label>
+                        <textarea id="review-note" class="form-control" placeholder="请输入审核意见" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="reviewContent(true)">
+                            <i class="fas fa-check"></i> 批准
+                        </button>
+                        <button class="btn btn-danger" onclick="reviewContent(false)">
+                            <i class="fas fa-times"></i> 拒绝
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" onclick="hideContentDetails()">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 订单详情模态框 -->
+    <div id="order-details-modal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">订单详情</h3>
+                <button class="modal-close" onclick="hideOrderDetails()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="order-details-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" onclick="hideOrderDetails()">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加用户模态框 -->
+    <div id="add-user-modal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">添加用户</h3>
+                <button class="modal-close" onclick="hideAddUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">用户名：</label>
+                    <input type="text" id="new-username" class="form-control" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">邮箱：</label>
+                    <input type="email" id="new-email" class="form-control" placeholder="请输入邮箱">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密码：</label>
+                    <input type="password" id="new-password" class="form-control" placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">角色：</label>
+                    <select id="new-role" class="form-control">
+                        <option value="user">普通用户</option>
+                        <option value="creator">创作者</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" onclick="hideAddUserModal()">取消</button>
+                <button class="btn btn-primary" onclick="addUser()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 提示框容器 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script>
+        let token = localStorage.getItem('adminToken');
+        let currentSection = 'dashboard';
+        let charts = {};
+        
+        // 初始化页面
+        function init() {
+            // 检查是否已登录
+            if (!token) {
+                document.getElementById('content-container').style.display = 'none';
+                document.getElementById('login-section').style.display = 'block';
+            } else {
+                document.getElementById('content-container').style.display = 'flex';
+                document.getElementById('login-section').style.display = 'none';
+                loadDashboardStats();
+                
+                // 获取管理员信息
+                getAdminInfo();
+                
+                // 初始化侧边栏切换
+                document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+            }
+            
+            // 初始化模态框关闭事件
+            document.querySelectorAll('.modal-backdrop').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('show');
+                    }
+                });
+            });
+        }
+        
+        // 切换侧边栏
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
+        }
+        
+        // 登录
+        async function login() {
+            try {
+                // 显示加载状态
+                const loginButton = document.querySelector('#login-section button');
+                const originalText = loginButton.innerHTML;
+                loginButton.innerHTML = '<span class="loader"></span> 登录中...';
+                loginButton.disabled = true;
+                
+                const response = await fetch('http://localhost:5001/api/users/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    token = data.data.token;
+                    localStorage.setItem('adminToken', token);
+                    
+                    // 检查是否为管理员
+                    if (data.data.user.role !== 'admin') {
+                        showToast('登录账号不是管理员账号', 'error');
+                        token = null;
+                        localStorage.removeItem('adminToken');
+                        
+                        // 恢复按钮状态
+                        loginButton.innerHTML = originalText;
+                        loginButton.disabled = false;
+                        return;
+                    }
+                    
+                    showToast('登录成功', 'success');
+                    document.getElementById('content-container').style.display = 'flex';
+                    document.getElementById('login-section').style.display = 'none';
+                    
+                    // 加载仪表盘数据
+                    loadDashboardStats();
+                    
+                    // 设置管理员名称
+                    document.getElementById('admin-name').textContent = data.data.user.username;
+                } else {
+                    showToast('登录失败：' + data.message, 'error');
+                    
+                    // 恢复按钮状态
+                    loginButton.innerHTML = originalText;
+                    loginButton.disabled = false;
+                }
+            } catch (error) {
+                showToast('错误：' + error.message, 'error');
+                
+                // 恢复按钮状态
+                const loginButton = document.querySelector('#login-section button');
+                loginButton.innerHTML = '登录';
+                loginButton.disabled = false;
+            }
+        }
+        
+        // 退出登录
+        function logout() {
+            token = null;
+            localStorage.removeItem('adminToken');
+            document.getElementById('content-container').style.display = 'none';
+            document.getElementById('login-section').style.display = 'block';
+            showToast('已退出登录', 'info');
+        }
+        
+        // 获取管理员信息
+        async function getAdminInfo() {
+            try {
+                const response = await fetch('http://localhost:5001/api/users/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('admin-name').textContent = data.data.user.username;
+                }
+            } catch (error) {
+                console.error('获取管理员信息失败:', error);
+            }
+        }
+        
+        // 切换显示的部分
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(section).classList.add('active');
+            
+            document.querySelectorAll('.menu-link').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.menu-link').forEach(el => {
+                if (el.getAttribute('onclick').includes(section)) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // 更新页面标题
+            const sectionTitles = {
+                'dashboard': '仪表盘',
+                'users': '用户管理',
+                'contents': '内容管理',
+                'orders': '订单管理',
+                'payments': '支付管理',
+                'comments': '评论管理',
+                'settings': '系统设置',
+                'logs': '操作日志'
+            };
+            
+            document.getElementById('current-section-title').textContent = sectionTitles[section];
+            
+            currentSection = section;
+            
+            // 加载对应部分的数据
+            if (section === 'dashboard') {
+                loadDashboardStats();
+            } else if (section === 'users') {
+                loadUsers();
+            } else if (section === 'contents') {
+                loadContents();
+            } else if (section === 'orders') {
+                loadOrders();
+            } else if (section === 'payments') {
+                loadPlatformIncome();
+                loadWithdrawalRequests();
+            } else if (section === 'comments') {
+                loadComments();
+            } else if (section === 'settings') {
+                loadSystemSettings();
+            } else if (section === 'logs') {
+                loadAdminLogs();
+            }
+        }
+        
+        // 加载仪表盘统计数据
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('http://localhost:5001/api/admin/dashboard', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const stats = data.data;
+                    
+                    // 填充统计数据
+                    document.getElementById('total-users').textContent = stats.users.total.toLocaleString();
+                    document.getElementById('active-users').textContent = stats.users.active.toLocaleString();
+                    document.getElementById('total-contents').textContent = stats.content.total.toLocaleString();
+                    document.getElementById('published-contents').textContent = stats.content.published.toLocaleString();
+                    document.getElementById('pending-review').textContent = stats.content.pendingReview.toLocaleString();
+                    document.getElementById('total-orders').textContent = stats.orders.total.toLocaleString();
+                    document.getElementById('total-revenue').textContent = '¥' + stats.orders.revenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    document.getElementById('active-subscriptions').textContent = stats.subscriptions.active.toLocaleString();
+                    
+                    // 创建图表
+                    createRegistrationChart(stats.users.registrationTrend);
+                    createRevenueChart(stats.orders.revenueTrend);
+                }
+            } catch (error) {
+                console.error('加载仪表盘统计数据失败:', error);
+                showToast('加载仪表盘数据失败', 'error');
+            }
+        }
+        
+        // 创建注册趋势图表
+        function createRegistrationChart(data) {
+            const ctx = document.getElementById('registrationChart').getContext('2d');
+            
+            // 销毁旧图表
+            if (charts.registrationChart) {
+                charts.registrationChart.destroy();
+            }
+            
+            // 模拟数据
+            const chartData = {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [
+                    {
+                        label: '注册用户',
+                        data: [15, 21, 18, 24, 23, 19, 25],
+                        backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            };
+            
+            charts.registrationChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 创建收入趋势图表
+        function createRevenueChart(data) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            // 销毁旧图表
+            if (charts.revenueChart) {
+                charts.revenueChart.destroy();
+            }
+            
+            // 模拟数据
+            const chartData = {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                datasets: [
+                    {
+                        label: '订阅收入',
+                        data: [4200, 5100, 5900, 6800, 7200, 8100, 8700, 9300, 9800, 10500, 11200, 12000],
+                        backgroundColor: 'rgba(6, 214, 160, 0.2)',
+                        borderColor: 'rgba(6, 214, 160, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: '内容购买',
+                        data: [2800, 3200, 3500, 4100, 4300, 4700, 5100, 5400, 5800, 6200, 6500, 7000],
+                        backgroundColor: 'rgba(239, 71, 111, 0.2)',
+                        borderColor: 'rgba(239, 71, 111, 1)',
+                        borderWidth: 2
+                    }
+                ]
+            };
+            
+            charts.revenueChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载用户列表
+        async function loadUsers(page = 1) {
+            try {
+                const search = document.getElementById('user-search').value;
+                const role = document.getElementById('user-role').value;
+                const status = document.getElementById('user-status').value;
+                
+                let query = `page=${page}&limit=10`;
+                if (search) query += `&search=${encodeURIComponent(search)}`;
+                if (role) query += `&role=${role}`;
+                if (status) query += `&status=${status}`;
+                
+                const tableBody = document.getElementById('users-table').querySelector('tbody');
+                tableBody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="loader"></div></td></tr>';
+                
+                const response = await fetch(`http://localhost:5001/api/admin/users?${query}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const users = data.data.users;
+                    const pagination = data.data.pagination;
+                    
+                    // 填充用户表格
+                    tableBody.innerHTML = '';
+                    
+                    if (users.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">没有找到用户</td></tr>';
+                    } else {
+                        users.forEach(user => {
+                            const row = document.createElement('tr');
+                            
+                            // 创建用户状态标签
+                            let statusBadge = '';
+                            if (user.status === 'active') {
+                                statusBadge = '<span class="badge badge-success">活跃</span>';
+                            } else if (user.status === 'suspended') {
+                                statusBadge = '<span class="badge badge-warning">已暂停</span>';
+                            } else if (user.status === 'deleted') {
+                                statusBadge = '<span class="badge badge-danger">已删除</span>';
+                            }
+                            
+                            // 创建用户角色标签
+                            let roleBadge = '';
+                            if (user.role === 'admin') {
+                                roleBadge = '<span class="badge badge-primary">管理员</span>';
+                            } else if (user.role === 'creator') {
+                                roleBadge = '<span class="badge badge-info">创作者</span>';
+                            } else {
+                                roleBadge = '<span class="badge badge-secondary">普通用户</span>';
+                            }
+                            
+                            row.innerHTML = `
+                                <td><small class="text-muted">${user._id}</small></td>
+                                <td>${user.username}</td>
+                                <td>${user.email}</td>
+                                <td>${roleBadge}</td>
+                                <td>${statusBadge}</td>
+                                <td>${new Date(user.createdAt).toLocaleString()}</td>
+                                <td>
+                                    <div class="table-action">
+                                        <button class="btn btn-sm btn-info" onclick="viewUserDetails('${user._id}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm ${user.status === 'active' ? 'btn-warning' : 'btn-success'}" 
+                                               onclick="changeUserStatus('${user._id}', '${user.status === 'active' ? 'suspended' : 'active'}')">
+                                            <i class="fas ${user.status === 'active' ? 'fa-pause' : 'fa-play'}"></i>
+                                        </button>
+                                        ${user.status !== 'deleted' ? `
+                                        <button class="btn btn-sm btn-danger" onclick="changeUserStatus('${user._id}', 'deleted')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        ` : ''}
+                                    </div>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                    
+                    // 生成分页控件
+                    generatePagination('user-pagination', pagination, loadUsers);
+                }
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+                showToast('加载用户列表失败', 'error');
+            }
+        }
+        
+        // 查看用户详情
+        async function viewUserDetails(userId) {
+            try {
+                const response = await fetch(`http://localhost:5001/api/admin/users/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const user = data.data.user;
+                    const stats = data.data.stats;
+                    
+                    // 状态标签
+                    let statusBadge = '';
+                    if (user.status === 'active') {
+                        statusBadge = '<span class="badge badge-success">活跃</span>';
+                    } else if (user.status === 'suspended') {
+                        statusBadge = '<span class="badge badge-warning">已暂停</span>';
+                    } else if (user.status === 'deleted') {
+                        statusBadge = '<span class="badge badge-danger">已删除</span>';
+                    }
+                    
+                    // 角色标签
+                    let roleBadge = '';
+                    if (user.role === 'admin') {
+                        roleBadge = '<span class="badge badge-primary">管理员</span>';
+                    } else if (user.role === 'creator') {
+                        roleBadge = '<span class="badge badge-info">创作者</span>';
+                    } else {
+                        roleBadge = '<span class="badge badge-secondary">普通用户</span>';
+                    }
+                    
+                    // 填充用户详情
+                    const detailsContent = document.getElementById('user-details-content');
+                    detailsContent.innerHTML = `
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 15px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3 style="margin-bottom: 5px;">${user.username}</h3>
+                            <p style="color: var(--gray);">${user.email}</p>
+                            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                                ${roleBadge} ${statusBadge}
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                            <div style="background-color: #f5f7fb; padding: 15px; border-radius: var(--border-radius);">
+                                <span style="color: var(--gray); font-size: 0.875rem;">ID</span>
+                                <p style="margin: 5px 0; font-weight: 500;">${user._id}</p>
+                            </div>
+                            <div style="background-color: #f5f7fb; padding: 15px; border-radius: var(--border-radius);">
+                                <span style="color: var(--gray); font-size: 0.875rem;">注册时间</span>
+                                <p style="margin: 5px 0; font-weight: 500;">${new Date(user.createdAt).toLocaleString()}</p>
+                            </div>
+                            <div style="background-color: #f5f7fb; padding: 15px; border-radius: var(--border-radius);">
+                                <span style="color: var(--gray); font-size: 0.875rem;">上次登录</span>
+                                <p style="margin: 5px 0; font-weight: 500;">${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : '未登录'}</p>
+                            </div>
+                            <div style="background-color: #f5f7fb; padding: 15px; border-radius: var(--border-radius);">
+                                <span style="color: var(--gray); font-size: 0.875rem;">内容数量</span>
+                                <p style="margin: 5px 0; font-weight: 500;">${stats.contentCount}</p>
+                            </div>
+                            <div style="background-color: #f5f7fb; padding: 15px; border-radius: var(--border-radius); grid-column: span 2;">
+                                <span style="color: var(--gray); font-size: 0.875rem;">订阅状态</span>
+                                <p style="margin: 5px 0; font-weight: 500;">${stats.hasSubscription ? '<span class="badge badge-success">已订阅</span>' : '<span class="badge badge-secondary">未订阅</span>'}</p>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin: 20px 0 15px; font-size: 1.125rem; font-weight: 600;">最近订单</h4>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>订单号</th>
+                                        <th>类型</th>
+                                        <th>金额</th>
+                                        <th>状态</th>
+                                        <th>时间</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${stats.recentOrders.length > 0 ? 
+                                        stats.recentOrders.map(order => {
+                                            // 订单状态标签
+                                            let statusBadge = '';
+                                            if (order.paymentStatus === 'paid') {
+                                                statusBadge = '<span class="badge badge-success">已支付</span>';
+                                            } else if (order.paymentStatus === 'pending') {
+                                                statusBadge = '<span class="badge badge-warning">待支付</span>';
+                                            } else if (order.paymentStatus === 'failed') {
+                                                statusBadge = '<span class="badge badge-danger">失败</span>';
+                                            } else if (order.paymentStatus === 'refunded') {
+                                                statusBadge = '<span class="badge badge-secondary">已退款</span>';
+                                            }
+                                            
+                                            return `
+                                                <tr>
+                                                    <td>${order.orderNo}</td>
+                                                    <td>${order.orderType}</td>
+                                                    <td>¥${order.amount.toFixed(2)}</td>
+                                                    <td>${statusBadge}</td>
+                                                    <td>${new Date(order.createdAt).toLocaleString()}</td>
+                                                </tr>
+                                            `;
+                                        }).join('') : 
+                                        '<tr><td colspan="5" class="text-center">没有订单记录</td></tr>'
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    // 显示详情模态框
+                    document.getElementById('user-details-modal').classList.add('show');
+                }
+            } catch (error) {
+                console.error('获取用户详情失败:', error);
+                showToast('获取用户详情失败', 'error');
+            }
+        }
+        
+        // 隐藏用户详情
+        function hideUserDetails() {
+            document.getElementById('user-details-modal').classList.remove('show');
+        }
+        
+        // 修改用户状态
+        async function changeUserStatus(userId, status) {
+            try {
+                const reason = prompt('请输入修改原因:');
+                if (!reason) return; // 取消操作
+                
+                const response = await fetch(`http://localhost:5001/api/admin/users/${userId}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status, reason })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showToast('用户状态已更新', 'success');
+                    loadUsers(); // 刷新用户列表
+                } else {
+                    showToast('修改失败: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('修改用户状态失败:', error);
+                showToast('操作失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 显示提示框
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = '';
+            if (type === 'success') {
+                icon = '<i class="fas fa-check-circle"></i>';
+            } else if (type === 'error') {
+                icon = '<i class="fas fa-times-circle"></i>';
+            } else if (type === 'warning') {
+                icon = '<i class="fas fa-exclamation-triangle"></i>';
+            } else {
+                icon = '<i class="fas fa-info-circle"></i>';
+            }
+            
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <span class="toast-title">${icon} ${type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                    <button class="modal-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                <div class="toast-body">${message}</div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // 自动移除
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // 修改用户状态
+        async function changeUserStatus(userId, status) {
+            try {
+                const reason = prompt('请输入修改原因:');
+                if (!reason) return; // 取消操作
+                
+                const response = await fetch(`http://localhost:5001/api/admin/users/${userId}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status, reason })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showToast('用户状态已更新', 'success');
+                    loadUsers(); // 刷新用户列表
+                } else {
+                    showToast('修改失败: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('修改用户状态失败:', error);
+                showToast('操作失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 生成分页控件
+        function generatePagination(containerId, pagination, callback) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if (pagination.pages <= 1) return;
+            
+            // 上一页按钮
+            if (pagination.page > 1) {
+                const prevItem = document.createElement('div');
+                prevItem.className = 'page-item';
+                prevItem.innerHTML = `
+                    <button class="page-link" onclick="${callback.name}(${pagination.page - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                `;
+                container.appendChild(prevItem);
+            }
+            
+            // 页码按钮
+            let startPage = Math.max(1, pagination.page - 2);
+            let endPage = Math.min(pagination.pages, pagination.page + 2);
+            
+            // 确保显示至少5个页码按钮（如果有足够的页面）
+            if (endPage - startPage + 1 < 5) {
+                if (startPage === 1) {
+                    endPage = Math.min(5, pagination.pages);
+                } else if (endPage === pagination.pages) {
+                    startPage = Math.max(1, pagination.pages - 4);
+                }
+            }
+            
+            // 显示第一页和省略号
+            if (startPage > 1) {
+                const firstItem = document.createElement('div');
+                firstItem.className = 'page-item';
+                firstItem.innerHTML = `
+                    <button class="page-link" onclick="${callback.name}(1)">1</button>
+                `;
+                container.appendChild(firstItem);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('div');
+                    ellipsis.className = 'page-item disabled';
+                    ellipsis.innerHTML = `
+                        <span class="page-link">...</span>
+                    `;
+                    container.appendChild(ellipsis);
+                }
+            }
+            
+            // 页码按钮
+            for (let i = startPage; i <= endPage; i++) {
+                const pageItem = document.createElement('div');
+                pageItem.className = `page-item ${i === pagination.page ? 'active' : ''}`;
+                pageItem.innerHTML = `
+                    <button class="page-link" onclick="${callback.name}(${i})">${i}</button>
+                `;
+                container.appendChild(pageItem);
+            }
+            
+            // 显示最后一页和省略号
+            if (endPage < pagination.pages) {
+                if (endPage < pagination.pages - 1) {
+                    const ellipsis = document.createElement('div');
+                    ellipsis.className = 'page-item disabled';
+                    ellipsis.innerHTML = `
+                        <span class="page-link">...</span>
+                    `;
+                    container.appendChild(ellipsis);
+                }
+                
+                const lastItem = document.createElement('div');
+                lastItem.className = 'page-item';
+                lastItem.innerHTML = `
+                    <button class="page-link" onclick="${callback.name}(${pagination.pages})">${pagination.pages}</button>
+                `;
+                container.appendChild(lastItem);
+            }
+            
+            // 下一页按钮
+            if (pagination.page < pagination.pages) {
+                const nextItem = document.createElement('div');
+                nextItem.className = 'page-item';
+                nextItem.innerHTML = `
+                    <button class="page-link" onclick="${callback.name}(${pagination.page + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                `;
+                container.appendChild(nextItem);
+            }
+        }
+        
+        // 创建注册趋势图表
+        function createRegistrationChart(data) {
+            const ctx = document.getElementById('registrationChart').getContext('2d');
+            
+            // 销毁旧图表
+            if (charts.registrationChart) {
+                charts.registrationChart.destroy();
+            }
+            
+            // 模拟数据
+            const chartData = {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [
+                    {
+                        label: '注册用户',
+                        data: data || [15, 21, 18, 24, 23, 19, 25],
+                        backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            };
+            
+            charts.registrationChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 创建收入趋势图表
+        function createRevenueChart(data) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            // 销毁旧图表
+            if (charts.revenueChart) {
+                charts.revenueChart.destroy();
+            }
+            
+            // 模拟数据
+            const defaultData = [
+                { month: '1月', subscription: 4200, content: 2800 },
+                { month: '2月', subscription: 5100, content: 3200 },
+                { month: '3月', subscription: 5900, content: 3500 },
+                { month: '4月', subscription: 6800, content: 4100 },
+                { month: '5月', subscription: 7200, content: 4300 },
+                { month: '6月', subscription: 8100, content: 4700 }
+            ];
+            
+            const chartData = {
+                labels: (data || defaultData).map(item => item.month),
+                datasets: [
+                    {
+                        label: '订阅收入',
+                        data: (data || defaultData).map(item => item.subscription),
+                        backgroundColor: 'rgba(6, 214, 160, 0.2)',
+                        borderColor: 'rgba(6, 214, 160, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: '内容购买',
+                        data: (data || defaultData).map(item => item.content),
+                        backgroundColor: 'rgba(239, 71, 111, 0.2)',
+                        borderColor: 'rgba(239, 71, 111, 1)',
+                        borderWidth: 2
+                    }
+                ]
+            };
+            
+            charts.revenueChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 工具函数：格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 工具函数：格式化时长
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            return [
+                hours > 0 ? hours : null,
+                minutes > 0 || hours > 0 ? minutes.toString().padStart(2, '0') : minutes,
+                secs.toString().padStart(2, '0')
+            ].filter(Boolean).join(':');
+        }
+        
+        // 显示添加用户模态框
+        function showAddUserModal() {
+            document.getElementById('add-user-modal').classList.add('show');
+        }
+        
+        // 隐藏添加用户模态框
+        function hideAddUserModal() {
+            document.getElementById('add-user-modal').classList.remove('show');
+        }
+        
+        // 添加用户 (模拟)
+        async function addUser() {
+            // 模拟网络延迟
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            hideAddUserModal();
+            showToast('用户已成功添加', 'success');
+            loadUsers(); // 刷新用户列表
+        }
+        
+        // 导出用户数据 (模拟)
+        function exportUsers() {
+            showToast('用户数据正在导出...', 'info');
+            
+            // 模拟导出延迟
+            setTimeout(() => {
+                showToast('用户数据已导出完成', 'success');
+            }, 1500);
+        }
+        
+        // 加载内容列表 (模拟)
+        async function loadContents(page = 1) {
+            try {
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                const search = document.getElementById('content-search').value;
+                const contentType = document.getElementById('content-type').value;
+                const status = document.getElementById('content-status').value;
+                
+                const tableBody = document.getElementById('contents-table').querySelector('tbody');
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center"><div class="loader"></div></td></tr>';
+                
+                // 模拟数据
+                const contents = [
+                    { _id: "60d5f8b7a3e3d92b123a1234", title: {"zh-CN": "VR滑雪体验", "en-US": "VR Skiing Experience"}, contentType: "360_video", creatorId: {username: "李四"}, status: "published", createdAt: "2025-04-15T08:30:00Z", stats: {views: 2354, likes: 478, favorites: 156}, pricing: {isFree: false, price: 19.99}, files: {main: {url: "https://example.com/vr_skiing.mp4", size: 256 * 1024 * 1024, duration: 360}} },
+                    { _id: "60d5f8b7a3e3d92b123a1235", title: {"zh-CN": "三亚海滩全景", "en-US": "Sanya Beach Panorama"}, contentType: "360_photo", creatorId: {username: "王五"}, status: "published", createdAt: "2025-04-12T14:20:00Z", stats: {views: 1987, likes: 352, favorites: 123}, pricing: {isFree: true, price: 0}, files: {main: {url: "https://example.com/sanya_beach.jpg", size: 45 * 1024 * 1024}} },
+                    { _id: "60d5f8b7a3e3d92b123a1236", title: {"zh-CN": "太空站漫游", "en-US": "Space Station Tour"}, contentType: "spatial_video", creatorId: {username: "赵六"}, status: "pending_review", createdAt: "2025-05-07T09:45:00Z", stats: {views: 0, likes: 0, favorites: 0}, pricing: {isFree: false, price: 29.99}, files: {main: {url: "https://example.com/space_station.mp4", size: 512 * 1024 * 1024, duration: 720}} },
+                    { _id: "60d5f8b7a3e3d92b123a1237", title: {"zh-CN": "珠穆朗玛峰日出", "en-US": "Mount Everest Sunrise"}, contentType: "180_photo", creatorId: {username: "张三"}, status: "published", createdAt: "2025-03-18T06:15:00Z", stats: {views: 4521, likes: 876, favorites: 324}, pricing: {isFree: false, price: 9.99}, files: {main: {url: "https://example.com/everest_sunrise.jpg", size: 28 * 1024 * 1024}} },
+                    { _id: "60d5f8b7a3e3d92b123a1238", title: {"zh-CN": "深海探险", "en-US": "Deep Sea Adventure"}, contentType: "180_video", creatorId: {username: "李四"}, status: "archived", createdAt: "2025-02-22T11:30:00Z", stats: {views: 3654, likes: 621, favorites: 189}, pricing: {isFree: false, price: 15.99}, files: {main: {url: "https://example.com/deep_sea.mp4", size: 320 * 1024 * 1024, duration: 540}} },
+                    { _id: "60d5f8b7a3e3d92b123a1239", title: {"zh-CN": "音乐会VR现场", "en-US": "VR Concert Live"}, contentType: "spatial_video", creatorId: {username: "王五"}, status: "rejected", createdAt: "2025-05-01T19:40:00Z", stats: {views: 0, likes: 0, favorites: 0}, pricing: {isFree: false, price: 24.99}, files: {main: {url: "https://example.com/vr_concert.mp4", size: 480 * 1024 * 1024, duration: 5400}} },
+                    { _id: "60d5f8b7a3e3d92b123a1240", title: {"zh-CN": "火星表面漫步", "en-US": "Mars Surface Walk"}, contentType: "spatial_video", creatorId: {username: "赵六"}, status: "draft", createdAt: "2025-05-10T08:20:00Z", stats: {views: 0, likes: 0, favorites: 0}, pricing: {isFree: false, price: 39.99}, files: {main: {url: "https://example.com/mars_walk.mp4", size: 650 * 1024 * 1024, duration: 1200}} }
+                ];
+                
+                // 模拟过滤
+                let filteredContents = [...contents];
+                if (search) {
+                    const searchLower = search.toLowerCase();
+                    filteredContents = filteredContents.filter(content => 
+                        (content.title['zh-CN'] && content.title['zh-CN'].toLowerCase().includes(searchLower)) || 
+                        (content.title['en-US'] && content.title['en-US'].toLowerCase().includes(searchLower))
+                    );
+                }
+                
+                if (contentType) {
+                    filteredContents = filteredContents.filter(content => content.contentType === contentType);
+                }
+                
+                if (status) {
+                    filteredContents = filteredContents.filter(content => content.status === status);
+                }
+                
+                // 填充内容表格
+                tableBody.innerHTML = '';
+                
+                if (filteredContents.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center">没有找到内容</td></tr>';
+                } else {
+                    filteredContents.forEach(content => {
+                        const row = document.createElement('tr');
+                        
+                        // 内容状态标签
+                        let statusBadge = '';
+                        if (content.status === 'published') {
+                            statusBadge = '<span class="badge badge-success">已发布</span>';
+                        } else if (content.status === 'pending_review') {
+                            statusBadge = '<span class="badge badge-warning">待审核</span>';
+                        } else if (content.status === 'draft') {
+                            statusBadge = '<span class="badge badge-secondary">草稿</span>';
+                        } else if (content.status === 'rejected') {
+                            statusBadge = '<span class="badge badge-danger">已拒绝</span>';
+                        } else if (content.status === 'archived') {
+                            statusBadge = '<span class="badge badge-info">已归档</span>';
+                        }
+                        
+                        // 内容类型标签
+                        let typeBadge = '';
+                        if (content.contentType.includes('video')) {
+                            typeBadge = '<span class="badge badge-primary"><i class="fas fa-video"></i> ' + content.contentType + '</span>';
+                        } else {
+                            typeBadge = '<span class="badge badge-secondary"><i class="fas fa-image"></i> ' + content.contentType + '</span>';
+                        }
+                        
+                        row.innerHTML = `
+                            <td><small class="text-muted">${content._id}</small></td>
+                            <td>
+                                <div class="content-thumbnail" style="width: 40px; height: 40px; border-radius: 4px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: var(--gray-dark);">
+                                    <i class="fas ${content.contentType.includes('video') ? 'fa-video' : 'fa-image'}"></i>
+                                </div>
+                            </td>
+                            <td>${content.title['zh-CN'] || content.title['en-US'] || '无标题'}</td>
+                            <td>${typeBadge}</td>
+                            <td>${content.creatorId ? content.creatorId.username : '未知'}</td>
+                            <td>${statusBadge}</td>
+                            <td>${new Date(content.createdAt).toLocaleString()}</td>
+                            <td>
+                                <div class="table-action">
+                                    <button class="btn btn-sm btn-info" onclick="viewContentDetails('${content._id}')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    ${content.status === 'pending_review' ? `
+                                    <button class="btn btn-sm btn-warning" onclick="showContentReview('${content._id}')">
+                                        <i class="fas fa-clipboard-check"></i>
+                                    </button>
+                                    ` : ''}
+                                    ${content.status !== 'published' && content.status !== 'rejected' ? `
+                                    <button class="btn btn-sm btn-success" onclick="changeContentStatus('${content._id}', 'published')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    ` : ''}
+                                    ${content.status !== 'archived' ? `
+                                    <button class="btn btn-sm btn-secondary" onclick="changeContentStatus('${content._id}', 'archived')">
+                                        <i class="fas fa-archive"></i>
+                                    </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+                
+                // 生成分页控件
+                const pagination = {
+                    totalDocs: 28,
+                    limit: 10,
+                    page: page,
+                    pages: 3
+                };
+                
+                generatePagination('content-pagination', pagination, loadContents);
+            } catch (error) {
+                console.error('加载内容列表失败:', error);
+                showToast('加载内容列表失败', 'error');
+            }
+        }="content-info-label">主文件URL</span>
+                                <span class="content-info-value"><a href="${content.files.main.url}" target="_blank">${content.files.main.url}</a></span>
+                            </div>
+                            <div class="content-info-item">
+                                <span class="content-info-label">文件大小</span>
+                                <span class="content-info-value">${formatFileSize(content.files.main.size)}</span>
+                            </div>
+                            ${content.files.main.duration ? `
+                            <div class="content-info-item">
+                                <span class="content-info-label">时长</span>
+                                <span class="content-info-value">${formatDuration(content.files.main.duration)}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <h4 class="mt-4">标签</h4>
+                        <div class="content-tags">
+                            ${content.tags.length > 0 ? 
+                                content.tags.map(tag => `<span class="badge badge-light">${tag}</span>`).join(' ') : 
+                                '无标签'
+                            }
+                        </div>
+                        
+                        ${content.review ? `
+                            <h4 class="mt-4">审核信息</h4>
+                            <div class="content-info-grid">
+                                <div class="content-info-item">
+                                    <span class="content-info-label">审核者</span>
+                                    <span class="content-info-value">${content.review.reviewedBy}</span>
+                                </div>
+                                <div class="content-info-item">
+                                    <span class="content-info-label">审核时间</span>
+                                    <span class="content-info-value">${new Date(content.review.reviewedAt).toLocaleString()}</span>
+                                </div>
+                                <div class="content-info-item full-width">
+                                    <span class="content-info-label">审核意见</span>
+                                    <span class="content-info-value">${content.review.reviewNote || '无'}</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    `;
+                    
+                    // 在全局保存当前内容ID，用于审核操作
+                    window.currentContentId = contentId;
+                    
+                    // 显示详情模态框
+                    document.getElementById('content-details-modal').classList.add('show');
+                }
+            } catch (error) {
+                console.error('获取内容详情失败:', error);
+                showToast('获取内容详情失败', 'error');
+            }
+        }
+        
+        // 显示内容审核表单
+        function showContentReview(contentId) {
+            viewContentDetails(contentId).then(() => {
+                document.getElementById('content-review-form').style.display = 'block';
+            });
+        }
+        
+        // 审核内容 (模拟)
+        async function reviewContent(approved) {
+            try {
+                const contentId = window.currentContentId;
+                const reviewNote = document.getElementById('review-note').value;
+                
+                if (!reviewNote) {
+                    showToast('请填写审核意见', 'warning');
+                    return;
+                }
+                
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                showToast(approved ? '内容已批准发布' : '内容已拒绝发布', 'success');
+                hideContentDetails();
+                loadContents(); // 刷新内容列表
+            } catch (error) {
+                console.error('审核内容失败:', error);
+                showToast('操作失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 隐藏内容详情
+        function hideContentDetails() {
+            document.getElementById('content-details-modal').classList.remove('show');
+        }
+        
+        // 修改内容状态 (模拟)
+        async function changeContentStatus(contentId, status) {
+            try {
+                const reason = prompt('请输入修改原因:');
+                if (!reason) return; // 取消操作
+                
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                showToast('内容状态已更新', 'success');
+                loadContents(); // 刷新内容列表
+            } catch (error) {
+                console.error('修改内容状态失败:', error);
+                showToast('操作失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 显示添加内容模态框 (模拟)
+        function showAddContentModal() {
+            showToast('添加内容功能尚未实现', 'info');
+        }
+        
+        // 导出内容数据 (模拟)
+        function exportContents() {
+            showToast('内容数据正在导出...', 'info');
+            
+            // 模拟导出延迟
+            setTimeout(() => {
+                showToast('内容数据已导出完成', 'success');
+            }, 1500);
+        }
+        
+        // 加载订单列表 (模拟)
+        async function loadOrders(page = 1) {
+            try {
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                const search = document.getElementById('order-search').value;
+                const type = document.getElementById('order-type').value;
+                const status = document.getElementById('order-status').value;
+                
+                const tableBody = document.getElementById('orders-table').querySelector('tbody');
+                tableBody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="loader"></div></td></tr>';
+                
+                // 模拟数据
+                const orders = [
+                    { orderNo: "ORD20250512001", orderType: "subscription", userId: {username: "张三"}, amount: 30.00, paymentStatus: "paid", createdAt: "2025-05-12T10:15:00Z" },
+                    { orderNo: "ORD20250510002", orderType: "content", userId: {username: "李四"}, amount: 15.50, paymentStatus: "paid", createdAt: "2025-05-10T14:20:00Z" },
+                    { orderNo: "ORD20250508003", orderType: "subscription", userId: {username: "王五"}, amount: 30.00, paymentStatus: "pending", createdAt: "2025-05-08T09:30:00Z" },
+                    { orderNo: "ORD20250507004", orderType: "tip", userId: {username: "赵六"}, amount: 10.00, paymentStatus: "paid", createdAt: "2025-05-07T16:45:00Z" },
+                    { orderNo: "ORD20250506005", orderType: "content", userId: {username: "孙七"}, amount: 25.99, paymentStatus: "failed", createdAt: "2025-05-06T11:20:00Z" },
+                    { orderNo: "ORD20250505006", orderType: "content", userId: {username: "周八"}, amount: 19.99, paymentStatus: "refunded", createdAt: "2025-05-05T13:10:00Z" },
+                    { orderNo: "ORD20250504007", orderType: "subscription", userId: {username: "吴九"}, amount: 30.00, paymentStatus: "paid", createdAt: "2025-05-04T08:40:00Z" },
+                    { orderNo: "ORD20250503008", orderType: "tip", userId: {username: "郑十"}, amount: 50.00, paymentStatus: "paid", createdAt: "2025-05-03T19:25:00Z" },
+                    { orderNo: "ORD20250502009", orderType: "content", userId: {username: "张三"}, amount: 12.99, paymentStatus: "paid", createdAt: "2025-05-02T15:50:00Z" },
+                    { orderNo: "ORD20250501010", orderType: "subscription", userId: {username: "李四"}, amount: 30.00, paymentStatus: "cancelled", createdAt: "2025-05-01T10:05:00Z" }
+                ];
+                
+                // 模拟过滤
+                let filteredOrders = [...orders];
+                if (search) {
+                    const searchLower = search.toLowerCase();
+                    filteredOrders = filteredOrders.filter(order => 
+                        order.orderNo.toLowerCase().includes(searchLower)
+                    );
+                }
+                
+                if (type) {
+                    filteredOrders = filteredOrders.filter(order => order.orderType === type);
+                }
+                
+                if (status) {
+                    filteredOrders = filteredOrders.filter(order => order.paymentStatus === status);
+                }
+                
+                // 填充订单表格
+                tableBody.innerHTML = '';
+                
+                if (filteredOrders.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">没有找到订单</td></tr>';
+                } else {
+                    filteredOrders.forEach(order => {
+                        const row = document.createElement('tr');
+                        
+                        // 订单状态标签
+                        let statusBadge = '';
+                        if (order.paymentStatus === 'paid') {
+                            statusBadge = '<span class="badge badge-success">已支付</span>';
+                        } else if (order.paymentStatus === 'pending') {
+                            statusBadge = '<span class="badge badge-warning">待支付</span>';
+                        } else if (order.paymentStatus === 'failed') {
+                            statusBadge = '<span class="badge badge-danger">失败</span>';
+                        } else if (order.paymentStatus === 'cancelled') {
+                            statusBadge = '<span class="badge badge-secondary">已取消</span>';
+                        } else if (order.paymentStatus === 'refunded') {
+                            statusBadge = '<span class="badge badge-info">已退款</span>';
+                        }
+                        
+                        // 订单类型标签
+                        let typeBadge = '';
+                        if (order.orderType === 'subscription') {
+                            typeBadge = '<span class="badge badge-primary">订阅</span>';
+                        } else if (order.orderType === 'content') {
+                            typeBadge = '<span class="badge badge-info">内容购买</span>';
+                        } else if (order.orderType === 'tip') {
+                            typeBadge = '<span class="badge badge-success">打赏</span>';
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${order.orderNo}</td>
+                            <td>${typeBadge}</td>
+                            <td>${order.userId ? order.userId.username : '未知'}</td>
+                            <td>¥${order.amount.toFixed(2)}</td>
+                            <td>${statusBadge}</td>
+                            <td>${new Date(order.createdAt).toLocaleString()}</td>
+                            <td>
+                                <div class="table-action">
+                                    <button class="btn btn-sm btn-info" onclick="viewOrderDetails('${order.orderNo}')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    ${order.paymentStatus === 'pending' ? `
+                                    <button class="btn btn-sm btn-success" onclick="changeOrderStatus('${order.orderNo}', 'paid')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    ` : ''}
+                                    ${order.paymentStatus === 'paid' ? `
+                                    <button class="btn btn-sm btn-secondary" onclick="changeOrderStatus('${order.orderNo}', 'refunded')">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+                
+                // 生成分页控件
+                const pagination = {
+                    totalDocs: 42,
+                    limit: 10,
+                    page: page,
+                    pages: 5
+                };
+                
+                generatePagination('order-pagination', pagination, loadOrders);
+            } catch (error) {
+                console.error('加载订单列表失败:', error);
+                showToast('加载订单列表失败', 'error');
+            }
+        }getElementById('order-status').value;
+                
+                let query = `page=${page}&limit=10`;
+                if (search) query += `&search=${encodeURIComponent(search)}`;
+                if (type) query += `&type=${type}`;
+                if (status) query += `&status=${status}`;
+                
+                const tableBody = document.getElementById('orders-table').querySelector('tbody');
+                tableBody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="loader"></div></td></tr>';
+                
+                const response = await fetch(`http://localhost:5001/api/admin/orders?${query}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const orders = data.data.orders;
+                    const pagination = data.data.pagination;
+                    
+                    // 填充订单表格
+                    tableBody.innerHTML = '';
+                    
+                    if (orders.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">没有找到订单</td></tr>';
+                    } else {
+                        orders.forEach(order => {
+                            const row = document.createElement('tr');
+                            
+                            // 订单状态标签
+                            let statusBadge = '';
+                            if (order.paymentStatus === 'paid') {
+                                statusBadge = '<span class="badge badge-success">已支付</span>';
+                            } else if (order.paymentStatus === 'pending') {
+                                statusBadge = '<span class="badge badge-warning">待支付</span>';
+                            } else if (order.paymentStatus === 'failed') {
+                                statusBadge = '<span class="badge badge-danger">失败</span>';
+                            } else if (order.paymentStatus === 'cancelled') {
+                                statusBadge = '<span class="badge badge-secondary">已取消</span>';
+                            } else if (order.paymentStatus === 'refunded') {
+                                statusBadge = '<span class="badge badge-info">已退款</span>';
+                            }
+                            
+                            // 订单类型标签
+                            let typeBadge = '';
+                            if (order.orderType === 'subscription') {
+                                typeBadge = '<span class="badge badge-primary">订阅</span>';
+                            } else if (order.orderType === 'content') {
+                                typeBadge = '<span class="badge badge-info">内容购买</span>';
+                            } else if (order.orderType === 'tip') {
+                                typeBadge = '<span class="badge badge-success">打赏</span>';
+                            }
+                            
+                            row.innerHTML = `
+                                <td>${order.orderNo}</td>
+                                <td>${typeBadge}</td>
+                                <td>${order.userId ? order.userId.username : '未知'}</td>
+                                <td>¥${order.amount.toFixed(2)}</td>
+                                <td>${statusBadge}</td>
+                                <td>${new Date(order.createdAt).toLocaleString()}</td>
+                                <td>
+                                    <div class="table-action">
+                                        <button class="btn btn-sm btn-info" onclick="viewOrderDetails('${order.orderNo}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        ${order.paymentStatus === 'pending' ? `
+                                        <button class="btn btn-sm btn-success" onclick="changeOrderStatus('${order.orderNo}', 'paid')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        ` : ''}
+                                        ${order.paymentStatus === 'paid' ? `
+                                        <button class="btn btn-sm btn-secondary" onclick="changeOrderStatus('${order.orderNo}', 'refunded')">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                        ` : ''}
+                                    </div>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                    
+                    // 生成分页控件
+                    generatePagination('order-pagination', pagination, loadOrders);
+                }
+            } catch (error) {
+                console.error('加载订单列表失败:', error);
+                showToast('加载订单列表失败', 'error');
+            }
+        }
+        
+        // 查看订单详情
+        async function viewOrderDetails(orderNo) {
+            try {
+                const response = await fetch(`http://localhost:5001/api/admin/orders/${orderNo}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const order = data.data.order;
+                    
+                    // 订单状态标签
+                    let statusBadge = '';
+                    if (order.paymentStatus === 'paid') {
+                        statusBadge = '<span class="badge badge-success">已支付</span>';
+                    } else if (order.paymentStatus === 'pending') {
+                        statusBadge = '<span class="badge badge-warning">待支付</span>';
+                    } else if (order.paymentStatus === 'failed') {
+                        statusBadge = '<span class="badge badge-danger">失败</span>';
+                    } else if (order.paymentStatus === 'cancelled') {
+                        statusBadge = '<span class="badge badge-secondary">已取消</span>';
+                    } else if (order.paymentStatus === 'refunded') {
+                        statusBadge = '<span class="badge badge-info">已退款</span>';
+                    }
+                    
+                    // 填充订单详情
+                    const detailsContent = document.getElementById('order-details-content');
+                    detailsContent.innerHTML = `
+                        <div class="order-info-grid">
+                            <div class="order-info-item">
+                                <span class="order-info-label">订单号</span>
+                                <span class="order-info-value">${order.orderNo}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">类型</span>
+                                <span class="order-info-value">
+                                    ${order.orderType === 'subscription' ? '<span class="badge badge-primary">订阅</span>' : 
+                                      order.orderType === 'content' ? '<span class="badge badge-info">内容购买</span>' : 
+                                      '<span class="badge badge-success">打赏</span>'}
+                                </span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">用户</span>
+                                <span class="order-info-value">${order.userId ? order.userId.username : '未知'}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">金额</span>
+                                
