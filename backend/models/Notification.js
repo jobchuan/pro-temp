@@ -55,11 +55,47 @@ const notificationSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+const mongoose = require('mongoose');
 
+const notificationSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    type: {
+        type: String,
+        enum: ['comment', 'like', 'payment', 'system', 'subscriber'],
+        required: true
+    },
+    title: {
+        type: String,
+        required: true
+    },
+    message: {
+        type: String,
+        required: true
+    },
+    relatedId: mongoose.Schema.Types.ObjectId,
+    relatedType: {
+        type: String,
+        enum: ['content', 'comment', 'payment', 'subscription']
+    },
+    isRead: {
+        type: Boolean,
+        default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
 // 索引
 notificationSchema.index({ status: 1 });
 notificationSchema.index({ type: 1 });
 notificationSchema.index({ recipients: 1 });
 notificationSchema.index({ startDate: 1, endDate: 1 });
+notificationSchema.index({ userId: 1, createdAt: -1 });
+notificationSchema.index({ userId: 1, isRead: 1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

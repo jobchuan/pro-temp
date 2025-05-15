@@ -126,7 +126,47 @@ const contentSchema = new mongoose.Schema({
         reviewedAt: Date,
         reviewNote: String
     },
+    featuredImage: {
+        url: String,
+        alt: String
+    },
+    seoInfo: {
+        metaTitle: String,
+        metaDescription: String,
+        keywords: [String]
+    },
+    customData: mongoose.Schema.Types.Mixed, // 用于存储特定内容类型的额外数据
     
+    // 协作者信息
+    collaborators: [{
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        role: {
+            type: String,
+            enum: ['editor', 'viewer']
+        },
+        addedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    
+    // 审核历史
+    reviewHistory: [{
+        status: String,
+        reviewedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        comments: String,
+        reviewedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+
     // 版本控制
     version: {
         current: { type: Number, default: 1 },

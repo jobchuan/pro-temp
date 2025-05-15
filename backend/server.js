@@ -66,6 +66,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const interactionRoutes = require('./routes/interactionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const creatorRoutes = require('./routes/creatorRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/contents', contentRoutes);
@@ -74,6 +75,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/interactions', interactionRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/creator', creatorRoutes); 
 
 // 静态文件服务
 app.use('/uploads', express.static('uploads'));
