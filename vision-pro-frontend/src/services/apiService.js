@@ -52,4 +52,90 @@ export const creatorApi = {
   updatePaymentInfo: (data) => api.put('/creator/payment-info', data),
 };
 
+// 上传相关API端点
+export const uploadApi = {
+  // 分片上传
+  initChunkUpload: (data) => api.post('/upload/chunk/init', data),
+  uploadChunk: (data, onProgress) => {
+    const formData = new FormData();
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+    
+    return api.post('/upload/chunk/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        if (onProgress) onProgress(percentCompleted);
+      }
+    });
+  },
+  completeChunkUpload: (data) => api.post('/upload/chunk/complete', data),
+  cancelUpload: (identifier) => api.delete(`/upload/chunk/${identifier}`),
+  getUploadProgress: (identifier) => api.get(`/upload/chunk/${identifier}/progress`),
+  
+  // 简单上传
+  uploadSingle: (file, onProgress) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return api.post('/upload/single', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        if (onProgress) onProgress(percentCompleted);
+      }
+    });
+  }
+};
+// 添加token到请求
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// 添加响应拦截器处理认证错误
+api.interceptors.response.use(
+  response => response,
+  error => {
+    // 如果返回401错误，清除令牌并跳转到登录页面
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+// services/apiService.js 中修改认证相关API调用
+
+// 登录功能
+const login = async (email, password) => {
+  try {
+    // 修改这里，去掉重复的/api前缀
+    const response = await api.post('/users/login', { email, password });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 注册功能
+const register = async (userData) => {
+  try {
+    // 修改这里，去掉重复的/api前缀
+    const response = await api.post('/users/register', userData);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+// 只导出一次
 export default api;

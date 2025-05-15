@@ -1,7 +1,12 @@
+// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import Navigation from './components/common/Navigation';
-import AnalyticsDashboard from './components/creator/AnalyticsDashboard';
+import CreatorDashboard from './pages/CreatorDashboard';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
 // 简单的首页组件
@@ -12,27 +17,47 @@ const Home = () => (
   </div>
 );
 
-// 其他页面的占位组件
-const CreatorDashboard = () => <div>创作者仪表盘</div>;
-const ContentManagement = () => <div>内容管理</div>;
-const IncomeManagement = () => <div>收入管理</div>;
+// 忘记密码组件（简化版）
+const ForgotPassword = () => (
+  <div className="auth-container">
+    <div className="auth-card">
+      <h1>重置密码</h1>
+      <p>该功能尚未实现，请联系管理员重置密码。</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Navigation />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/creator/dashboard" element={<CreatorDashboard />} />
-            <Route path="/creator/analytics" element={<AnalyticsDashboard />} />
-            <Route path="/creator/contents" element={<ContentManagement />} />
-            <Route path="/creator/income" element={<IncomeManagement />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Navigation />
+          <main className="main-content">
+            <Routes>
+              {/* 公共路由 */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              
+              {/* 创作者路由 - 使用受保护路由 */}
+              <Route 
+                path="/creator/*" 
+                element={
+                  <ProtectedRoute>
+                    <CreatorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* 重定向未匹配的路由到首页 */}
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
