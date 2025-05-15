@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { creatorApi } from '../../services/apiService';
 import FileUploader from './FileUploader';
 import TagInput from './TagInput';
+import './FileUploader.css';  // 添加这一行导入CSS
 
 const ContentForm = () => {
   const { contentId } = useParams();
@@ -95,15 +96,25 @@ const ContentForm = () => {
     });
   };
   
-  const handleFileUpload = async (file, type) => {
-    // 实际实现中，应该先上传文件
-    // 这个示例中，我们只是更新表单数据
-    if (type === 'main') {
-      setMainFile(file);
-    } else if (type === 'thumbnail') {
-      setThumbnailFile(file);
+const handleFileUpload = async (fileData, type) => {
+  // 更新表单数据
+  setFormData({
+    ...formData,
+    files: {
+      ...formData.files,
+      [type]: {
+        url: fileData.url,
+        size: fileData.size
+      }
     }
-  };
+  });
+  
+  if (type === 'main') {
+    setMainFile(fileData);
+  } else if (type === 'thumbnail') {
+    setThumbnailFile(fileData);
+  }
+};
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -239,27 +250,32 @@ const ContentForm = () => {
           </div>
         </div>
         
-        <div className="form-section">
-          <h2>文件</h2>
-          
-          <div className="form-group">
-            <label>主内容文件</label>
-            <FileUploader
-              onFileUpload={(file) => handleFileUpload(file, 'main')}
-              accept={formData.contentType.includes('video') ? 'video/*' : 'image/*'}
-              currentFile={formData.files.main.url}
-            />
-          </div>
-          
-          <div className="form-group">
-            <label>缩略图</label>
-            <FileUploader
-              onFileUpload={(file) => handleFileUpload(file, 'thumbnail')}
-              accept="image/*"
-              currentFile={formData.files.thumbnail.url}
-            />
-          </div>
-        </div>
+<div className="form-group">
+  <label>主内容文件</label>
+  <FileUploader
+    onFileUpload={(fileData) => handleFileUpload(fileData, 'main')}
+    accept={formData.contentType.includes('video') ? 'video/*' : 'image/*'}
+    currentFile={formData.files.main.url}
+    fileCategory="main"
+    maxFileSize={1024 * 1024 * 1024} // 1GB
+  />
+  <small>支持大文件上传，自动分片和断点续传。<br />
+  视频支持：MP4, MOV, WEBM (最大1GB)<br />
+  图片支持：JPG, PNG, WEBP</small>
+</div>
+
+<div className="form-group">
+  <label>缩略图</label>
+  <FileUploader
+    onFileUpload={(fileData) => handleFileUpload(fileData, 'thumbnail')}
+    accept="image/*"
+    currentFile={formData.files.thumbnail.url}
+    fileCategory="thumbnail"
+    maxFileSize={10 * 1024 * 1024} // 10MB
+    chunkSize={1 * 1024 * 1024} // 1MB
+  />
+  <small>请上传16:9宽高比的图片作为缩略图 (最大10MB)</small>
+</div>
         
         <div className="form-section">
           <h2>定价</h2>
