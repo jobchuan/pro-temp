@@ -69,6 +69,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const creatorRoutes = require('./routes/creatorRoutes');
 const mediaRoutes = require('./routes/mediaRoutes'); // 新增媒体路由
 const fusionRoutes = require('./routes/fusionRoutes'); // 新增融合内容路由
+const recommendationRoutes = require('./routes/recommendationRoutes');
+
 
 app.use('/api/users', userRoutes);
 app.use('/api/contents', contentRoutes);
@@ -80,6 +82,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/creator', creatorRoutes); 
 app.use('/api/media', mediaRoutes); // 注册媒体路由
 app.use('/api/fusions', fusionRoutes); // 注册融合内容路由
+app.use('/api/recommendations', recommendationRoutes);
+
 
 // 静态文件服务
 app.use('/uploads', express.static('uploads'));
@@ -103,6 +107,9 @@ app.use((err, req, res, next) => {
         message: err.message
     });
 });
+// 启动定时任务
+const ScheduledTasks = require('./services/scheduledTasks');
+ScheduledTasks.initScheduledTasks();
 
 // 启动服务器
 const PORT = process.env.PORT || 5001;
