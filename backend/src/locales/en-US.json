@@ -1,0 +1,26 @@
+{
+  "welcome": "Welcome to Vision Pro Platform",
+  "login": "Login",
+  "register": "Register",
+  "logout": "Logout",
+  "profile": "Profile",
+  "settings": "Settings",
+  "content": "Content",
+  "upload": "Upload",
+  "my_content": "My Content",
+  "collaborations": "Collaborations",
+  "notifications": "Notifications",
+  "language": "Language",
+  "theme": "Theme",
+  "error": {
+    "not_found": "Not Found",
+    "unauthorized": "Unauthorized",
+    "server_error": "Server Error",
+    "validation_error": "Validation Error"
+  },
+  "success": {
+    "saved": "Saved Successfully",
+    "uploaded": "Uploaded Successfully",
+    "deleted": "Deleted Successfully"
+  }
+}

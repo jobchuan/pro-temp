@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .upload-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .file-list {
+            margin: 10px 0;
+        }
+        .file-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>文件上传测试</h1>
+    
+    <!-- 登录部分 -->
+    <div class="upload-section">
+        <h2>1. 登录获取Token</h2>
+        <input type="email" id="email" placeholder="邮箱" value="test@example.com">
+        <input type="password" id="password" placeholder="密码" value="123456">
+        <button onclick="login()">登录</button>
+        <div id="token-display"></div>
+    </div>
+
+    <!-- 单文件上传 -->
+    <div class="upload-section">
+        <h2>2. 单文件上传</h2>
+        <input type="file" id="single-file" accept="image/*,video/*">
+        <button onclick="uploadSingleFile()">上传文件</button>
+        <div id="single-result"></div>
+    </div>
+
+    <!-- 多文件上传 -->
+    <div class="upload-section">
+        <h2>3. 多文件上传</h2>
+        <input type="file" id="multiple-files" multiple accept="image/*,video/*">
+        <button onclick="uploadMultipleFiles()">上传多个文件</button>
+        <div class="file-list" id="multiple-result"></div>
+    </div>
+
+    <!-- 大文件分片上传 -->
+    <div class="upload-section">
+        <h2>4. 大文件分片上传</h2>
+        <input type="file" id="chunk-file" accept="video/*">
+        <button onclick="initChunkUpload()">开始分片上传</button>
+        <button onclick="cancelChunkUpload()" disabled id="cancel-btn">取消上传</button>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <div id="chunk-progress">0%</div>
+        <div id="chunk-result"></div>
+    </div>
+
+    <script>
+        let token = '';
+        let currentIdentifier = '';
+        let uploadAborted = false;
+
+        // 登录获取token
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    token = data.data.token;
+                    document.getElementById('token-display').textContent = `Token: ${token.substring(0, 20)}...`;
+                } else {
+                    alert('登录失败: ' + data.message);
+                }
+            } catch (error) {
+                alert('登录出错: ' + error.message);
+            }
+        }
+
+        // 单文件上传
+        async function uploadSingleFile() {
+            if (!token) {
+                alert('请先登录');
+                return;
+            }
+            
+            const fileInput = document.getElementById('single-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('请选择文件');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/upload/single', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                document.getElementById('single-result').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                alert('上传失败: ' + error.message);
+            }
+        }
+
+        // 多文件上传
+        async function uploadMultipleFiles() {
+            if (!token) {
+                alert('请先登录');
+                return;
+            }
+            
+            const fileInput = document.getElementById('multiple-files');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                alert('请选择文件');
+                return;
+            }
+            
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/upload/multiple', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                document.getElementById('multiple-result').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                alert('上传失败: ' + error.message);
+            }
+        }
+
+        // 分片上传
+        async function initChunkUpload() {
+            if (!token) {
+                alert('请先登录');
+                return;
+            }
+            
+            const fileInput = document.getElementById('chunk-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('请选择文件');
+                return;
+            }
+            
+            uploadAborted = false;
+            const chunkSize = 5 * 1024 * 1024; // 5MB chunks
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            
+            // 初始化上传
+            try {
+                const initResponse = await fetch('http://localhost:5001/api/upload/chunk/init', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        fileSize: file.size,
+                        chunkSize: chunkSize,
+                        totalChunks: totalChunks
+                    })
+                });
+                
+                const initData = await initResponse.json();
+                currentIdentifier = initData.data.identifier;
+                
+                document.getElementById('cancel-btn').disabled = false;
+                
+                // 开始上传分片
+                await uploadChunks(file, currentIdentifier, chunkSize, totalChunks);
+                
+            } catch (error) {
+                alert('初始化上传失败: ' + error.message);
+            }
+        }
+
+        async function uploadChunks(file, identifier, chunkSize, totalChunks) {
+            for (let i = 0; i < totalChunks; i++) {
+                if (uploadAborted) {
+                    break;
+                }
+                
+                const start = i * chunkSize;
+                const end = Math.min(start + chunkSize, file.size);
+                const chunk = file.slice(start, end);
+                
+                const formData = new FormData();
+                formData.append('chunk', chunk);
+                formData.append('identifier', identifier);
+                formData.append('chunkNumber', i);
+                
+                try {
+                    const response = await fetch('http://localhost:5001/api/upload/chunk/upload', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    const progress = data.data.progress;
+                    
+                    document.getElementById('progress-fill').style.width = `${progress}%`;
+                    document.getElementById('chunk-progress').textContent = `${progress}%`;
+                    
+                } catch (error) {
+                    console.error('分片上传失败:', error);
+                }
+            }
+            
+            if (!uploadAborted && totalChunks > 0) {
+                // 完成上传
+                try {
+                    const completeResponse = await fetch('http://localhost:5001/api/upload/chunk/complete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ identifier })
+                    });
+                    
+                    const completeData = await completeResponse.json();
+                    document.getElementById('chunk-result').innerHTML = 
+                        `<pre>${JSON.stringify(completeData, null, 2)}</pre>`;
+                    
+                    document.getElementById('cancel-btn').disabled = true;
+                } catch (error) {
+                    alert('完成上传失败: ' + error.message);
+                }
+            }
+        }
+
+        async function cancelChunkUpload() {
+            if (!currentIdentifier) {
+                return;
+            }
+            
+            uploadAborted = true;
+            
+            try {
+                await fetch(`http://localhost:5001/api/upload/chunk/${currentIdentifier}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                document.getElementById('chunk-result').textContent = '上传已取消';
+                document.getElementById('cancel-btn').disabled = true;
+                document.getElementById('progress-fill').style.width = '0%';
+                document.getElementById('chunk-progress').textContent = '0%';
+                
+            } catch (error) {
+                console.error('取消上传失败:', error);
+            }
+        }
+    </script>
+</body>
+</html>

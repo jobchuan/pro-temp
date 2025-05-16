@@ -1,0 +1,3896 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沉浸中国管理后台</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js 用于图表 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        .sidebar {
+            min-width: 250px;
+        }
+        .content {
+            min-height: calc(100vh - 64px);
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- 加载动画 -->
+    <div id="loading" class="loading" style="display: none;">
+        <div class="text-center">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <p class="mt-2 text-gray-700">加载中...</p>
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="bg-blue-600 text-white p-4 sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-bold">沉浸中国 管理后台</div>
+            <div class="flex items-center space-x-4">
+                <span id="current-admin">管理员：加载中...</span>
+                <button id="logout-btn" class="bg-blue-800 px-4 py-2 rounded hover:bg-blue-900">退出登录</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主体内容 -->
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex flex-wrap">
+            <!-- 侧边栏 -->
+            <aside class="sidebar w-full md:w-64 bg-white rounded-lg shadow p-4 mb-6 md:mr-6 md:mb-0">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">管理菜单</h2>
+                <ul class="space-y-2">
+                    <li><a href="#dashboard" class="nav-link block p-2 rounded hover:bg-gray-100 text-blue-600 font-medium" data-section="dashboard">仪表盘</a></li>
+                    <li><a href="#users" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="users">用户管理</a></li>
+                    <li><a href="#contents" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="contents">内容管理</a></li>
+                    <li><a href="#orders" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="orders">订单管理</a></li>
+                    <li><a href="#payments" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="payments">支付管理</a></li>
+                    <li><a href="#comments" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="comments">评论管理</a></li>
+                    <li><a href="#danmaku" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="danmaku">弹幕管理</a></li>                  
+                    <li><a href="#notifications" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="notifications">通知管理</a></li>
+                    <li><a href="#settings" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="settings">系统设置</a></li>
+                    <li><a href="#reports" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="reports">统计报表</a></li>
+                    <li><a href="#logs" class="nav-link block p-2 rounded hover:bg-gray-100" data-section="logs">管理日志</a></li>
+                </ul>
+            </aside>
+
+            <!-- 内容区域 -->
+            <main class="content flex-1 bg-white rounded-lg shadow p-6">
+                <!-- 仪表盘 -->
+                <section id="dashboard" class="section active">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">系统仪表盘</h1>
+                    
+                    <!-- 总览卡片 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-blue-100 p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-blue-800 mb-2">用户总数</h3>
+                            <p class="text-3xl font-bold text-blue-600" id="total-users">--</p>
+                            <p class="text-sm text-blue-600 mt-2">新增: <span id="new-users">--</span></p>
+                        </div>
+                        <div class="bg-green-100 p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-green-800 mb-2">内容总数</h3>
+                            <p class="text-3xl font-bold text-green-600" id="total-contents">--</p>
+                            <p class="text-sm text-green-600 mt-2">待审核: <span id="pending-contents">--</span></p>
+                        </div>
+                        <div class="bg-purple-100 p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-purple-800 mb-2">订单总数</h3>
+                            <p class="text-3xl font-bold text-purple-600" id="total-orders">--</p>
+                            <p class="text-sm text-purple-600 mt-2">完成订单: <span id="completed-orders">--</span></p>
+                        </div>
+                        <div class="bg-yellow-100 p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-yellow-800 mb-2">总收入</h3>
+                            <p class="text-3xl font-bold text-yellow-600" id="total-revenue">--</p>
+                            <p class="text-sm text-yellow-600 mt-2">活跃订阅: <span id="active-subscriptions">--</span></p>
+                        </div>
+                    </div>
+
+                    <!-- 图表区域 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">最近7天用户增长</h3>
+                            <canvas id="user-growth-chart" height="250"></canvas>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">最近7天收入趋势</h3>
+                            <canvas id="revenue-chart" height="250"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 统计表格 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">内容类型分布</h3>
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="px-4 py-2 text-left">类型</th>
+                                        <th class="px-4 py-2 text-right">数量</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="content-type-table">
+                                    <tr>
+                                        <td class="px-4 py-2 text-left">加载中...</td>
+                                        <td class="px-4 py-2 text-right">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">订单类型分布</h3>
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="px-4 py-2 text-left">类型</th>
+                                        <th class="px-4 py-2 text-right">数量</th>
+                                        <th class="px-4 py-2 text-right">金额</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="order-type-table">
+                                    <tr>
+                                        <td class="px-4 py-2 text-left">加载中...</td>
+                                        <td class="px-4 py-2 text-right">--</td>
+                                        <td class="px-4 py-2 text-right">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 用户管理 -->
+                <section id="users" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">用户管理</h1>
+                    
+                    <!-- 搜索和筛选 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div class="flex-1 min-w-[200px]">
+                                <input type="text" id="user-search" placeholder="搜索用户名或邮箱" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <select id="user-role-filter" class="p-2 border rounded">
+                                    <option value="">所有角色</option>
+                                    <option value="admin">管理员</option>
+                                    <option value="creator">创作者</option>
+                                    <option value="user">普通用户</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="user-status-filter" class="p-2 border rounded">
+                                    <option value="">所有状态</option>
+                                    <option value="active">活跃</option>
+                                    <option value="suspended">已暂停</option>
+                                    <option value="deleted">已删除</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="search-users-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户列表 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 text-left">ID</th>
+                                    <th class="px-4 py-2 text-left">用户名</th>
+                                    <th class="px-4 py-2 text-left">邮箱</th>
+                                    <th class="px-4 py-2 text-left">角色</th>
+                                    <th class="px-4 py-2 text-left">状态</th>
+                                    <th class="px-4 py-2 text-left">注册时间</th>
+                                    <th class="px-4 py-2 text-left">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-2 text-center">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center" id="users-pagination">
+                        <div class="text-sm text-gray-600">
+                            显示 <span id="users-start">0</span> 到 <span id="users-end">0</span> 项，共 <span id="users-total">0</span> 项
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="users-prev-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">上一页</button>
+                            <button id="users-next-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">下一页</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户详情模态框 -->
+                    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4">用户详情</h2>
+                                <div id="user-details">
+                                    <p class="text-gray-600">加载中...</p>
+                                </div>
+                                <div class="flex justify-end space-x-2 mt-6">
+                                    <button id="update-user-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">更新信息</button>
+                                    <button id="close-user-modal-btn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 内容管理 -->
+                <section id="contents" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">内容管理</h1>
+                    
+                    <!-- 搜索和筛选 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div class="flex-1 min-w-[200px]">
+                                <input type="text" id="content-search" placeholder="搜索标题或标签" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <select id="content-type-filter" class="p-2 border rounded">
+                                    <option value="">所有类型</option>
+                                    <option value="180_video">180°视频</option>
+                                    <option value="180_photo">180°照片</option>
+                                    <option value="360_video">360°视频</option>
+                                    <option value="360_photo">360°照片</option>
+                                    <option value="spatial_video">空间视频</option>
+                                    <option value="spatial_photo">空间照片</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="content-status-filter" class="p-2 border rounded">
+                                    <option value="">所有状态</option>
+                                    <option value="draft">草稿</option>
+                                    <option value="pending_review">待审核</option>
+                                    <option value="approved">已批准</option>
+                                    <option value="rejected">已拒绝</option>
+                                    <option value="published">已发布</option>
+                                    <option value="archived">已归档</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="search-contents-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 内容列表 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 text-left">ID</th>
+                                    <th class="px-4 py-2 text-left">标题</th>
+                                    <th class="px-4 py-2 text-left">类型</th>
+                                    <th class="px-4 py-2 text-left">创作者</th>
+                                    <th class="px-4 py-2 text-left">状态</th>
+                                    <th class="px-4 py-2 text-left">发布时间</th>
+                                    <th class="px-4 py-2 text-left">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contents-table">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-2 text-center">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center" id="contents-pagination">
+                        <div class="text-sm text-gray-600">
+                            显示 <span id="contents-start">0</span> 到 <span id="contents-end">0</span> 项，共 <span id="contents-total">0</span> 项
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="contents-prev-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">上一页</button>
+                            <button id="contents-next-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">下一页</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 内容详情模态框 -->
+                    <div id="content-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4">内容详情</h2>
+                                <div id="content-details">
+                                    <p class="text-gray-600">加载中...</p>
+                                </div>
+                                <div class="flex justify-end space-x-2 mt-6">
+                                    <button id="edit-content-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">编辑内容</button>
+                                    <button id="review-content-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">审核通过</button>
+                                    <button id="reject-content-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">拒绝内容</button>
+                                    <button id="close-content-modal-btn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 内容编辑模态框 -->
+                    <div id="content-edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4">编辑内容</h2>
+                                <form id="content-edit-form" class="space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">标题 (中文)</label>
+                                            <input type="text" id="edit-title-zh" class="w-full p-2 border rounded">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">标题 (英文)</label>
+                                            <input type="text" id="edit-title-en" class="w-full p-2 border rounded">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">内容类型</label>
+                                            <select id="edit-content-type" class="w-full p-2 border rounded">
+                                                <option value="180_video">180°视频</option>
+                                                <option value="180_photo">180°照片</option>
+                                                <option value="360_video">360°视频</option>
+                                                <option value="360_photo">360°照片</option>
+                                                <option value="spatial_video">空间视频</option>
+                                                <option value="spatial_photo">空间照片</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">状态</label>
+                                            <select id="edit-status" class="w-full p-2 border rounded">
+                                                <option value="draft">草稿</option>
+                                                <option value="pending_review">待审核</option>
+                                                <option value="approved">已批准</option>
+                                                <option value="rejected">已拒绝</option>
+                                                <option value="published">已发布</option>
+                                                <option value="archived">已归档</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">描述 (中文)</label>
+                                        <textarea id="edit-description-zh" class="w-full p-2 border rounded" rows="3"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">描述 (英文)</label>
+                                        <textarea id="edit-description-en" class="w-full p-2 border rounded" rows="3"></textarea>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">标签 (用逗号分隔)</label>
+                                        <input type="text" id="edit-tags" class="w-full p-2 border rounded">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">分类</label>
+                                        <select id="edit-category" class="w-full p-2 border rounded">
+                                            <option value="travel">旅行</option>
+                                            <option value="education">教育</option>
+                                            <option value="entertainment">娱乐</option>
+                                            <option value="sports">体育</option>
+                                            <option value="news">新闻</option>
+                                            <option value="documentary">纪录片</option>
+                                            <option value="art">艺术</option>
+                                            <option value="other">其他</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">是否免费</label>
+                                            <select id="edit-is-free" class="w-full p-2 border rounded">
+                                                <option value="true">是</option>
+                                                <option value="false">否</option>
+                                            </select>
+                                        </div>
+                                        <div id="price-container">
+                                            <label class="block text-gray-700 mb-2">价格</label>
+                                            <input type="number" id="edit-price" min="0" step="0.01" class="w-full p-2 border rounded">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pt-4 flex justify-end space-x-2">
+                                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">保存更改</button>
+                                        <button type="button" id="cancel-edit-btn" class="bg-gray-300 px-6 py-2 rounded hover:bg-gray-400">取消</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 订单管理 -->
+                <section id="orders" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">订单管理</h1>
+                    
+                    <!-- 搜索和筛选 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div class="flex-1 min-w-[200px]">
+                                <input type="text" id="order-search" placeholder="搜索订单号或描述" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <select id="order-type-filter" class="p-2 border rounded">
+                                    <option value="">所有类型</option>
+                                    <option value="subscription">订阅</option>
+                                    <option value="content">内容购买</option>
+                                    <option value="tip">打赏</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="order-status-filter" class="p-2 border rounded">
+                                    <option value="">所有状态</option>
+                                    <option value="pending">待支付</option>
+                                    <option value="paid">已支付</option>
+                                    <option value="failed">失败</option>
+                                    <option value="cancelled">已取消</option>
+                                    <option value="refunded">已退款</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="search-orders-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 订单列表 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 text-left">订单号</th>
+                                    <th class="px-4 py-2 text-left">用户</th>
+                                    <th class="px-4 py-2 text-left">类型</th>
+                                    <th class="px-4 py-2 text-left">金额</th>
+                                    <th class="px-4 py-2 text-left">状态</th>
+                                    <th class="px-4 py-2 text-left">创建时间</th>
+                                    <th class="px-4 py-2 text-left">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-2 text-center">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center" id="orders-pagination">
+                        <div class="text-sm text-gray-600">
+                            显示 <span id="orders-start">0</span> 到 <span id="orders-end">0</span> 项，共 <span id="orders-total">0</span> 项
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="orders-prev-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">上一页</button>
+                            <button id="orders-next-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">下一页</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 订单详情模态框 -->
+                    <div id="order-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4">订单详情</h2>
+                                <div id="order-details">
+                                    <p class="text-gray-600">加载中...</p>
+                                </div>
+                                <div class="flex justify-end space-x-2 mt-6">
+                                    <button id="mark-order-paid-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">标记为已支付</button>
+                                    <button id="refund-order-btn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">退款</button>
+                                    <button id="close-order-modal-btn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 支付管理 -->
+                <section id="payments" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">支付管理</h1>
+                    
+                    <!-- 平台收入总览 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-4">平台收入总览</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="bg-blue-50 p-4 rounded">
+                                <p class="text-sm text-gray-600">总收入</p>
+                                <p class="text-2xl font-bold text-blue-600" id="payment-total-revenue">￥0.00</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded">
+                                <p class="text-sm text-gray-600">平台收入</p>
+                                <p class="text-2xl font-bold text-green-600" id="payment-platform-revenue">￥0.00</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded">
+                                <p class="text-sm text-gray-600">创作者收入</p>
+                                <p class="text-2xl font-bold text-purple-600" id="payment-creator-revenue">￥0.00</p>
+                            </div>
+                            <div class="bg-yellow-50 p-4 rounded">
+                                <p class="text-sm text-gray-600">订单数量</p>
+                                <p class="text-2xl font-bold text-yellow-600" id="payment-order-count">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 切换标签页 -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <ul class="flex flex-wrap -mb-px">
+                            <li class="mr-2">
+                                <a href="#" class="payment-tab inline-block p-4 border-b-2 border-blue-600 text-blue-600" data-tab="withdrawal">提现管理</a>
+                            </li>
+                            <li class="mr-2">
+                                <a href="#" class="payment-tab inline-block p-4 border-b-2 border-transparent hover:border-gray-300" data-tab="creator-income">创作者收入</a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 提现管理 -->
+                    <div id="withdrawal-tab" class="payment-content">
+                        <!-- 搜索和筛选 -->
+                        <div class="bg-white p-4 rounded-lg shadow mb-6">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <div>
+                                    <select id="withdrawal-status-filter" class="p-2 border rounded">
+                                        <option value="">所有状态</option>
+                                        <option value="processing" selected>处理中</option>
+                                        <option value="withdrawable">可提现</option>
+                                        <option value="withdrawn">已提现</option>
+                                        <option value="failed">失败</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <button id="search-withdrawals-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 提现请求列表 -->
+                        <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="px-4 py-2 text-left">创作者</th>
+                                        <th class="px-4 py-2 text-left">总金额</th>
+                                        <th class="px-4 py-2 text-left">提现请求数</th>
+                                        <th class="px-4 py-2 text-left">提现方式</th>
+                                        <th class="px-4 py-2 text-left">请求时间</th>
+                                        <th class="px-4 py-2 text-left">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="withdrawals-table">
+                                    <tr>
+                                        <td colspan="6" class="px-4 py-2 text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 创作者收入 -->
+                    <div id="creator-income-tab" class="payment-content hidden">
+                        <!-- 搜索和筛选 -->
+                        <div class="bg-white p-4 rounded-lg shadow mb-6">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <div>
+                                    <input type="text" id="creator-income-search" placeholder="搜索创作者" class="p-2 border rounded">
+                                </div>
+                                <div>
+                                    <select id="income-period-filter" class="p-2 border rounded">
+                                        <option value="current">当月</option>
+                                        <option value="last">上月</option>
+                                        <option value="custom">自定义</option>
+                                    </select>
+                                </div>
+                                <div id="custom-period-container" class="hidden">
+                                    <input type="month" id="income-month-filter" class="p-2 border rounded">
+                                </div>
+                                <div>
+                                    <button id="search-income-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 创作者收入列表 -->
+                        <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="px-4 py-2 text-left">创作者</th>
+                                        <th class="px-4 py-2 text-left">总收入</th>
+                                        <th class="px-4 py-2 text-left">平台分成</th>
+                                        <th class="px-4 py-2 text-left">净收入</th>
+                                        <th class="px-4 py-2 text-left">订单数</th>
+                                        <th class="px-4 py-2 text-left">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="creator-income-table">
+                                    <tr>
+                                        <td colspan="6" class="px-4 py-2 text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 提现详情模态框 -->
+                    <div id="withdrawal-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4">提现详情</h2>
+                                <div id="withdrawal-details">
+                                    <p class="text-gray-600">加载中...</p>
+                                </div>
+                                <div class="flex justify-end space-x-2 mt-6">
+                                    <button id="approve-withdrawal-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">批准提现</button>
+                                    <button id="reject-withdrawal-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">拒绝提现</button>
+                                    <button id="close-withdrawal-modal-btn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 评论管理 -->
+                <section id="comments" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">评论管理</h1>
+                    
+                    <!-- 搜索和筛选 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div>
+                                <select id="comment-status-filter" class="p-2 border rounded">
+                                    <option value="flagged" selected>被举报</option>
+                                    <option value="active">活跃</option>
+                                    <option value="hidden">已隐藏</option>
+                                    <option value="deleted">已删除</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="search-comments-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 评论列表 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 text-left">ID</th>
+                                    <th class="px-4 py-2 text-left">用户</th>
+                                    <th class="px-4 py-2 text-left">内容标题</th>
+                                    <th class="px-4 py-2 text-left">评论内容</th>
+                                    <th class="px-4 py-2 text-left">举报数</th>
+                                    <th class="px-4 py-2 text-left">时间</th>
+                                    <th class="px-4 py-2 text-left">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comments-table">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-2 text-center">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center" id="comments-pagination">
+                        <div class="text-sm text-gray-600">
+                            显示 <span id="comments-start">0</span> 到 <span id="comments-end">0</span> 项，共 <span id="comments-total">0</span> 项
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="comments-prev-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">上一页</button>
+                            <button id="comments-next-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">下一页</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 评论详情模态框 -->
+                    <div id="comment-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4">评论详情</h2>
+                                <div id="comment-details">
+                                    <p class="text-gray-600">加载中...</p>
+                                </div>
+                                <div class="flex justify-end space-x-2 mt-6">
+                                    <button id="approve-comment-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">恢复评论</button>
+                                    <button id="hide-comment-btn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">隐藏评论</button>
+                                    <button id="delete-comment-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">删除评论</button>
+                                    <button id="close-comment-modal-btn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 通知管理 -->
+                <section id="notifications" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">通知管理</h1>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="flex justify-end mb-6">
+                        <button id="create-notification-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            创建通知
+                        </button>
+                    </div>
+                    
+                    <!-- 搜索和筛选 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div>
+                                <select id="notification-type-filter" class="p-2 border rounded">
+                                    <option value="">所有类型</option>
+                                    <option value="system">系统通知</option>
+                                    <option value="announcement">公告</option>
+                                    <option value="personal">个人通知</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="notification-status-filter" class="p-2 border rounded">
+                                    <option value="">所有状态</option>
+                                    <option value="draft">草稿</option>
+                                    <option value="published">已发布</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="search-notifications-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 通知列表 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 text-left">ID</th>
+                                    <th class="px-4 py-2 text-left">标题</th>
+                                    <th class="px-4 py-2 text-left">类型</th>
+                                    <th class="px-4 py-2 text-left">接收者</th>
+                                    <th class="px-4 py-2 text-left">状态</th>
+                                    <th class="px-4 py-2 text-left">创建时间</th>
+                                    <th class="px-4 py-2 text-left">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notifications-table">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-2 text-center">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center" id="notifications-pagination">
+                        <div class="text-sm text-gray-600">
+                            显示 <span id="notifications-start">0</span> 到 <span id="notifications-end">0</span> 项，共 <span id="notifications-total">0</span> 项
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="notifications-prev-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">上一页</button>
+                            <button id="notifications-next-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">下一页</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 通知详情/编辑模态框 -->
+                    <div id="notification-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4" id="notification-modal-title">创建通知</h2>
+                                <form id="notification-form" class="space-y-4">
+                                    <input type="hidden" id="notification-id">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">标题</label>
+                                        <input type="text" id="notification-title" class="w-full p-2 border rounded" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">内容</label>
+                                        <textarea id="notification-content" class="w-full p-2 border rounded" rows="4" required></textarea>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">类型</label>
+                                            <select id="notification-type" class="w-full p-2 border rounded">
+                                                <option value="system">系统通知</option>
+                                                <option value="announcement">公告</option>
+                                                <option value="personal">个人通知</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">接收者</label>
+                                            <select id="notification-recipients" class="w-full p-2 border rounded">
+                                                <option value="all">所有用户</option>
+                                                <option value="users">普通用户</option>
+                                                <option value="creators">创作者</option>
+                                                <option value="admins">管理员</option>
+                                                <option value="specific">指定用户</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="specific-users-container" class="hidden">
+                                        <label class="block text-gray-700 mb-2">指定用户ID (用逗号分隔)</label>
+                                        <input type="text" id="specific-users" class="w-full p-2 border rounded" placeholder="用户ID，例如：60d5ec9f8b4e2b1c3c9e5a7d,60d5ec9f8b4e2b1c3c9e5a7e">
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">优先级</label>
+                                            <select id="notification-priority" class="w-full p-2 border rounded">
+                                                <option value="normal">普通</option>
+                                                <option value="high">高</option>
+                                                <option value="low">低</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 mb-2">开始日期</label>
+                                            <input type="datetime-local" id="notification-start-date" class="w-full p-2 border rounded">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">结束日期 (可选)</label>
+                                        <input type="datetime-local" id="notification-end-date" class="w-full p-2 border rounded">
+                                    </div>
+                                    <div class="pt-4 flex justify-end space-x-2">
+                                        <button type="submit" id="save-notification-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">保存</button>
+                                        <button type="button" id="publish-notification-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">发布</button>
+                                        <button type="button" id="close-notification-modal-btn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">取消</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 系统设置 -->
+                <section id="settings" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">系统设置</h1>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow mb-6">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-4">平台设置</h2>
+                        <form id="settings-form" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 mb-2">平台分成比例</label>
+                                    <input type="number" id="platformFee" min="0" max="1" step="0.01" class="w-full p-2 border rounded" placeholder="平台分成比例，如0.3代表30%">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2">最低提现金额</label>
+                                    <input type="number" id="minimumWithdrawal" min="0" class="w-full p-2 border rounded" placeholder="最低提现金额（元）">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2">内容是否需要审核</label>
+                                    <select id="contentReviewRequired" class="w-full p-2 border rounded">
+                                        <option value="true">需要审核</option>
+                                        <option value="false">不需要审核</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2">最大上传文件大小</label>
+                                    <input type="number" id="maxUploadSize" min="0" class="w-full p-2 border rounded" placeholder="最大上传文件大小（字节）">
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">保存设置</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+                
+                <!-- 统计报表 -->
+                <section id="reports" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">统计报表</h1>
+                    
+                    <!-- 报表类型选择 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div>
+                                <select id="report-type" class="p-2 border rounded">
+                                    <option value="user-growth">用户增长</option>
+                                    <option value="content-publish">内容发布</option>
+                                    <option value="revenue-trends">收入趋势</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="report-period" class="p-2 border rounded">
+                                    <option value="day">按天统计</option>
+                                    <option value="month" selected>按月统计</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="generate-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">生成报表</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 报表显示区域 -->
+                    <div class="bg-white p-6 rounded-lg shadow mb-6">
+                        <h2 id="report-title" class="text-xl font-semibold text-gray-700 mb-4">用户增长报表</h2>
+                        <div class="mb-6">
+                            <canvas id="report-chart" height="300"></canvas>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto">
+                                <thead id="report-table-head">
+                                    <tr class="bg-gray-100">
+                                        <th class="px-4 py-2 text-left">日期</th>
+                                        <th class="px-4 py-2 text-right">数值</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-table-body">
+                                    <tr>
+                                        <td colspan="2" class="px-4 py-2 text-center">请选择报表类型并生成</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 管理日志 -->
+                <section id="logs" class="section hidden">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">管理日志</h1>
+                    
+                    <!-- 搜索和筛选 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div>
+                                <select id="log-admin-filter" class="p-2 border rounded">
+                                    <option value="">所有管理员</option>
+                                    <!-- 动态填充 -->
+                                </select>
+                            </div>
+                            <div>
+                                <select id="log-action-filter" class="p-2 border rounded">
+                                    <option value="">所有操作</option>
+                                    <option value="view_dashboard">查看仪表盘</option>
+                                    <option value="list_users">查看用户列表</option>
+                                    <option value="update_user">更新用户</option>
+                                    <option value="update_user_status">更新用户状态</option>
+                                    <option value="list_contents">查看内容列表</option>
+                                    <option value="update_content_status">更新内容状态</option>
+                                    <option value="review_content">审核内容</option>
+                                    <!-- 更多操作类型 -->
+                                </select>
+                            </div>
+                            <div>
+                                <select id="log-resource-filter" class="p-2 border rounded">
+                                    <option value="">所有资源</option>
+                                    <option value="user">用户</option>
+                                    <option value="content">内容</option>
+                                    <option value="order">订单</option>
+                                    <option value="comment">评论</option>
+                                    <option value="system">系统</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="search-logs-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 日志列表 -->
+                    <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 text-left">ID</th>
+                                    <th class="px-4 py-2 text-left">管理员</th>
+                                    <th class="px-4 py-2 text-left">操作</th>
+                                    <th class="px-4 py-2 text-left">资源类型</th>
+                                    <th class="px-4 py-2 text-left">资源ID</th>
+                                    <th class="px-4 py-2 text-left">IP地址</th>
+                                    <th class="px-4 py-2 text-left">时间</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-2 text-center">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center" id="logs-pagination">
+                        <div class="text-sm text-gray-600">
+                            显示 <span id="logs-start">0</span> 到 <span id="logs-end">0</span> 项，共 <span id="logs-total">0</span> 项
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="logs-prev-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">上一页</button>
+                            <button id="logs-next-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">下一页</button>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 其他各个部分内容区域 -->
+            </main>
+        </div>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">管理员登录</h2>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">邮箱</label>
+                    <input type="email" id="login-email" class="w-full p-2 border rounded" placeholder="请输入邮箱" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">密码</label>
+                    <input type="password" id="login-password" class="w-full p-2 border rounded" placeholder="请输入密码" required>
+                </div>
+                <div class="text-red-600 text-sm hidden" id="login-error"></div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript 代码 -->
+    <script>
+        // API基础URL
+        const API_BASE_URL = 'http://localhost:5001/api';
+        
+        // 状态管理
+        const state = {
+            token: localStorage.getItem('admin_token'),
+            currentUser: null,
+            currentSection: 'dashboard',
+            usersPage: 1,
+            usersLimit: 20,
+            contentsPage: 1,
+            contentsLimit: 20,
+            ordersPage: 1,
+            ordersLimit: 20,
+            logsPage: 1,
+            logsLimit: 20,
+            charts: {}
+        };
+        
+        // DOM加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查是否已登录
+            if (!state.token) {
+                showLoginModal();
+            } else {
+                hideLoginModal();
+                getCurrentUser();
+            }
+            
+            // 初始化事件监听
+            initEventListeners();
+            
+            // 初始化当前页面
+            showSection(state.currentSection);
+        });
+        
+        // 初始化事件监听
+        function initEventListeners() {
+            // 登录表单提交
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            
+            // 登出按钮
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            
+            // 导航链接点击
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+                });
+            });
+            
+            // 用户管理相关
+            document.getElementById('search-users-btn').addEventListener('click', loadUsers);
+            document.getElementById('users-prev-page').addEventListener('click', () => {
+                if (state.usersPage > 1) {
+                    state.usersPage--;
+                    loadUsers();
+                }
+            });
+            document.getElementById('users-next-page').addEventListener('click', () => {
+                state.usersPage++;
+                loadUsers();
+            });
+            document.getElementById('close-user-modal-btn').addEventListener('click', () => {
+                document.getElementById('user-modal').classList.add('hidden');
+            });
+            
+            // 内容管理相关
+            document.getElementById('search-contents-btn').addEventListener('click', loadContents);
+            document.getElementById('contents-prev-page').addEventListener('click', () => {
+                if (state.contentsPage > 1) {
+                    state.contentsPage--;
+                    loadContents();
+                }
+            });
+            document.getElementById('contents-next-page').addEventListener('click', () => {
+                state.contentsPage++;
+                loadContents();
+            });
+            document.getElementById('close-content-modal-btn').addEventListener('click', () => {
+                document.getElementById('content-modal').classList.add('hidden');
+            });
+            
+            // 订单管理相关
+            document.getElementById('search-orders-btn').addEventListener('click', loadOrders);
+            document.getElementById('orders-prev-page').addEventListener('click', () => {
+                if (state.ordersPage > 1) {
+                    state.ordersPage--;
+                    loadOrders();
+                }
+            });
+            document.getElementById('orders-next-page').addEventListener('click', () => {
+                state.ordersPage++;
+                loadOrders();
+            });
+            document.getElementById('close-order-modal-btn').addEventListener('click', () => {
+                document.getElementById('order-modal').classList.add('hidden');
+            });
+            
+            // 系统设置相关
+            document.getElementById('settings-form').addEventListener('submit', saveSettings);
+            
+            // 报表相关
+            document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+            
+            // 日志相关
+            document.getElementById('search-logs-btn').addEventListener('click', loadLogs);
+            document.getElementById('logs-prev-page').addEventListener('click', () => {
+                if (state.logsPage > 1) {
+                    state.logsPage--;
+                    loadLogs();
+                }
+            });
+            document.getElementById('logs-next-page').addEventListener('click', () => {
+                state.logsPage++;
+                loadLogs();
+            });
+        }
+        
+        // 显示登录模态框
+        function showLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+        
+        // 隐藏登录模态框
+        function hideLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+        
+        // 处理登录
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                showLoading();
+                
+                const response = await fetch(`${API_BASE_URL}/users/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || '登录失败');
+                }
+                
+                // 检查是否为管理员
+                if (data.data.user.role !== 'admin') {
+                    throw new Error('非管理员账户无法登录');
+                }
+                
+                // 保存token和用户信息
+                localStorage.setItem('admin_token', data.data.token);
+                state.token = data.data.token;
+                state.currentUser = data.data.user;
+                
+                // 更新UI
+                document.getElementById('current-admin').textContent = `管理员：${data.data.user.username}`;
+                
+                hideLoginModal();
+                hideLoading();
+                
+                // 加载仪表盘数据
+                loadDashboard();
+                
+            } catch (error) {
+                hideLoading();
+                const errorEl = document.getElementById('login-error');
+                errorEl.textContent = error.message;
+                errorEl.classList.remove('hidden');
+            }
+        }
+        
+        // 处理登出
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            state.token = null;
+            state.currentUser = null;
+            showLoginModal();
+        }
+        
+        // 获取当前用户信息
+        async function getCurrentUser() {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    // Token可能已过期
+                    throw new Error('获取用户信息失败');
+                }
+                
+                const data = await response.json();
+                
+                // 检查是否为管理员
+                if (data.data.user.role !== 'admin') {
+                    throw new Error('非管理员账户');
+                }
+                
+                state.currentUser = data.data.user;
+                document.getElementById('current-admin').textContent = `管理员：${data.data.user.username}`;
+                
+                // 加载仪表盘数据
+                loadDashboard();
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('获取用户信息失败:', error);
+                // 登录失效，重新登录
+                localStorage.removeItem('admin_token');
+                state.token = null;
+                showLoginModal();
+            }
+        }
+        
+        // 显示指定部分
+        function showSection(sectionId) {
+            // 更新当前部分
+            state.currentSection = sectionId;
+            
+            // 隐藏所有部分
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // 显示当前部分
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // 更新导航高亮
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('data-section') === sectionId) {
+                    link.classList.add('text-blue-600', 'font-medium');
+                } else {
+                    link.classList.remove('text-blue-600', 'font-medium');
+                }
+            });
+            
+            // 加载相应部分的数据
+            switch (sectionId) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'contents':
+                    loadContents();
+                    break;
+                case 'orders':
+                    loadOrders();
+                    break;
+                case 'settings':
+                    loadSettings();
+                    break;
+                case 'logs':
+                    loadLogs();
+                    break;
+                // 添加其他部分的数据加载
+            }
+        }
+        
+        // 显示加载动画
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        // 隐藏加载动画
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        // 加载仪表盘数据
+        async function loadDashboard() {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${API_BASE_URL}/admin/dashboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取仪表盘数据失败');
+                }
+                
+                const data = await response.json();
+                
+                // 更新仪表盘数据
+                document.getElementById('total-users').textContent = data.data.users.total;
+                document.getElementById('new-users').textContent = data.data.users.new;
+                document.getElementById('total-contents').textContent = data.data.content.total;
+                document.getElementById('pending-contents').textContent = data.data.content.pendingReview;
+                document.getElementById('total-orders').textContent = data.data.orders.total;
+                document.getElementById('completed-orders').textContent = data.data.orders.completed;
+                document.getElementById('total-revenue').textContent = `￥${data.data.orders.revenue.toFixed(2)}`;
+                document.getElementById('active-subscriptions').textContent = data.data.subscriptions.active;
+                
+                // 内容类型分布表格
+                const contentTypeTable = document.getElementById('content-type-table');
+                contentTypeTable.innerHTML = '';
+                data.data.contentTypeDistribution.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-4 py-2 text-left">${getContentTypeName(item._id)}</td>
+                        <td class="px-4 py-2 text-right">${item.count}</td>
+                    `;
+                    contentTypeTable.appendChild(row);
+                });
+                
+                // 订单类型分布表格
+                const orderTypeTable = document.getElementById('order-type-table');
+                orderTypeTable.innerHTML = '';
+                data.data.orderTypeDistribution.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-4 py-2 text-left">${getOrderTypeName(item._id)}</td>
+                        <td class="px-4 py-2 text-right">${item.count}</td>
+                        <td class="px-4 py-2 text-right">￥${item.amount.toFixed(2)}</td>
+                    `;
+                    orderTypeTable.appendChild(row);
+                });
+                
+                // 用户增长图表
+                renderUserGrowthChart(data.data.last7DaysUsers);
+                
+                // 收入趋势图表
+                renderRevenueChart(data.data.last7DaysRevenue);
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('加载仪表盘数据失败:', error);
+                alert('加载仪表盘数据失败');
+            }
+        }
+        
+        // 渲染用户增长图表
+        function renderUserGrowthChart(data) {
+            const ctx = document.getElementById('user-growth-chart').getContext('2d');
+            
+            // 清除旧图表
+            if (state.charts.userGrowthChart) {
+                state.charts.userGrowthChart.destroy();
+            }
+            
+            // 创建新图表
+            state.charts.userGrowthChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.date),
+                    datasets: [{
+                        label: '新增用户',
+                        data: data.map(item => item.count),
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            precision: 0
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 渲染收入趋势图表
+        function renderRevenueChart(data) {
+            const ctx = document.getElementById('revenue-chart').getContext('2d');
+            
+            // 清除旧图表
+            if (state.charts.revenueChart) {
+                state.charts.revenueChart.destroy();
+            }
+            
+            // 创建新图表
+            state.charts.revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => item.date),
+                    datasets: [{
+                        label: '日收入（元）',
+                        data: data.map(item => item.amount),
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: 'rgb(245, 158, 11)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载用户列表
+        async function loadUsers() {
+            try {
+                showLoading();
+                
+                const search = document.getElementById('user-search').value;
+                const role = document.getElementById('user-role-filter').value;
+                const status = document.getElementById('user-status-filter').value;
+                
+                let url = `${API_BASE_URL}/admin/users?page=${state.usersPage}&limit=${state.usersLimit}`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (role) url += `&role=${role}`;
+                if (status) url += `&status=${status}`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取用户列表失败');
+                }
+                
+                const data = await response.json();
+                
+                // 更新用户表格
+                const usersTable = document.getElementById('users-table');
+                usersTable.innerHTML = '';
+                
+                if (data.data.users.length === 0) {
+                    usersTable.innerHTML = '<tr><td colspan="7" class="px-4 py-2 text-center">没有找到用户</td></tr>';
+                } else {
+                    data.data.users.forEach(user => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-4 py-2 text-left">${user._id}</td>
+                            <td class="px-4 py-2 text-left">${user.username}</td>
+                            <td class="px-4 py-2 text-left">${user.email}</td>
+                            <td class="px-4 py-2 text-left">${getUserRoleName(user.role)}</td>
+                            <td class="px-4 py-2 text-left">
+                                <span class="px-2 py-1 rounded text-xs ${getUserStatusClass(user.status)}">
+                                    ${getUserStatusName(user.status)}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-left">${formatDate(user.createdAt)}</td>
+                            <td class="px-4 py-2 text-left">
+                                <button class="text-blue-600 hover:text-blue-800 mr-2 view-user-btn" data-id="${user._id}">查看</button>
+                                <button class="text-gray-600 hover:text-gray-800 status-user-btn" data-id="${user._id}" data-status="${user.status}">
+                                    ${user.status === 'active' ? '禁用' : '启用'}
+                                </button>
+                            </td>
+                        `;
+                        usersTable.appendChild(row);
+                    });
+                }
+                
+                // 更新分页信息
+                document.getElementById('users-start').textContent = (state.usersPage - 1) * state.usersLimit + 1;
+                document.getElementById('users-end').textContent = Math.min(state.usersPage * state.usersLimit, data.data.pagination.total);
+                document.getElementById('users-total').textContent = data.data.pagination.total;
+                
+                // 更新分页按钮状态
+                document.getElementById('users-prev-page').disabled = state.usersPage <= 1;
+                document.getElementById('users-next-page').disabled = state.usersPage >= data.data.pagination.pages;
+                
+                // 绑定用户操作事件
+                bindUserEvents();
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('加载用户列表失败:', error);
+                alert('加载用户列表失败');
+            }
+        }
+        
+        // 绑定用户操作事件
+        function bindUserEvents() {
+            // 查看用户详情
+            document.querySelectorAll('.view-user-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const userId = this.getAttribute('data-id');
+                    await viewUserDetails(userId);
+                });
+            });
+            
+            // 更新用户状态
+            document.querySelectorAll('.status-user-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const userId = this.getAttribute('data-id');
+                    const currentStatus = this.getAttribute('data-status');
+                    const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+                    await updateUserStatus(userId, newStatus);
+                });
+            });
+        }
+        
+        // 查看用户详情
+        async function viewUserDetails(userId) {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取用户详情失败');
+                }
+                
+                const data = await response.json();
+                const user = data.data.user;
+                
+                // 更新用户详情模态框
+                const detailsEl = document.getElementById('user-details');
+                
+                detailsEl.innerHTML = `
+                    <div class="bg-gray-50 p-4 rounded mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">基本信息</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">个人简介 (英文)</p>
+                                <p class="font-medium">${user.profile?.bio?.['en-US'] || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${user.role === 'creator' ? `
+                    <div class="bg-gray-50 p-4 rounded mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">创作者信息</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">是否认证</p>
+                                <p class="font-medium">${user.creatorInfo?.isVerified ? '已认证' : '未认证'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">粉丝数</p>
+                                <p class="font-medium">${user.creatorInfo?.totalFollowers || 0}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">总观看量</p>
+                                <p class="font-medium">${user.creatorInfo?.totalViews || 0}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">总收益</p>
+                                <p class="font-medium">￥${user.creatorInfo?.totalEarnings?.toFixed(2) || '0.00'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="bg-gray-50 p-4 rounded">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">统计信息</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">内容数量</p>
+                                <p class="font-medium">${data.data.stats.contentCount}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">订阅状态</p>
+                                <p class="font-medium">${data.data.stats.hasSubscription ? '有订阅' : '无订阅'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // 显示用户详情模态框
+                document.getElementById('user-modal').classList.remove('hidden');
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('获取用户详情失败:', error);
+                alert('获取用户详情失败');
+            }
+        }
+        
+        // 更新用户状态
+        async function updateUserStatus(userId, status) {
+            try {
+                showLoading();
+                
+                const reason = prompt(`请输入${status === 'active' ? '启用' : '禁用'}用户的原因:`);
+                if (reason === null) {
+                    hideLoading();
+                    return; // 用户取消
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${state.token}`
+                    },
+                    body: JSON.stringify({ status, reason })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('更新用户状态失败');
+                }
+                
+                // 重新加载用户列表
+                loadUsers();
+                
+                hideLoading();
+                alert(`用户状态已更新为${status === 'active' ? '活跃' : '禁用'}`);
+            } catch (error) {
+                hideLoading();
+                console.error('更新用户状态失败:', error);
+                alert('更新用户状态失败');
+            }
+        }
+        
+        // 加载内容列表
+        async function loadContents() {
+            try {
+                showLoading();
+                
+                const search = document.getElementById('content-search').value;
+                const contentType = document.getElementById('content-type-filter').value;
+                const status = document.getElementById('content-status-filter').value;
+                
+                let url = `${API_BASE_URL}/admin/contents?page=${state.contentsPage}&limit=${state.contentsLimit}`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (contentType) url += `&contentType=${contentType}`;
+                if (status) url += `&status=${status}`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取内容列表失败');
+                }
+                
+                const data = await response.json();
+                
+                // 更新内容表格
+                const contentsTable = document.getElementById('contents-table');
+                contentsTable.innerHTML = '';
+                
+                if (data.data.contents.length === 0) {
+                    contentsTable.innerHTML = '<tr><td colspan="7" class="px-4 py-2 text-center">没有找到内容</td></tr>';
+                } else {
+                    data.data.contents.forEach(content => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-4 py-2 text-left">${content._id}</td>
+                            <td class="px-4 py-2 text-left">${content.title['zh-CN'] || content.title['en-US'] || '无标题'}</td>
+                            <td class="px-4 py-2 text-left">${getContentTypeName(content.contentType)}</td>
+                            <td class="px-4 py-2 text-left">${content.creatorId?.username || '未知'}</td>
+                            <td class="px-4 py-2 text-left">
+                                <span class="px-2 py-1 rounded text-xs ${getContentStatusClass(content.status)}">
+                                    ${getContentStatusName(content.status)}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-left">${content.publishedAt ? formatDate(content.publishedAt) : '-'}</td>
+                            <td class="px-4 py-2 text-left">
+                                <button class="text-blue-600 hover:text-blue-800 mr-2 view-content-btn" data-id="${content._id}">查看</button>
+                                <button class="text-gray-600 hover:text-gray-800 status-content-btn" data-id="${content._id}" data-status="${content.status}">
+                                    ${content.status === 'published' ? '下架' : content.status === 'pending_review' ? '审核' : '发布'}
+                                </button>
+                            </td>
+                        `;
+                        contentsTable.appendChild(row);
+                    });
+                }
+                
+                // 更新分页信息
+                document.getElementById('contents-start').textContent = (state.contentsPage - 1) * state.contentsLimit + 1;
+                document.getElementById('contents-end').textContent = Math.min(state.contentsPage * state.contentsLimit, data.data.pagination.total);
+                document.getElementById('contents-total').textContent = data.data.pagination.total;
+                
+                // 更新分页按钮状态
+                document.getElementById('contents-prev-page').disabled = state.contentsPage <= 1;
+                document.getElementById('contents-next-page').disabled = state.contentsPage >= data.data.pagination.pages;
+                
+                // 绑定内容操作事件
+                bindContentEvents();
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('加载内容列表失败:', error);
+                alert('加载内容列表失败');
+            }
+        }
+        
+        // 绑定内容操作事件
+        function bindContentEvents() {
+            // 查看内容详情
+            document.querySelectorAll('.view-content-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const contentId = this.getAttribute('data-id');
+                    await viewContentDetails(contentId);
+                });
+            });
+            
+            // 更新内容状态
+            document.querySelectorAll('.status-content-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const contentId = this.getAttribute('data-id');
+                    const currentStatus = this.getAttribute('data-status');
+                    let newStatus;
+                    
+                    if (currentStatus === 'published') {
+                        newStatus = 'archived';
+                    } else if (currentStatus === 'pending_review') {
+                        // 对于待审核状态，打开详情进行审核
+                        await viewContentDetails(contentId);
+                        return;
+                    } else {
+                        newStatus = 'published';
+                    }
+                    
+                    await updateContentStatus(contentId, newStatus);
+                });
+            });
+        }
+        
+        // 查看内容详情
+        async function viewContentDetails(contentId) {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${API_BASE_URL}/admin/contents/${contentId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取内容详情失败');
+                }
+                
+                const data = await response.json();
+                const content = data.data.content;
+                
+                // 保存当前内容ID和数据
+                state.currentContentId = contentId;
+                state.currentContent = content;
+                
+                // 更新内容详情模态框
+                const detailsEl = document.getElementById('content-details');
+                
+                detailsEl.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="md:col-span-2">
+                            <div class="bg-gray-50 p-4 rounded mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">基本信息</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600">内容ID</p>
+                                        <p class="font-medium">${content._id}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">内容类型</p>
+                                        <p class="font-medium">${getContentTypeName(content.contentType)}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">标题 (中文)</p>
+                                        <p class="font-medium">${content.title['zh-CN'] || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">标题 (英文)</p>
+                                        <p class="font-medium">${content.title['en-US'] || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">创建者</p>
+                                        <p class="font-medium">${content.creatorId?.username || '未知'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">状态</p>
+                                        <p class="font-medium">
+                                            <span class="px-2 py-1 rounded text-xs ${getContentStatusClass(content.status)}">
+                                                ${getContentStatusName(content.status)}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">创建时间</p>
+                                        <p class="font-medium">${formatDate(content.createdAt)}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">发布时间</p>
+                                        <p class="font-medium">${content.publishedAt ? formatDate(content.publishedAt) : '-'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">描述</h3>
+                                <div class="mb-4">
+                                    <p class="text-sm text-gray-600">描述 (中文)</p>
+                                    <p class="font-medium">${content.description?.['zh-CN'] || '-'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">描述 (英文)</p>
+                                    <p class="font-medium">${content.description?.['en-US'] || '-'}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">标签与分类</h3>
+                                <div class="mb-3">
+                                    <p class="text-sm text-gray-600">标签</p>
+                                    <div class="flex flex-wrap mt-1">
+                                        ${content.tags.length > 0 ? 
+                                            content.tags.map(tag => 
+                                                `<span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-2 mb-2">${tag}</span>`
+                                            ).join('') : 
+                                            '无标签'
+                                        }
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">分类</p>
+                                    <p class="font-medium">${getCategoryName(content.category)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-gray-50 p-4 rounded mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">文件信息</h3>
+                                <div>
+                                    <p class="text-sm text-gray-600">主要文件</p>
+                                    <p class="font-medium text-blue-600 hover:underline">
+                                        <a href="${content.files.main.url}" target="_blank">查看文件</a>
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        大小: ${formatFileSize(content.files.main.size)}<br>
+                                        ${content.contentType.includes('video') ? `时长: ${formatDuration(content.files.main.duration)}` : ''}
+                                    </p>
+                                </div>
+                                
+                                ${content.files.thumbnail ? `
+                                <div class="mt-3">
+                                    <p class="text-sm text-gray-600">缩略图</p>
+                                    <div class="mt-1 bg-gray-200 border rounded overflow-hidden">
+                                        <img src="${content.files.thumbnail.url}" class="w-full h-auto object-contain" alt="缩略图">
+                                    </div>
+                                </div>` : ''}
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">价格信息</h3>
+                                <div>
+                                    <p class="text-sm text-gray-600">是否免费</p>
+                                    <p class="font-medium">${content.pricing.isFree ? '是' : '否'}</p>
+                                </div>
+                                ${!content.pricing.isFree ? `
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-600">价格</p>
+                                    <p class="font-medium">￥${content.pricing.price.toFixed(2)}</p>
+                                </div>` : ''}
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">统计数据</h3>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <p class="text-sm text-gray-600">浏览量</p>
+                                        <p class="font-medium">${content.stats.views}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">点赞数</p>
+                                        <p class="font-medium">${content.stats.likes}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">收藏数</p>
+                                        <p class="font-medium">${content.stats.favorites}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">评论数</p>
+                                        <p class="font-medium">${content.stats.comments}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">分享数</p>
+                                        <p class="font-medium">${content.stats.shares}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">下载数</p>
+                                        <p class="font-medium">${content.stats.downloads}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${content.status === 'pending_review' ? `
+                    <div class="bg-yellow-50 p-4 rounded border border-yellow-200">
+                        <h3 class="text-lg font-semibold text-yellow-800 mb-2">审核操作</h3>
+                        <div class="mb-3">
+                            <label class="block text-gray-700 mb-2">审核备注</label>
+                            <textarea id="review-note" class="w-full p-2 border rounded" rows="3" placeholder="请输入审核备注..."></textarea>
+                        </div>
+                        <div class="flex justify-between">
+                            <p class="text-sm text-gray-600">如果内容符合规范，请点击"通过"，否则点击"拒绝"</p>
+                            <div>
+                                <button id="approve-content-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">通过</button>
+                                <button id="reject-content-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 ml-2">拒绝</button>
+                            </div>
+                        </div>
+                    </div>` : ''}
+                `;
+                
+                // 显示内容详情模态框
+                document.getElementById('content-modal').classList.remove('hidden');
+                
+                // 根据内容状态控制按钮显示
+                document.getElementById('edit-content-btn').style.display = 'inline-block';
+                document.getElementById('review-content-btn').style.display = content.status === 'pending_review' ? 'inline-block' : 'none';
+                document.getElementById('reject-content-btn').style.display = content.status === 'pending_review' ? 'inline-block' : 'none';
+                
+                // 绑定审核按钮事件
+                if (content.status === 'pending_review') {
+                    document.getElementById('approve-content-btn').addEventListener('click', () => {
+                        const reviewNote = document.getElementById('review-note').value;
+                        reviewContent(contentId, true, reviewNote);
+                    });
+                    
+                    document.getElementById('reject-content-btn').addEventListener('click', () => {
+                        const reviewNote = document.getElementById('review-note').value;
+                        reviewContent(contentId, false, reviewNote);
+                    });
+                }
+                
+                // 绑定编辑按钮事件
+                document.getElementById('edit-content-btn').addEventListener('click', () => {
+                    showContentEditForm(content);
+                });
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('获取内容详情失败:', error);
+                alert('获取内容详情失败');
+            }
+        }
+        
+        // 显示内容编辑表单
+        function showContentEditForm(content) {
+            // 隐藏内容详情模态框
+            document.getElementById('content-modal').classList.add('hidden');
+            
+            // 填充表单数据
+            document.getElementById('edit-title-zh').value = content.title['zh-CN'] || '';
+            document.getElementById('edit-title-en').value = content.title['en-US'] || '';
+            document.getElementById('edit-content-type').value = content.contentType;
+            document.getElementById('edit-status').value = content.status;
+            document.getElementById('edit-description-zh').value = content.description?.['zh-CN'] || '';
+            document.getElementById('edit-description-en').value = content.description?.['en-US'] || '';
+            document.getElementById('edit-tags').value = content.tags.join(', ');
+            document.getElementById('edit-category').value = content.category;
+            document.getElementById('edit-is-free').value = content.pricing.isFree.toString();
+            document.getElementById('edit-price').value = content.pricing.price;
+            
+            // 控制价格输入框显示
+            if (content.pricing.isFree) {
+                document.getElementById('price-container').style.display = 'none';
+            } else {
+                document.getElementById('price-container').style.display = 'block';
+            }
+            
+            // 绑定是否免费变更事件
+            document.getElementById('edit-is-free').addEventListener('change', function() {
+                const isFree = this.value === 'true';
+                document.getElementById('price-container').style.display = isFree ? 'none' : 'block';
+            });
+            
+            // 绑定表单提交事件
+            document.getElementById('content-edit-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveContentEdit();
+            });
+            
+            // 绑定取消按钮事件
+            document.getElementById('cancel-edit-btn').addEventListener('click', function() {
+                document.getElementById('content-edit-modal').classList.add('hidden');
+                document.getElementById('content-modal').classList.remove('hidden');
+            });
+            
+            // 显示编辑模态框
+            document.getElementById('content-edit-modal').classList.remove('hidden');
+        }
+        
+        // 保存内容编辑
+        async function saveContentEdit() {
+            try {
+                showLoading();
+                
+                const contentId = state.currentContentId;
+                const isFree = document.getElementById('edit-is-free').value === 'true';
+                
+                // 构建更新数据
+                const updates = {
+                    title: {
+                        'zh-CN': document.getElementById('edit-title-zh').value,
+                        'en-US': document.getElementById('edit-title-en').value
+                    },
+                    contentType: document.getElementById('edit-content-type').value,
+                    status: document.getElementById('edit-status').value,
+                    description: {
+                        'zh-CN': document.getElementById('edit-description-zh').value,
+                        'en-US': document.getElementById('edit-description-en').value
+                    },
+                    tags: document.getElementById('edit-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                    category: document.getElementById('edit-category').value,
+                    pricing: {
+                        isFree: isFree,
+                        price: isFree ? 0 : parseFloat(document.getElementById('edit-price').value) || 0,
+                        currency: 'CNY'
+                    }
+                };
+                
+                // 发送更新请求
+                const response = await fetch(`${API_BASE_URL}/admin/contents/${contentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${state.token}`
+                    },
+                    body: JSON.stringify(updates)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('更新内容失败');
+                }
+                
+                // 隐藏编辑模态框
+                document.getElementById('content-edit-modal').classList.add('hidden');
+                
+                // 重新加载内容详情
+                await viewContentDetails(contentId);
+                
+                // 重新加载内容列表
+                loadContents();
+                
+                hideLoading();
+                alert('内容更新成功');
+            } catch (error) {
+                hideLoading();
+                console.error('保存内容编辑失败:', error);
+                alert('保存内容编辑失败: ' + error.message);
+            }
+        }
+        
+        // 更新内容状态
+        async function updateContentStatus(contentId, status) {
+            try {
+                showLoading();
+                
+                const reason = prompt(`请输入修改内容状态的原因:`);
+                if (reason === null) {
+                    hideLoading();
+                    return; // 用户取消
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/admin/contents/${contentId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${state.token}`
+                    },
+                    body: JSON.stringify({ status, reason })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('更新内容状态失败');
+                }
+                
+                // 重新加载内容列表
+                loadContents();
+                
+                hideLoading();
+                alert(`内容状态已更新为${getContentStatusName(status)}`);
+            } catch (error) {
+                hideLoading();
+                console.error('更新内容状态失败:', error);
+                alert('更新内容状态失败');
+            }
+        }
+        
+        // 审核内容
+        async function reviewContent(contentId, approved, reviewNote) {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${API_BASE_URL}/admin/contents/${contentId}/review`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${state.token}`
+                    },
+                    body: JSON.stringify({ approved, reviewNote })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('审核内容失败');
+                }
+                
+                // 关闭模态框
+                document.getElementById('content-modal').classList.add('hidden');
+                
+                // 重新加载内容列表
+                loadContents();
+                
+                hideLoading();
+                alert(`内容已${approved ? '通过审核' : '被拒绝'}`);
+            } catch (error) {
+                hideLoading();
+                console.error('审核内容失败:', error);
+                alert('审核内容失败');
+            }
+        }
+        
+        // 加载订单列表
+        async function loadOrders() {
+            try {
+                showLoading();
+                
+                const search = document.getElementById('order-search').value;
+                const type = document.getElementById('order-type-filter').value;
+                const status = document.getElementById('order-status-filter').value;
+                
+                let url = `${API_BASE_URL}/admin/orders?page=${state.ordersPage}&limit=${state.ordersLimit}`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (type) url += `&type=${type}`;
+                if (status) url += `&status=${status}`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取订单列表失败');
+                }
+                
+                const data = await response.json();
+                
+                // 更新订单表格
+                const ordersTable = document.getElementById('orders-table');
+                ordersTable.innerHTML = '';
+                
+                if (data.data.orders.length === 0) {
+                    ordersTable.innerHTML = '<tr><td colspan="7" class="px-4 py-2 text-center">没有找到订单</td></tr>';
+                } else {
+                    data.data.orders.forEach(order => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-4 py-2 text-left">${order.orderNo}</td>
+                            <td class="px-4 py-2 text-left">${order.userId?.username || '未知'}</td>
+                            <td class="px-4 py-2 text-left">${getOrderTypeName(order.orderType)}</td>
+                            <td class="px-4 py-2 text-left">￥${order.amount.toFixed(2)}</td>
+                            <td class="px-4 py-2 text-left">
+                                <span class="px-2 py-1 rounded text-xs ${getOrderStatusClass(order.paymentStatus)}">
+                                    ${getOrderStatusName(order.paymentStatus)}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-left">${formatDate(order.createdAt)}</td>
+                            <td class="px-4 py-2 text-left">
+                                <button class="text-blue-600 hover:text-blue-800 mr-2 view-order-btn" data-id="${order.orderNo}">查看</button>
+                                ${order.paymentStatus === 'pending' ? 
+                                    `<button class="text-green-600 hover:text-green-800 mark-paid-btn" data-id="${order.orderNo}">标记已付</button>` : 
+                                    order.paymentStatus === 'paid' ? 
+                                    `<button class="text-yellow-600 hover:text-yellow-800 refund-btn" data-id="${order.orderNo}">退款</button>` : 
+                                    ''}
+                            </td>
+                        `;
+                        ordersTable.appendChild(row);
+                    });
+                }
+                
+                // 更新分页信息
+                document.getElementById('orders-start').textContent = (state.ordersPage - 1) * state.ordersLimit + 1;
+                document.getElementById('orders-end').textContent = Math.min(state.ordersPage * state.ordersLimit, data.data.pagination.total);
+                document.getElementById('orders-total').textContent = data.data.pagination.total;
+                
+                // 更新分页按钮状态
+                document.getElementById('orders-prev-page').disabled = state.ordersPage <= 1;
+                document.getElementById('orders-next-page').disabled = state.ordersPage >= data.data.pagination.pages;
+                
+                // 绑定订单操作事件
+                bindOrderEvents();
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('加载订单列表失败:', error);
+                alert('加载订单列表失败');
+            }
+        }
+        
+        // 绑定订单操作事件
+        function bindOrderEvents() {
+            // 查看订单详情
+            document.querySelectorAll('.view-order-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const orderNo = this.getAttribute('data-id');
+                    await viewOrderDetails(orderNo);
+                });
+            });
+            
+            // 标记已付款
+            document.querySelectorAll('.mark-paid-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const orderNo = this.getAttribute('data-id');
+                    await updateOrderStatus(orderNo, 'paid');
+                });
+            });
+            
+            // 退款
+            document.querySelectorAll('.refund-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const orderNo = this.getAttribute('data-id');
+                    await updateOrderStatus(orderNo, 'refunded');
+                });
+            });
+        }
+        
+        // 查看订单详情
+        async function viewOrderDetails(orderNo) {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${API_BASE_URL}/admin/orders/${orderNo}`, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取订单详情失败');
+                }
+                
+                const data = await response.json();
+                const order = data.data.order;
+                
+                // 更新订单详情模态框
+                const detailsEl = document.getElementById('order-details');
+                
+                detailsEl.innerHTML = `
+                    <div class="bg-gray-50 p-4 rounded mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">订单信息</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">订单号</p>
+                                <p class="font-medium">${order.orderNo}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">订单类型</p>
+                                <p class="font-medium">${getOrderTypeName(order.orderType)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">订单状态</p>
+                                <p class="font-medium">
+                                    <span class="px-2 py-1 rounded text-xs ${getOrderStatusClass(order.paymentStatus)}">
+                                        ${getOrderStatusName(order.paymentStatus)}
+                                    </span>
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">支付方式</p>
+                                <p class="font-medium">${getPaymentMethodName(order.paymentMethod)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">创建时间</p>
+                                <p class="font-medium">${formatDate(order.createdAt)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">支付时间</p>
+                                <p class="font-medium">${order.paidAt ? formatDate(order.paidAt) : '-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">过期时间</p>
+                                <p class="font-medium">${order.expiredAt ? formatDate(order.expiredAt) : '-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">交易ID</p>
+                                <p class="font-medium">${order.transactionId || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">金额信息</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">订单金额</p>
+                                <p class="font-medium text-xl">￥${order.amount.toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">货币</p>
+                                <p class="font-medium">${order.currency}</p>
+                            </div>
+                            ${order.revenue ? `
+                            <div>
+                                <p class="text-sm text-gray-600">创作者收入</p>
+                                <p class="font-medium">￥${order.revenue.creatorAmount.toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">平台收入</p>
+                                <p class="font-medium">￥${order.revenue.platformAmount.toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">分成比例</p>
+                                <p class="font-medium">${(order.revenue.sharingRatio * 100).toFixed(0)}%</p>
+                            </div>` : ''}
+                            ${order.refund ? `
+                            <div class="md:col-span-2 bg-red-50 p-3 rounded">
+                                <p class="text-sm font-semibold text-red-800">退款信息</p>
+                                <p class="text-sm">退款金额: ￥${order.refund.amount.toFixed(2)}</p>
+                                <p class="text-sm">退款原因: ${order.refund.reason || '-'}</p>
+                                <p class="text-sm">退款请求时间: ${formatDate(order.refund.requestedAt)}</p>
+                                <p class="text-sm">退款处理时间: ${order.refund.processedAt ? formatDate(order.refund.processedAt) : '-'}</p>
+                                <p class="text-sm">退款状态: ${getRefundStatusName(order.refund.status)}</p>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">用户和产品信息</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">用户</p>
+                                <p class="font-medium">${order.userId?.username || '-'}</p>
+                                <p class="text-xs text-gray-500">${order.userId?.email || '-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">关联内容</p>
+                                <p class="font-medium">${order.relatedId?.title?.['zh-CN'] || order.relatedId?.username || order.description || '-'}</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <p class="text-sm text-gray-600">描述</p>
+                                <p class="font-medium">${order.description || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // 显示订单详情模态框
+                document.getElementById('order-modal').classList.remove('hidden');
+                
+                // 绑定订单操作按钮事件
+                const markPaidBtn = document.getElementById('mark-order-paid-btn');
+                const refundBtn = document.getElementById('refund-order-btn');
+                
+                // 根据订单状态显示/隐藏按钮
+                if (order.paymentStatus === 'pending') {
+                    markPaidBtn.style.display = 'inline-block';
+                    refundBtn.style.display = 'none';
+                    
+                    markPaidBtn.addEventListener('click', () => {
+                        document.getElementById('order-modal').classList.add('hidden');
+                        updateOrderStatus(order.orderNo, 'paid');
+                    });
+                } else if (order.paymentStatus === 'paid') {
+                    markPaidBtn.style.display = 'none';
+                    refundBtn.style.display = 'inline-block';
+                    
+                    refundBtn.addEventListener('click', () => {
+                        document.getElementById('order-modal').classList.add('hidden');
+                        updateOrderStatus(order.orderNo, 'refunded');
+                    });
+                } else {
+                    markPaidBtn.style.display = 'none';
+                    refundBtn.style.display = 'none';
+                }
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('获取订单详情失败:', error);
+                alert('获取订单详情失败');
+            }
+        }
+        
+        // 更新订单状态
+        async function updateOrderStatus(orderNo, status) {
+            try {
+                showLoading();
+                
+                const reason = prompt(`请输入${status === 'paid' ? '手动标记付款' : status === 'refunded' ? '退款' : '更新状态'}的原因:`);
+                if (reason === null) {
+                    hideLoading();
+                    return; // 用户取消
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/admin/orders/${orderNo}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${state.token}`
+                    },
+                    body: JSON.stringify({ status, reason })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('更新订单状态失败');
+                }
+                
+                // 重新加载订单列表
+                loadOrders();
+                
+                hideLoading();
+                alert(`订单状态已更新为${getOrderStatusName(status)}`);
+            } catch (error) {
+                hideLoading();
+                console.error('更新订单状态失败:', error);
+                alert('更新订单状态失败');
+            }
+        }
+        
+        // 加载系统设置
+        async function loadSettings() {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${API_BASE_URL}/admin/settings`, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取系统设置失败');
+                }
+                
+                const data = await response.json();
+                const settings = data.data.settings;
+                
+                // 更新表单值
+                document.getElementById('platformFee').value = settings.platformFee || 0.3;
+                document.getElementById('minimumWithdrawal').value = settings.minimumWithdrawal || 100;
+                document.getElementById('contentReviewRequired').value = settings.contentReviewRequired === false ? 'false' : 'true';
+                document.getElementById('maxUploadSize').value = settings.maxUploadSize || 524288000; // 默认500MB
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('加载系统设置失败:', error);
+                alert('加载系统设置失败');
+            }
+        }
+        
+        // 保存系统设置
+        async function saveSettings(e) {
+            e.preventDefault();
+            
+            try {
+                showLoading();
+                
+                const settings = {
+                    platformFee: parseFloat(document.getElementById('platformFee').value),
+                    minimumWithdrawal: parseInt(document.getElementById('minimumWithdrawal').value),
+                    contentReviewRequired: document.getElementById('contentReviewRequired').value === 'true',
+                    maxUploadSize: parseInt(document.getElementById('maxUploadSize').value)
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/admin/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${state.token}`
+                    },
+                    body: JSON.stringify(settings)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('保存系统设置失败');
+                }
+                
+                hideLoading();
+                alert('系统设置已保存');
+            } catch (error) {
+                hideLoading();
+                console.error('保存系统设置失败:', error);
+                alert('保存系统设置失败');
+            }
+        }
+        
+        // 生成报表
+        async function generateReport() {
+            try {
+                showLoading();
+                
+                const reportType = document.getElementById('report-type').value;
+                const period = document.getElementById('report-period').value;
+                
+                let url;
+                let chartType;
+                let chartOptions;
+                let tableHeaders;
+                
+                switch (reportType) {
+                    case 'user-growth':
+                        url = `${API_BASE_URL}/admin/reports/user-growth?period=${period}&count=${period === 'day' ? 30 : 12}`;
+                        chartType = 'bar';
+                        chartOptions = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    precision: 0
+                                }
+                            }
+                        };
+                        tableHeaders = ['日期', '新增用户数'];
+                        break;
+                    case 'content-publish':
+                        url = `${API_BASE_URL}/admin/reports/content-publish?period=${period}&count=${period === 'day' ? 30 : 12}`;
+                        chartType = 'bar';
+                        chartOptions = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    precision: 0
+                                }
+                            }
+                        };
+                        tableHeaders = ['日期', '新建内容数', '发布内容数'];
+                        break;
+                    case 'revenue-trends':
+                        url = `${API_BASE_URL}/admin/reports/revenue-trends?period=${period}&count=${period === 'day' ? 30 : 12}`;
+                        chartType = 'line';
+                        chartOptions = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        };
+                        tableHeaders = ['日期', '收入（元）'];
+                        break;
+                }
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('生成报表失败');
+                }
+                
+                const data = await response.json();
+                
+                // 更新报表标题
+                document.getElementById('report-title').textContent = getReportTitle(reportType, period);
+                
+                // 更新表格标题
+                const tableHead = document.getElementById('report-table-head');
+                tableHead.innerHTML = '<tr class="bg-gray-100">';
+                tableHeaders.forEach(header => {
+                    tableHead.innerHTML += `<th class="px-4 py-2 text-left">${header}</th>`;
+                });
+                tableHead.innerHTML += '</tr>';
+                
+                // 更新表格内容
+                const tableBody = document.getElementById('report-table-body');
+                tableBody.innerHTML = '';
+                
+                data.data.stats.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td class="px-4 py-2 text-left">${item.date}</td>`;
+                    
+                    switch (reportType) {
+                        case 'user-growth':
+                            row.innerHTML += `<td class="px-4 py-2 text-right">${item.newUsers}</td>`;
+                            break;
+                        case 'content-publish':
+                            row.innerHTML += `
+                                <td class="px-4 py-2 text-right">${item.newContents}</td>
+                                <td class="px-4 py-2 text-right">${item.publishedContents}</td>
+                            `;
+                            break;
+                        case 'revenue-trends':
+                            row.innerHTML += `<td class="px-4 py-2 text-right">￥${item.revenue.toFixed(2)}</td>`;
+                            break;
+                    }
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // 渲染图表
+                renderReportChart(reportType, data.data.stats, chartType, chartOptions);
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('生成报表失败:', error);
+                alert('生成报表失败');
+            }
+        }
+        
+        // 渲染报表图表
+        function renderReportChart(reportType, data, chartType, options) {
+            const ctx = document.getElementById('report-chart').getContext('2d');
+            
+            // 清除旧图表
+            if (state.charts.reportChart) {
+                state.charts.reportChart.destroy();
+            }
+            
+            // 设置数据集
+            let datasets;
+            
+            switch (reportType) {
+                case 'user-growth':
+                    datasets = [{
+                        label: '新增用户',
+                        data: data.map(item => item.newUsers),
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }];
+                    break;
+                case 'content-publish':
+                    datasets = [
+                        {
+                            label: '新建内容',
+                            data: data.map(item => item.newContents),
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '发布内容',
+                            data: data.map(item => item.publishedContents),
+                            backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                            borderColor: 'rgb(16, 185, 129)',
+                            borderWidth: 1
+                        }
+                    ];
+                    break;
+                case 'revenue-trends':
+                    datasets = [{
+                        label: '收入（元）',
+                        data: data.map(item => item.revenue),
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: 'rgb(245, 158, 11)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    }];
+                    break;
+            }
+            
+            // 创建图表
+            state.charts.reportChart = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: data.map(item => item.date),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    ...options
+                }
+            });
+        }
+        
+        // 加载管理日志
+        async function loadLogs() {
+            try {
+                showLoading();
+                
+                const adminId = document.getElementById('log-admin-filter').value;
+                const action = document.getElementById('log-action-filter').value;
+                const resourceType = document.getElementById('log-resource-filter').value;
+                
+                let url = `${API_BASE_URL}/admin/logs?page=${state.logsPage}&limit=${state.logsLimit}`;
+                if (adminId) url += `&adminId=${adminId}`;
+                if (action) url += `&action=${action}`;
+                if (resourceType) url += `&resourceType=${resourceType}`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取管理日志失败');
+                }
+                
+                const data = await response.json();
+                
+                // 更新日志表格
+                const logsTable = document.getElementById('logs-table');
+                logsTable.innerHTML = '';
+                
+                if (data.data.logs.length === 0) {
+                    logsTable.innerHTML = '<tr><td colspan="7" class="px-4 py-2 text-center">没有找到日志</td></tr>';
+                } else {
+                    data.data.logs.forEach(log => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-4 py-2 text-left">${log._id}</td>
+                            <td class="px-4 py-2 text-left">${log.adminId?.username || '未知'}</td>
+                            <td class="px-4 py-2 text-left">${getActionName(log.action)}</td>
+                            <td class="px-4 py-2 text-left">${getResourceTypeName(log.resourceType)}</td>
+                            <td class="px-4 py-2 text-left">${log.resourceId || '-'}</td>
+                            <td class="px-4 py-2 text-left">${log.ip || '-'}</td>
+                            <td class="px-4 py-2 text-left">${formatDate(log.createdAt)}</td>
+                        `;
+                        logsTable.appendChild(row);
+                    });
+                }
+                
+                // 更新分页信息
+                document.getElementById('logs-start').textContent = (state.logsPage - 1) * state.logsLimit + 1;
+                document.getElementById('logs-end').textContent = Math.min(state.logsPage * state.logsLimit, data.data.pagination.total);
+                document.getElementById('logs-total').textContent = data.data.pagination.total;
+                
+                // 更新分页按钮状态
+                document.getElementById('logs-prev-page').disabled = state.logsPage <= 1;
+                document.getElementById('logs-next-page').disabled = state.logsPage >= data.data.pagination.pages;
+                
+                // 更新管理员过滤器
+                if (state.logsPage === 1 && !adminId) {
+                    const adminFilter = document.getElementById('log-admin-filter');
+                    
+                    // 获取所有管理员
+                    const admins = [...new Set(data.data.logs
+                        .filter(log => log.adminId)
+                        .map(log => JSON.stringify({
+                            id: log.adminId._id,
+                            username: log.adminId.username
+                        })))];
+                    
+                    // 更新过滤器选项
+                    let options = '<option value="">所有管理员</option>';
+                    admins.forEach(admin => {
+                        const { id, username } = JSON.parse(admin);
+                        options += `<option value="${id}">${username}</option>`;
+                    });
+                    
+                    adminFilter.innerHTML = options;
+                }
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('加载管理日志失败:', error);
+                alert('加载管理日志失败');
+            }
+        }
+        
+        // 工具函数 - 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        
+        // 工具函数 - 格式化文件大小
+        function formatFileSize(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+        }
+        
+        // 工具函数 - 格式化时长
+        function formatDuration(seconds) {
+            if (!seconds) return '00:00';
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        // 获取用户角色名称
+        function getUserRoleName(role) {
+            const roles = {
+                admin: '管理员',
+                creator: '创作者',
+                user: '普通用户'
+            };
+            return roles[role] || role;
+        }
+        
+        // 获取用户状态名称
+        function getUserStatusName(status) {
+            const statuses = {
+                active: '活跃',
+                suspended: '已暂停',
+                deleted: '已删除'
+            };
+            return statuses[status] || status;
+        }
+        
+        // 获取用户状态类
+        function getUserStatusClass(status) {
+            const classes = {
+                active: 'bg-green-100 text-green-800',
+                suspended: 'bg-yellow-100 text-yellow-800',
+                deleted: 'bg-red-100 text-red-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // 获取内容类型名称
+        function getContentTypeName(type) {
+            const types = {
+                '180_video': '180°视频',
+                '180_photo': '180°照片',
+                '360_video': '360°视频',
+                '360_photo': '360°照片',
+                'spatial_video': '空间视频',
+                'spatial_photo': '空间照片'
+            };
+            return types[type] || type;
+        }
+        
+        // 获取内容状态名称
+        function getContentStatusName(status) {
+            const statuses = {
+                draft: '草稿',
+                pending_review: '待审核',
+                approved: '已批准',
+                rejected: '已拒绝',
+                published: '已发布',
+                archived: '已归档'
+            };
+            return statuses[status] || status;
+        }
+        
+        // 获取内容状态类
+        function getContentStatusClass(status) {
+            const classes = {
+                draft: 'bg-gray-100 text-gray-800',
+                pending_review: 'bg-yellow-100 text-yellow-800',
+                approved: 'bg-green-100 text-green-800',
+                rejected: 'bg-red-100 text-red-800',
+                published: 'bg-blue-100 text-blue-800',
+                archived: 'bg-purple-100 text-purple-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // 获取订单类型名称
+        function getOrderTypeName(type) {
+            const types = {
+                subscription: '订阅',
+                content: '内容购买',
+                tip: '打赏'
+            };
+            return types[type] || type;
+        }
+        
+        // 获取订单状态名称
+        function getOrderStatusName(status) {
+            const statuses = {
+                pending: '待支付',
+                paid: '已支付',
+                failed: '失败',
+                cancelled: '已取消',
+                refunded: '已退款'
+            };
+            return statuses[status] || status;
+        }
+        
+        // 获取订单状态类
+        function getOrderStatusClass(status) {
+            const classes = {
+                pending: 'bg-yellow-100 text-yellow-800',
+                paid: 'bg-green-100 text-green-800',
+                failed: 'bg-red-100 text-red-800',
+                cancelled: 'bg-gray-100 text-gray-800',
+                refunded: 'bg-purple-100 text-purple-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // 获取退款状态名称
+        function getRefundStatusName(status) {
+            const statuses = {
+                pending: '处理中',
+                processed: '已处理',
+                rejected: '已拒绝'
+            };
+            return statuses[status] || status;
+        }
+        
+        // 获取语言名称
+        function getLanguageName(language) {
+            const languages = {
+                'zh-CN': '中文(简体)',
+                'en-US': '英文(美国)',
+                'ja-JP': '日语',
+                'ko-KR': '韩语'
+            };
+            return languages[language] || language;
+        }
+        
+        // 获取分类名称
+        function getCategoryName(category) {
+            const categories = {
+                travel: '旅行',
+                education: '教育',
+                entertainment: '娱乐',
+                sports: '体育',
+                news: '新闻',
+                documentary: '纪录片',
+                art: '艺术',
+                other: '其他'
+            };
+            return categories[category] || category;
+        }
+        
+        // 获取支付方式名称
+        function getPaymentMethodName(method) {
+            const methods = {
+                alipay: '支付宝',
+                wechat: '微信支付',
+                stripe: 'Stripe',
+                apple_pay: 'Apple Pay',
+                apple_iap: 'Apple 内购'
+            };
+            return methods[method] || method;
+        }
+        
+        // 获取资源类型名称
+        function getResourceTypeName(type) {
+            const types = {
+                user: '用户',
+                content: '内容',
+                order: '订单',
+                comment: '评论',
+                system: '系统'
+            };
+            return types[type] || type;
+        }
+        
+        // 获取操作名称
+        function getActionName(action) {
+            const actions = {
+                view_dashboard: '查看仪表盘',
+                list_users: '查看用户列表',
+                view_user_details: '查看用户详情',
+                update_user: '更新用户',
+                update_user_status: '更新用户状态',
+                list_contents: '查看内容列表',
+                view_content_details: '查看内容详情',
+                update_content_status: '更新内容状态',
+                review_content: '审核内容',
+                list_orders: '查看订单列表',
+                view_order_details: '查看订单详情',
+                update_order_status: '更新订单状态',
+                view_platform_income: '查看平台收入',
+                view_withdrawal_requests: '查看提现请求',
+                process_withdrawal: '处理提现',
+                view_creator_income_stats: '查看创作者收入统计',
+                view_user_growth_stats: '查看用户增长统计',
+                view_content_publish_stats: '查看内容发布统计',
+                view_revenue_trends: '查看收入趋势',
+                list_notifications: '查看通知列表',
+                create_notification: '创建通知',
+                update_notification: '更新通知',
+                publish_notification: '发布通知',
+                delete_notification: '删除通知',
+                view_system_settings: '查看系统设置',
+                update_system_settings: '更新系统设置'
+            };
+            return actions[action] || action;
+        }
+        
+        // 获取报表标题
+        function getReportTitle(reportType, period) {
+            const types = {
+                'user-growth': '用户增长',
+                'content-publish': '内容发布',
+                'revenue-trends': '收入趋势'
+            };
+            
+            const periods = {
+                day: '按天',
+                month: '按月'
+            };
+            
+            return `${types[reportType] || reportType}报表 (${periods[period] || period})`;
+        }
+        // 完善评论管理功能
+async function loadComments() {
+    try {
+        showLoading();
+        
+        const status = document.getElementById('comment-status-filter').value;
+        
+        let url = `${API_BASE_URL}/admin/comments?page=1&limit=20&status=${status}`;
+        
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${state.token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('获取评论列表失败');
+        }
+        
+        const data = await response.json();
+        
+        // 更新评论表格
+        const commentsTable = document.getElementById('comments-table');
+        commentsTable.innerHTML = '';
+        
+        if (data.data.comments.length === 0) {
+            commentsTable.innerHTML = '<tr><td colspan="7" class="px-4 py-2 text-center">没有找到评论</td></tr>';
+        } else {
+            data.data.comments.forEach(comment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-2 text-left">${comment._id}</td>
+                    <td class="px-4 py-2 text-left">${comment.userId?.username || '未知'}</td>
+                    <td class="px-4 py-2 text-left">${comment.contentId?.title?.['zh-CN'] || comment.contentId?.title?.['en-US'] || '未知内容'}</td>
+                    <td class="px-4 py-2 text-left">${comment.text.substring(0, 50)}${comment.text.length > 50 ? '...' : ''}</td>
+                    <td class="px-4 py-2 text-left">${comment.reports?.length || 0}</td>
+                    <td class="px-4 py-2 text-left">${formatDate(comment.createdAt)}</td>
+                    <td class="px-4 py-2 text-left">
+                        <button class="text-blue-600 hover:text-blue-800 mr-2 view-comment-btn" data-id="${comment._id}">查看</button>
+                        ${getCommentActionButton(comment.status, comment._id)}
+                    </td>
+                `;
+                commentsTable.appendChild(row);
+            });
+        }
+        
+        // 更新分页信息
+        document.getElementById('comments-start').textContent = 1;
+        document.getElementById('comments-end').textContent = Math.min(20, data.data.pagination.total);
+        document.getElementById('comments-total').textContent = data.data.pagination.total;
+        
+        // 更新分页按钮状态
+        document.getElementById('comments-prev-page').disabled = true;
+        document.getElementById('comments-next-page').disabled = data.data.pagination.pages <= 1;
+        
+        // 绑定评论操作事件
+        bindCommentEvents();
+        
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        console.error('加载评论列表失败:', error);
+        alert('加载评论列表失败');
+    }
+}
+
+// 获取评论操作按钮
+function getCommentActionButton(status, commentId) {
+    switch(status) {
+        case 'active':
+            return `
+                <button class="text-yellow-600 hover:text-yellow-800 mr-1 hide-comment-btn" data-id="${commentId}">隐藏</button>
+                <button class="text-red-600 hover:text-red-800 delete-comment-btn" data-id="${commentId}">删除</button>
+            `;
+        case 'flagged':
+            return `
+                <button class="text-green-600 hover:text-green-800 mr-1 approve-comment-btn" data-id="${commentId}">批准</button>
+                <button class="text-red-600 hover:text-red-800 delete-comment-btn" data-id="${commentId}">删除</button>
+            `;
+        case 'hidden':
+            return `<button class="text-green-600 hover:text-green-800 restore-comment-btn" data-id="${commentId}">恢复</button>`;
+        case 'deleted':
+            return `<span class="text-gray-500">已删除</span>`;
+        default:
+            return '';
+    }
+}
+
+// 绑定评论操作事件
+function bindCommentEvents() {
+    // 查看评论详情
+    document.querySelectorAll('.view-comment-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const commentId = this.getAttribute('data-id');
+            await viewCommentDetails(commentId);
+        });
+    });
+    
+    // 批准评论
+    document.querySelectorAll('.approve-comment-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const commentId = this.getAttribute('data-id');
+            await updateCommentStatus(commentId, 'active');
+        });
+    });
+    
+    // 隐藏评论
+    document.querySelectorAll('.hide-comment-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const commentId = this.getAttribute('data-id');
+            await updateCommentStatus(commentId, 'hidden');
+        });
+    });
+    
+    // 删除评论
+    document.querySelectorAll('.delete-comment-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const commentId = this.getAttribute('data-id');
+            await updateCommentStatus(commentId, 'deleted');
+        });
+    });
+    
+    // 恢复评论
+    document.querySelectorAll('.restore-comment-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const commentId = this.getAttribute('data-id');
+            await updateCommentStatus(commentId, 'active');
+        });
+    });
+}
+
+// 查看评论详情
+async function viewCommentDetails(commentId) {
+    try {
+        showLoading();
+        
+        // 假设评论详情由用查询评论列表API得到的单个评论
+        const response = await fetch(`${API_BASE_URL}/admin/comments?_id=${commentId}`, {
+            headers: {
+                'Authorization': `Bearer ${state.token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('获取评论详情失败');
+        }
+        
+        const data = await response.json();
+        
+        if (!data.data.comments || data.data.comments.length === 0) {
+            throw new Error('未找到评论');
+        }
+        
+        const comment = data.data.comments[0];
+        
+        // 更新评论详情模态框
+        const detailsEl = document.getElementById('comment-details');
+        
+        detailsEl.innerHTML = `
+            <div class="bg-gray-50 p-4 rounded mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">评论信息</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">评论ID</p>
+                        <p class="font-medium">${comment._id}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">内容标题</p>
+                        <p class="font-medium">${comment.contentId?.title?.['zh-CN'] || comment.contentId?.title?.['en-US'] || '未知内容'}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">评论者</p>
+                        <p class="font-medium">${comment.userId?.username || '未知'}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">评论时间</p>
+                        <p class="font-medium">${formatDate(comment.createdAt)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">状态</p>
+                        <p class="font-medium">
+                            <span class="px-2 py-1 rounded text-xs ${getCommentStatusClass(comment.status)}">
+                                ${getCommentStatusName(comment.status)}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">点赞数</p>
+                        <p class="font-medium">${comment.likes || 0}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">评论内容</h3>
+                <p class="p-2 bg-white rounded border">${comment.text}</p>
+            </div>
+            
+            ${comment.reports && comment.reports.length > 0 ? `
+            <div class="bg-red-50 p-4 rounded">
+                <h3 class="text-lg font-semibold text-red-800 mb-2">举报信息</h3>
+                <table class="w-full table-auto">
+                    <thead>
+                        <tr class="bg-red-100">
+                            <th class="px-4 py-2 text-left">举报者</th>
+                            <th class="px-4 py-2 text-left">原因</th>
+                            <th class="px-4 py-2 text-left">时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${comment.reports.map(report => `
+                        <tr>
+                            <td class="px-4 py-2 text-left">${report.userId || '未知'}</td>
+                            <td class="px-4 py-2 text-left">${report.reason || '无原因'}</td>
+                            <td class="px-4 py-2 text-left">${formatDate(report.reportedAt)}</td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>` : ''}
+        `;
+        
+        // 显示评论详情模态框
+        document.getElementById('comment-modal').classList.remove('hidden');
+        
+        // 显示/隐藏操作按钮
+        document.getElementById('approve-comment-btn').style.display = comment.status === 'flagged' ? 'inline-block' : 'none';
+        document.getElementById('hide-comment-btn').style.display = comment.status === 'active' ? 'inline-block' : 'none';
+        document.getElementById('delete-comment-btn').style.display = ['active', 'flagged', 'hidden'].includes(comment.status) ? 'inline-block' : 'none';
+        
+        // 绑定操作按钮事件
+        document.getElementById('approve-comment-btn').onclick = () => {
+            document.getElementById('comment-modal').classList.add('hidden');
+            updateCommentStatus(comment._id, 'active');
+        };
+        
+        document.getElementById('hide-comment-btn').onclick = () => {
+            document.getElementById('comment-modal').classList.add('hidden');
+            updateCommentStatus(comment._id, 'hidden');
+        };
+        
+        document.getElementById('delete-comment-btn').onclick = () => {
+            document.getElementById('comment-modal').classList.add('hidden');
+            updateCommentStatus(comment._id, 'deleted');
+        };
+        
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        console.error('获取评论详情失败:', error);
+        alert('获取评论详情失败');
+    }
+}
+
+// 更新评论状态
+async function updateCommentStatus(commentId, status) {
+    try {
+        showLoading();
+        
+        const reason = prompt(`请输入${getStatusActionName(status)}评论的原因:`);
+        if (reason === null) {
+            hideLoading();
+            return; // 用户取消
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/admin/comments/${commentId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${state.token}`
+            },
+            body: JSON.stringify({ status, reason })
+        });
+        
+        if (!response.ok) {
+            throw new Error('更新评论状态失败');
+        }
+        
+        // 重新加载评论列表
+        loadComments();
+        
+        hideLoading();
+        alert(`评论已${getStatusActionName(status)}`);
+    } catch (error) {
+        hideLoading();
+        console.error('更新评论状态失败:', error);
+        alert('更新评论状态失败');
+    }
+}
+
+// 获取评论状态名称
+function getCommentStatusName(status) {
+    const statuses = {
+        active: '活跃',
+        flagged: '已举报',
+        hidden: '已隐藏',
+        deleted: '已删除'
+    };
+    return statuses[status] || status;
+}
+
+// 获取评论状态类名
+function getCommentStatusClass(status) {
+    const classes = {
+        active: 'bg-green-100 text-green-800',
+        flagged: 'bg-red-100 text-red-800',
+        hidden: 'bg-yellow-100 text-yellow-800',
+        deleted: 'bg-gray-100 text-gray-800'
+    };
+    return classes[status] || 'bg-gray-100 text-gray-800';
+}
+
+// 获取状态动作名称
+function getStatusActionName(status) {
+    const actions = {
+        active: '批准',
+        hidden: '隐藏',
+        deleted: '删除'
+    };
+    return actions[status] || status;
+}
+
+// 初始化评论管理页面
+document.getElementById('search-comments-btn').addEventListener('click', loadComments);
+document.getElementById('comments-prev-page').addEventListener('click', () => {
+    if (state.commentsPage > 1) {
+        state.commentsPage--;
+        loadComments();
+    }
+});
+document.getElementById('comments-next-page').addEventListener('click', () => {
+    state.commentsPage++;
+    loadComments();
+});
+document.getElementById('close-comment-modal-btn').addEventListener('click', () => {
+    document.getElementById('comment-modal').classList.add('hidden');
+});
+// 添加弹幕管理功能
+function initDanmakuManagement() {
+    // 在侧边栏添加弹幕管理菜单
+
+    
+    // 添加弹幕管理页面
+    const mainContent = document.querySelector('main');
+    const danmakuSection = document.createElement('section');
+    danmakuSection.id = 'danmaku';
+    danmakuSection.className = 'section hidden';
+    
+    danmakuSection.innerHTML = `
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">弹幕管理</h1>
+        
+        <!-- 搜索和筛选 -->
+        <div class="bg-white p-4 rounded-lg shadow mb-6">
+            <div class="flex flex-wrap items-center gap-4">
+                <div>
+                    <select id="danmaku-status-filter" class="p-2 border rounded">
+                        <option value="flagged" selected>被举报</option>
+                        <option value="active">活跃</option>
+                        <option value="hidden">已隐藏</option>
+                        <option value="deleted">已删除</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" id="danmaku-content-search" placeholder="搜索内容标题" class="p-2 border rounded">
+                </div>
+                <div>
+                    <button id="search-danmaku-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">搜索</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 弹幕列表 -->
+        <div class="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2 text-left">ID</th>
+                        <th class="px-4 py-2 text-left">用户</th>
+                        <th class="px-4 py-2 text-left">内容标题</th>
+                        <th class="px-4 py-2 text-left">弹幕内容</th>
+                        <th class="px-4 py-2 text-left">时间点</th>
+                        <th class="px-4 py-2 text-left">举报数</th>
+                        <th class="px-4 py-2 text-left">发送时间</th>
+                        <th class="px-4 py-2 text-left">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="danmaku-table">
+                    <tr>
+                        <td colspan="8" class="px-4 py-2 text-center">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 分页 -->
+        <div class="flex justify-between items-center" id="danmaku-pagination">
+            <div class="text-sm text-gray-600">
+                显示 <span id="danmaku-start">0</span> 到 <span id="danmaku-end">0</span> 项，共 <span id="danmaku-total">0</span> 项
+            </div>
+            <div class="flex space-x-2">
+                <button id="danmaku-prev-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">上一页</button>
+                <button id="danmaku-next-page" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">下一页</button>
+            </div>
+        </div>
+        
+        <!-- 弹幕详情模态框 -->
+        <div id="danmaku-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">弹幕详情</h2>
+                    <div id="danmaku-details">
+                        <p class="text-gray-600">加载中...</p>
+                    </div>
+                    <div class="flex justify-end space-x-2 mt-6">
+                        <button id="approve-danmaku-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">恢复弹幕</button>
+                        <button id="hide-danmaku-btn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">隐藏弹幕</button>
+                        <button id="delete-danmaku-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">删除弹幕</button>
+                        <button id="close-danmaku-modal-btn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    mainContent.appendChild(danmakuSection);
+    
+    // 初始化弹幕管理事件
+    document.getElementById('search-danmaku-btn').addEventListener('click', loadDanmaku);
+    document.getElementById('danmaku-prev-page').addEventListener('click', () => {
+        if (state.danmakuPage > 1) {
+            state.danmakuPage--;
+            loadDanmaku();
+        }
+    });
+    document.getElementById('danmaku-next-page').addEventListener('click', () => {
+        state.danmakuPage++;
+        loadDanmaku();
+    });
+    document.getElementById('close-danmaku-modal-btn').addEventListener('click', () => {
+        document.getElementById('danmaku-modal').classList.add('hidden');
+    });
+    
+    // 更新状态对象
+    state.danmakuPage = 1;
+    state.danmakuLimit = 20;
+}
+
+// 加载弹幕列表
+async function loadDanmaku() {
+    try {
+        showLoading();
+        
+        const status = document.getElementById('danmaku-status-filter').value;
+        const contentSearch = document.getElementById('danmaku-content-search').value;
+        
+        let url = `${API_BASE_URL}/admin/danmaku?page=${state.danmakuPage}&limit=${state.danmakuLimit}&status=${status}`;
+        if (contentSearch) url += `&content=${encodeURIComponent(contentSearch)}`;
+        
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${state.token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('获取弹幕列表失败');
+        }
+        
+        const data = await response.json();
+        
+        // 更新弹幕表格
+        const danmakuTable = document.getElementById('danmaku-table');
+        danmakuTable.innerHTML = '';
+        
+        if (data.data.danmakus.length === 0) {
+            danmakuTable.innerHTML = '<tr><td colspan="8" class="px-4 py-2 text-center">没有找到弹幕</td></tr>';
+        } else {
+            data.data.danmakus.forEach(danmaku => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-2 text-left">${danmaku._id}</td>
+                    <td class="px-4 py-2 text-left">${danmaku.userId?.username || '未知'}</td>
+                    <td class="px-4 py-2 text-left">${danmaku.contentId?.title?.['zh-CN'] || danmaku.contentId?.title?.['en-US'] || '未知内容'}</td>
+                    <td class="px-4 py-2 text-left">${danmaku.text.substring(0, 30)}${danmaku.text.length > 30 ? '...' : ''}</td>
+                    <td class="px-4 py-2 text-left">${formatTime(danmaku.timestamp)}</td>
+                    <td class="px-4 py-2 text-left">${danmaku.reports?.length || 0}</td>
+                    <td class="px-4 py-2 text-left">${formatDate(danmaku.createdAt)}</td>
+                    <td class="px-4 py-2 text-left">
+                        <button class="text-blue-600 hover:text-blue-800 mr-2 view-danmaku-btn" data-id="${danmaku._id}">查看</button>
+                        ${getDanmakuActionButton(danmaku.status, danmaku._id)}
+                    </td>
+                `;
+                danmakuTable.appendChild(row);
+            });
+        }
+        
+        // 更新分页信息
+        document.getElementById('danmaku-start').textContent = (state.danmakuPage - 1) * state.danmakuLimit + 1;
+        document.getElementById('danmaku-end').textContent = Math.min(state.danmakuPage * state.danmakuLimit, data.data.pagination.total);
+        document.getElementById('danmaku-total').textContent = data.data.pagination.total;
+        
+        // 更新分页按钮状态
+        document.getElementById('danmaku-prev-page').disabled = state.danmakuPage <= 1;
+        document.getElementById('danmaku-next-page').disabled = state.danmakuPage >= data.data.pagination.pages;
+        
+        // 绑定弹幕操作事件
+        bindDanmakuEvents();
+        
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        console.error('加载弹幕列表失败:', error);
+        alert('加载弹幕列表失败');
+    }
+}
+
+// 格式化时间点
+function formatTime(seconds) {
+    if (!seconds && seconds !== 0) return '-';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+// 获取弹幕操作按钮
+function getDanmakuActionButton(status, danmakuId) {
+    switch(status) {
+        case 'active':
+            return `
+                <button class="text-yellow-600 hover:text-yellow-800 mr-1 hide-danmaku-btn" data-id="${danmakuId}">隐藏</button>
+                <button class="text-red-600 hover:text-red-800 delete-danmaku-btn" data-id="${danmakuId}">删除</button>
+            `;
+        case 'flagged':
+            return `
+                <button class="text-green-600 hover:text-green-800 mr-1 approve-danmaku-btn" data-id="${danmakuId}">批准</button>
+                <button class="text-red-600 hover:text-red-800 delete-danmaku-btn" data-id="${danmakuId}">删除</button>
+            `;
+        case 'hidden':
+            return `<button class="text-green-600 hover:text-green-800 restore-danmaku-btn" data-id="${danmakuId}">恢复</button>`;
+        case 'deleted':
+            return `<span class="text-gray-500">已删除</span>`;
+        default:
+            return '';
+    }
+}
+
+// 绑定弹幕操作事件
+function bindDanmakuEvents() {
+    // 查看弹幕详情
+    document.querySelectorAll('.view-danmaku-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const danmakuId = this.getAttribute('data-id');
+            await viewDanmakuDetails(danmakuId);
+        });
+    });
+    
+    // 批准弹幕
+    document.querySelectorAll('.approve-danmaku-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const danmakuId = this.getAttribute('data-id');
+            await updateDanmakuStatus(danmakuId, 'active');
+        });
+    });
+    
+    // 隐藏弹幕
+    document.querySelectorAll('.hide-danmaku-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const danmakuId = this.getAttribute('data-id');
+            await updateDanmakuStatus(danmakuId, 'hidden');
+        });
+    });
+    
+    // 删除弹幕
+    document.querySelectorAll('.delete-danmaku-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const danmakuId = this.getAttribute('data-id');
+            await updateDanmakuStatus(danmakuId, 'deleted');
+        });
+    });
+    
+    // 恢复弹幕
+    document.querySelectorAll('.restore-danmaku-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const danmakuId = this.getAttribute('data-id');
+            await updateDanmakuStatus(danmakuId, 'active');
+        });
+    });
+}
+
+// 查看弹幕详情
+async function viewDanmakuDetails(danmakuId) {
+    try {
+        showLoading();
+        
+        const response = await fetch(`${API_BASE_URL}/admin/danmaku/${danmakuId}`, {
+            headers: {
+                'Authorization': `Bearer ${state.token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('获取弹幕详情失败');
+        }
+        
+        const data = await response.json();
+        const danmaku = data.data.danmaku;
+        
+        // 更新弹幕详情模态框
+        const detailsEl = document.getElementById('danmaku-details');
+        
+        detailsEl.innerHTML = `
+            <div class="bg-gray-50 p-4 rounded mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">弹幕信息</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">弹幕ID</p>
+                        <p class="font-medium">${danmaku._id}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">内容标题</p>
+                        <p class="font-medium">${danmaku.contentId?.title?.['zh-CN'] || danmaku.contentId?.title?.['en-US'] || '未知内容'}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">发送者</p>
+                        <p class="font-medium">${danmaku.userId?.username || '未知'}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">发送时间</p>
+                        <p class="font-medium">${formatDate(danmaku.createdAt)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">时间点</p>
+                        <p class="font-medium">${formatTime(danmaku.timestamp)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">弹幕类型</p>
+                        <p class="font-medium">${getDanmakuTypeName(danmaku.type)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">状态</p>
+                        <p class="font-medium">
+                            <span class="px-2 py-1 rounded text-xs ${getDanmakuStatusClass(danmaku.status)}">
+                                ${getDanmakuStatusName(danmaku.status)}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">点赞数</p>
+                        <p class="font-medium">${danmaku.likes || 0}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">弹幕内容</h3>
+                <p class="p-2 bg-white rounded border font-medium text-lg" style="color: ${danmaku.style?.color || '#FFFFFF'}">${danmaku.text}</p>
+            </div>
+            
+            ${danmaku.spatialPosition ? `
+            <div class="bg-gray-50 p-4 rounded mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">空间位置</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">X坐标</p>
+                        <p class="font-medium">${danmaku.spatialPosition.x}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Y坐标</p>
+                        <p class="font-medium">${danmaku.spatialPosition.y}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Z坐标</p>
+                        <p class="font-medium">${danmaku.spatialPosition.z}</p>
+                    </div>
+                </div>
+            </div>` : ''}
+            
+            ${danmaku.deviceInfo ? `
+            <div class="bg-gray-50 p-4 rounded mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">设备信息</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">平台</p>
+                        <p class="font-medium">${danmaku.deviceInfo.platform || '-'}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Vision Pro模式</p>
+                        <p class="font-medium">${danmaku.deviceInfo.visionProMode ? '是' : '否'}</p>
+                    </div>
+                </div>
+            </div>` : ''}
+            
+            ${danmaku.reports && danmaku.reports.length > 0 ? `
+            <div class="bg-red-50 p-4 rounded">
+                <h3 class="text-lg font-semibold text-red-800 mb-2">举报信息</h3>
+                <table class="w-full table-auto">
+                    <thead>
+                        <tr class="bg-red-100">
+                            <th class="px-4 py-2 text-left">举报者</th>
+                            <th class="px-4 py-2 text-left">原因</th>
+                            <th class="px-4 py-2 text-left">时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${danmaku.reports.map(report => `
+                        <tr>
+                            <td class="px-4 py-2 text-left">${report.userId || '未知'}</td>
+                            <td class="px-4 py-2 text-left">${report.reason || '无原因'}</td>
+                            <td class="px-4 py-2 text-left">${formatDate(report.reportedAt)}</td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>` : ''}
+        `;
+        
+        // 显示弹幕详情模态框
+        document.getElementById('danmaku-modal').classList.remove('hidden');
+        
+        // 显示/隐藏操作按钮
+        document.getElementById('approve-danmaku-btn').style.display = danmaku.status === 'flagged' ? 'inline-block' : 'none';
+        document.getElementById('hide-danmaku-btn').style.display = danmaku.status === 'active' ? 'inline-block' : 'none';
+        document.getElementById('delete-danmaku-btn').style.display = ['active', 'flagged', 'hidden'].includes(danmaku.status) ? 'inline-block' : 'none';
+        
+        // 绑定操作按钮事件
+        document.getElementById('approve-danmaku-btn').onclick = () => {
+            document.getElementById('danmaku-modal').classList.add('hidden');
+            updateDanmakuStatus(danmaku._id, 'active');
+        };
+        
+        document.getElementById('hide-danmaku-btn').onclick = () => {
+            document.getElementById('danmaku-modal').classList.add('hidden');
+            updateDanmakuStatus(danmaku._id, 'hidden');
+        };
+        
+        document.getElementById('delete-danmaku-btn').onclick = () => {
+            document.getElementById('danmaku-modal').classList.add('hidden');
+            updateDanmakuStatus(danmaku._id, 'deleted');
+        };
+        
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        console.error('获取弹幕详情失败:', error);
+        alert('获取弹幕详情失败');
+    }
+}
+
+// 更新弹幕状态
+async function updateDanmakuStatus(danmakuId, status) {
+    try {
+        showLoading();
+        
+        const reason = prompt(`请输入${getDanmakuStatusActionName(status)}弹幕的原因:`);
+        if (reason === null) {
+            hideLoading();
+            return; // 用户取消
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/admin/danmaku/${danmakuId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${state.token}`
+            },
+            body: JSON.stringify({ status, reason })
+        });
+        
+        if (!response.ok) {
+            throw new Error('更新弹幕状态失败');
+        }
+        
+        // 重新加载弹幕列表
+        loadDanmaku();
+        
+        hideLoading();
+        alert(`弹幕已${getDanmakuStatusActionName(status)}`);
+    } catch (error) {
+        hideLoading();
+        console.error('更新弹幕状态失败:', error);
+        alert('更新弹幕状态失败');
+    }
+}
+
+// 获取弹幕类型名称
+function getDanmakuTypeName(type) {
+    const types = {
+        scroll: '滚动弹幕',
+        top: '顶部弹幕',
+        bottom: '底部弹幕',
+        spatial: '空间弹幕'
+    };
+    return types[type] || type;
+}
+
+// 获取弹幕状态名称
+function getDanmakuStatusName(status) {
+    const statuses = {
+        active: '活跃',
+        flagged: '已举报',
+        hidden: '已隐藏',
+        deleted: '已删除'
+    };
+    return statuses[status] || status;
+}
+
+// 获取弹幕状态类名
+function getDanmakuStatusClass(status) {
+    const classes = {
+        active: 'bg-green-100 text-green-800',
+        flagged: 'bg-red-100 text-red-800',
+        hidden: 'bg-yellow-100 text-yellow-800',
+        deleted: 'bg-gray-100 text-gray-800'
+    };
+    return classes[status] || 'bg-gray-100 text-gray-800';
+}
+
+// 获取弹幕状态动作名称
+function getDanmakuStatusActionName(status) {
+    const actions = {
+        active: '批准',
+        hidden: '隐藏',
+        deleted: '删除'
+    };
+    return actions[status] || status;
+}
+
+// 在页面加载完成后初始化弹幕管理
+document.addEventListener('DOMContentLoaded', function() {
+    initDanmakuManagement();
+});
+    </script>
+</body>
