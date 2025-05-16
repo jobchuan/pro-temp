@@ -45,20 +45,95 @@ const contentSchema = new mongoose.Schema({
     },
     
     // 额外媒体
-    media: {
-        backgroundMusic: {
+media: {
+    // 背景音乐扩展，添加控制选项
+    backgroundMusic: {
+        url: String,
+        title: String,
+        artist: String,
+        startTime: { type: Number, default: 0 }, // 开始时间（秒）
+        endTime: Number, // 结束时间（秒），如不设置则播放到结束
+        volume: { type: Number, min: 0, max: 1, default: 1 } // 音量控制
+    },
+    
+    // 旁白扩展，添加时间控制
+    narration: {
+        'zh-CN': { 
             url: String,
-            title: String,
-            artist: String
+            duration: Number, // 旁白时长
+            transcript: String, // 旁白文本
+            startTime: { type: Number, default: 0 } // 开始时间
         },
-        narration: {
-            'zh-CN': { url: String },
-            'en-US': { url: String },
-            'ja-JP': { url: String },
-            'ko-KR': { url: String }
+        'en-US': { 
+            url: String,
+            duration: Number,
+            transcript: String,
+            startTime: { type: Number, default: 0 }
+        },
+        'ja-JP': { 
+            url: String,
+            duration: Number,
+            transcript: String,
+            startTime: { type: Number, default: 0 }
+        },
+        'ko-KR': { 
+            url: String,
+            duration: Number,
+            transcript: String,
+            startTime: { type: Number, default: 0 }
         }
     },
     
+    // 添加字幕支持
+    subtitles: {
+        'zh-CN': { 
+            url: String, // 字幕文件URL（通常为.srt或.vtt格式）
+            label: { type: String, default: '中文' }
+        },
+        'en-US': { 
+            url: String,
+            label: { type: String, default: 'English' }
+        },
+        'ja-JP': { 
+            url: String,
+            label: { type: String, default: '日本語' }
+        },
+        'ko-KR': { 
+            url: String,
+            label: { type: String, default: '한국어' }
+        }
+    }
+},
+
+// 添加照片特定设置
+photoSettings: {
+    displayDuration: { type: Number, default: 5 }, // 默认显示时长（秒）
+    transitionEffect: { 
+        type: String, 
+        enum: ['none', 'fade', 'slide', 'zoom'], 
+        default: 'none'
+    },
+    panAndZoom: { type: Boolean, default: false }, // 是否使用平移缩放效果
+    panAndZoomSettings: {
+        startPosition: { x: Number, y: Number, scale: Number },
+        endPosition: { x: Number, y: Number, scale: Number },
+        duration: Number
+    }
+},
+
+// 添加视频特定设置
+videoSettings: {
+    defaultVolume: { type: Number, min: 0, max: 1, default: 1 },
+    defaultQuality: { 
+        type: String, 
+        enum: ['auto', 'low', 'medium', 'high', 'ultra'], 
+        default: 'auto'
+    },
+    startTime: { type: Number, default: 0 }, // 默认开始播放时间（秒）
+    endTime: Number, // 默认结束时间（秒）
+    loopCount: { type: Number, default: 0 } // 0表示不循环，>0表示循环次数
+},
+
     // GPS信息
     location: {
         latitude: Number,
@@ -225,5 +300,6 @@ contentSchema.methods.addVersionHistory = async function(userId, changes) {
     this.version.current = newVersion;
     await this.save();
 };
+
 
 module.exports = mongoose.model('Content', contentSchema);

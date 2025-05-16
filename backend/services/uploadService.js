@@ -105,7 +105,75 @@ class UploadService {
         
         return thumbnailPath;
     }
-    
+// services/uploadService.js 的修改建议
+
+// 处理字幕文件上传
+static async handleSubtitleUpload(file, contentId, language) {
+    try {
+        // 保存字幕文件
+        const subtitlePath = path.join('uploads/subtitles', `${contentId}_${language}${path.extname(file.originalname)}`);
+        await fs.writeFile(subtitlePath, await fs.readFile(file.path));
+        
+        // 构建URL
+        const subtitleUrl = `/uploads/subtitles/${path.basename(subtitlePath)}`;
+        
+        return {
+            url: subtitleUrl,
+            language: language
+        };
+    } catch (error) {
+        console.error('处理字幕上传错误:', error);
+        throw error;
+    }
+}
+
+// 处理旁白音频上传
+static async handleNarrationUpload(file, contentId, language) {
+    try {
+        // 保存旁白文件
+        const narrationPath = path.join('uploads/narrations', `${contentId}_${language}${path.extname(file.originalname)}`);
+        await fs.writeFile(narrationPath, await fs.readFile(file.path));
+        
+        // 构建URL
+        const narrationUrl = `/uploads/narrations/${path.basename(narrationPath)}`;
+        
+        // 获取音频时长（需要音频处理库）
+        const duration = await this.getAudioDuration(narrationPath);
+        
+        return {
+            url: narrationUrl,
+            language: language,
+            duration: duration
+        };
+    } catch (error) {
+        console.error('处理旁白上传错误:', error);
+        throw error;
+    }
+}
+
+// 处理背景音乐上传
+static async handleBackgroundMusicUpload(file, contentId) {
+    try {
+        // 保存背景音乐文件
+        const musicPath = path.join('uploads/music', `${contentId}${path.extname(file.originalname)}`);
+        await fs.writeFile(musicPath, await fs.readFile(file.path));
+        
+        // 构建URL
+        const musicUrl = `/uploads/music/${path.basename(musicPath)}`;
+        
+        // 获取音频信息
+        const audioInfo = await this.getAudioInfo(musicPath);
+        
+        return {
+            url: musicUrl,
+            title: file.originalname,
+            duration: audioInfo.duration
+        };
+    } catch (error) {
+        console.error('处理背景音乐上传错误:', error);
+        throw error;
+    }
+}
     // 计算文件哈希
     static async calculateFileHash(filePath) {
         try {
