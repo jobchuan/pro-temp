@@ -30,6 +30,13 @@ export const creatorApi = {
   deleteContent: (id) => api.delete(`/creator/contents/${id}`),
   updateContentStatus: (id, status) => api.put(`/creator/contents/${id}/status`, { status }),
   batchUpdateContent: (contentIds, data) => api.put('/creator/contents/batch/status', { contentIds, ...data }),
+  duplicateContent: (id) => api.post(`/creator/contents/${id}/duplicate`),
+  exportContents: (data) => api.post('/creator/contents/export', data, { responseType: 'blob' }),
+  getCreatorTags: () => api.get('/creator/tags'),
+  batchAddTags: (data) => api.post('/creator/contents/batch/tags/add', data),
+  batchRemoveTags: (data) => api.post('/creator/contents/batch/tags/remove', data),
+  batchReplaceTags: (data) => api.post('/creator/contents/batch/tags/replace', data),
+  batchDeleteContents: (data) => api.post('/creator/contents/batch/delete', data),
   
   // 数据分析
   getAnalyticsOverview: () => api.get('/creator/analytics/overview'),
@@ -40,6 +47,10 @@ export const creatorApi = {
   getIncomeOverview: () => api.get('/creator/income/overview'),
   getIncomeDetails: (params) => api.get('/creator/income/details', { params }),
   requestWithdrawal: (data) => api.post('/creator/income/withdraw', data),
+  getWithdrawalHistory: () => api.get('/creator/income/withdrawals'),
+  getSavedWithdrawalAccounts: () => api.get('/creator/income/accounts'),
+  getTaxInfo: () => api.get('/creator/income/tax-info'),
+  exportIncomeData: (data) => api.post('/creator/income/export', data, { responseType: 'blob' }),
   
   // 评论和互动
   getContentComments: (id, params) => api.get(`/creator/contents/${id}/comments`, { params }),
@@ -50,13 +61,13 @@ export const creatorApi = {
   getCreatorProfile: () => api.get('/creator/profile'),
   updateCreatorProfile: (data) => api.put('/creator/profile', data),
   updatePaymentInfo: (data) => api.put('/creator/payment-info', data),
+  
   // 融合内容管理
   getFusions: (params) => api.get('/fusions', { params }),
   getFusionDetails: (id) => api.get(`/fusions/${id}`),
   createFusion: (data) => api.post('/fusions', data),
   updateFusion: (id, data) => api.put(`/fusions/${id}`, data),
   deleteFusion: (id) => api.delete(`/fusions/${id}`),
-  addContentToFusion: (fusionId, contentData) => api.post(`/creator/fusions/${fusionId}/contents`, contentData),
   updateFusionStatus: (id, status) => api.put(`/fusions/${id}/status`, { status }),
   recordFusionView: (id) => api.post(`/fusions/${id}/view`),
   
@@ -64,11 +75,10 @@ export const creatorApi = {
   getFusionAnalytics: (id, params) => api.get(`/fusions/${id}/analytics`, { params }),
   
   // 内容相关
-  addContentToFusion: (fusionId, data) => api.post(`/fusions/${fusionId}/contents`, data),
+  addFusionContent: (fusionId, data) => api.post(`/fusions/${fusionId}/contents`, data),
   removeContentFromFusion: (fusionId, contentId) => api.delete(`/fusions/${fusionId}/contents/${contentId}`),
   updateFusionContent: (fusionId, contentId, data) => api.put(`/fusions/${fusionId}/contents/${contentId}`, data),
   reorderFusionContents: (fusionId, orderData) => api.put(`/fusions/${fusionId}/contents/reorder`, orderData),
-
 };
 
 // 上传相关API端点
@@ -94,6 +104,7 @@ export const uploadApi = {
   completeChunkUpload: (data) => api.post('/upload/chunk/complete', data),
   cancelUpload: (identifier) => api.delete(`/upload/chunk/${identifier}`),
   getUploadProgress: (identifier) => api.get(`/upload/chunk/${identifier}/progress`),
+  checkProcessingStatus: (processId) => api.get(`/upload/process/${processId}`),
   
   // 简单上传
   uploadSingle: (file, onProgress) => {
@@ -111,14 +122,6 @@ export const uploadApi = {
     });
   }
 };
-// 添加token到请求
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 // 添加响应拦截器处理认证错误
 api.interceptors.response.use(
@@ -133,28 +136,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// services/apiService.js 中修改认证相关API调用
 
-// 登录功能
-const login = async (email, password) => {
-  try {
-    // 修改这里，去掉重复的/api前缀
-    const response = await api.post('/users/login', { email, password });
-    return response;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// 注册功能
-const register = async (userData) => {
-  try {
-    // 修改这里，去掉重复的/api前缀
-    const response = await api.post('/users/register', userData);
-    return response;
-  } catch (error) {
-    throw error;
-  }
-};
-// 只导出一次
+// 导出默认API实例
 export default api;

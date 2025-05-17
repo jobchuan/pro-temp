@@ -7,10 +7,10 @@ import IncomeDashboard from '../components/creator/IncomeDashboard';
 import ContentForm from '../components/creator/ContentForm';
 import CommentsManager from '../components/creator/CommentsManager';
 import CreatorSettings from '../components/creator/CreatorSettings';
-// 添加以下导入以修复 ESLint 错误
-import FusionContentLibrary from '../components/creator/fusion/FusionContentLibrary';
-import FusionContentForm from '../components/creator/fusion/FusionContentForm';
-import FusionPreview from '../components/creator/fusion/FusionPreview';
+// 修正融合内容组件的导入路径
+import FusionContentLibrary from '../components/fusion/FusionContentLibrary';
+import FusionContentForm from '../components/fusion/FusionContentForm';
+import FusionPreview from '../components/fusion/FusionPreview';
 
 const CreatorDashboard = () => {
   const navigate = useNavigate();

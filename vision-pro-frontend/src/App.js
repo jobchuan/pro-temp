@@ -7,6 +7,9 @@ import CreatorDashboard from './pages/CreatorDashboard';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import './styles/main.css';
+import EnhancedNavigation from './components/common/EnhancedNavigation';
+import SidebarNavigation from './components/creator/SidebarNavigation';
 import './App.css';
 
 // 简单的首页组件
