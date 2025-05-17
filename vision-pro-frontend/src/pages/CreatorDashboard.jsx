@@ -1,5 +1,5 @@
 // pages/CreatorDashboard.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import ContentLibrary from '../components/creator/ContentLibrary';
 import AnalyticsDashboard from '../components/creator/AnalyticsDashboard';
@@ -7,6 +7,10 @@ import IncomeDashboard from '../components/creator/IncomeDashboard';
 import ContentForm from '../components/creator/ContentForm';
 import CommentsManager from '../components/creator/CommentsManager';
 import CreatorSettings from '../components/creator/CreatorSettings';
+// 添加以下导入以修复 ESLint 错误
+import FusionContentLibrary from '../components/creator/fusion/FusionContentLibrary';
+import FusionContentForm from '../components/creator/fusion/FusionContentForm';
+import FusionPreview from '../components/creator/fusion/FusionPreview';
 
 const CreatorDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +35,10 @@ const CreatorDashboard = () => {
           
           <NavLink to="/creator/comments" className={({isActive}) => isActive ? 'active' : ''}>
             评论管理
+          </NavLink>
+          
+          <NavLink to="/creator/fusions" className={({isActive}) => isActive ? 'active' : ''}>
+            融合内容
           </NavLink>
           
           <NavLink to="/creator/settings" className={({isActive}) => isActive ? 'active' : ''}>
@@ -58,6 +66,10 @@ const CreatorDashboard = () => {
           <Route path="/settings" element={<CreatorSettings />} />
           <Route path="/content/new" element={<ContentForm />} />
           <Route path="/content/:contentId" element={<ContentForm />} />
+          <Route path="/fusions" element={<FusionContentLibrary />} />
+          <Route path="/fusion/new" element={<FusionContentForm />} />
+          <Route path="/fusion/:fusionId" element={<FusionContentForm />} />
+          <Route path="/fusion/:fusionId/preview" element={<FusionPreview />} />
         </Routes>
       </main>
     </div>

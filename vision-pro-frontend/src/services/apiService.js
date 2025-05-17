@@ -50,6 +50,25 @@ export const creatorApi = {
   getCreatorProfile: () => api.get('/creator/profile'),
   updateCreatorProfile: (data) => api.put('/creator/profile', data),
   updatePaymentInfo: (data) => api.put('/creator/payment-info', data),
+  // 融合内容管理
+  getFusions: (params) => api.get('/fusions', { params }),
+  getFusionDetails: (id) => api.get(`/fusions/${id}`),
+  createFusion: (data) => api.post('/fusions', data),
+  updateFusion: (id, data) => api.put(`/fusions/${id}`, data),
+  deleteFusion: (id) => api.delete(`/fusions/${id}`),
+  addContentToFusion: (fusionId, contentData) => api.post(`/creator/fusions/${fusionId}/contents`, contentData),
+  updateFusionStatus: (id, status) => api.put(`/fusions/${id}/status`, { status }),
+  recordFusionView: (id) => api.post(`/fusions/${id}/view`),
+  
+  // 融合内容分析
+  getFusionAnalytics: (id, params) => api.get(`/fusions/${id}/analytics`, { params }),
+  
+  // 内容相关
+  addContentToFusion: (fusionId, data) => api.post(`/fusions/${fusionId}/contents`, data),
+  removeContentFromFusion: (fusionId, contentId) => api.delete(`/fusions/${fusionId}/contents/${contentId}`),
+  updateFusionContent: (fusionId, contentId, data) => api.put(`/fusions/${fusionId}/contents/${contentId}`, data),
+  reorderFusionContents: (fusionId, orderData) => api.put(`/fusions/${fusionId}/contents/reorder`, orderData),
+
 };
 
 // 上传相关API端点
