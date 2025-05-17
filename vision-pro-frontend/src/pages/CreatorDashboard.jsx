@@ -1,7 +1,7 @@
-// pages/CreatorDashboard.jsx
+// src/pages/CreatorDashboard.jsx
 import React from 'react';
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
-import ContentLibrary from '../components/creator/ContentLibrary';
+import EnhancedContentLibrary from '../components/creator/EnhancedContentLibrary';
 import AnalyticsDashboard from '../components/creator/AnalyticsDashboard';
 import IncomeDashboard from '../components/creator/IncomeDashboard';
 import ContentForm from '../components/creator/ContentForm';
@@ -59,7 +59,7 @@ const CreatorDashboard = () => {
       <main className="dashboard-content">
         <Routes>
           <Route path="/" element={<AnalyticsDashboard />} />
-          <Route path="/contents" element={<ContentLibrary />} />
+          <Route path="/contents" element={<EnhancedContentLibrary />} />
           <Route path="/analytics" element={<AnalyticsDashboard />} />
           <Route path="/income" element={<IncomeDashboard />} />
           <Route path="/comments" element={<CommentsManager />} />

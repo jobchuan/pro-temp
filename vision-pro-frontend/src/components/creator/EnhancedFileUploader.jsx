@@ -183,62 +183,72 @@ const EnhancedFileUploader = ({
         // 记录当前分片的上传开始时间
         const chunkStartTime = Date.now();
         
-        await uploadApi.uploadChunk({
-          chunk: chunks[i],
-          chunkNumber: i,
-          totalChunks,
-          identifier
-        }, (progress) => {
-          // 计算总体进度
-          const completedChunks = [...uploadedChunksRef.current];
-          if (!completedChunks.includes(i)) {
-            completedChunks.push(i);
+        try {
+          // 修改：确保FormData格式正确
+          const formData = new FormData();
+          formData.append('chunk', chunks[i]);
+          formData.append('chunkNumber', i.toString());
+          formData.append('totalChunks', totalChunks.toString());
+          formData.append('identifier', identifier);
+          formData.append('filename', selectedFile.name);
+          
+          await uploadApi.uploadChunk(formData, (progress) => {
+            // 计算总体进度
+            const completedChunks = [...uploadedChunksRef.current];
+            if (!completedChunks.includes(i)) {
+              completedChunks.push(i);
+            }
+            const overallProgress = 
+              (completedChunks.length - 1 + progress / 100) / totalChunks * 100;
+            setUploadProgress(Math.round(overallProgress));
+          });
+          
+          // 记录当前分片的上传结束时间
+          const chunkEndTime = Date.now();
+          const chunkSize = chunks[i].size;
+          const chunkTimeElapsed = chunkEndTime - chunkStartTime;
+          const uploadSpeed = chunkSize / (chunkTimeElapsed / 1000);
+          
+          // 添加到上传速度历史记录
+          uploadSpeeds.push(uploadSpeed);
+          
+          // 只保留最近5个分片的速度记录
+          if (uploadSpeeds.length > 5) {
+            uploadSpeeds.shift();
           }
-          const overallProgress = 
-            (completedChunks.length - 1 + progress / 100) / totalChunks * 100;
-          setUploadProgress(Math.round(overallProgress));
-        });
-        
-        // 记录当前分片的上传结束时间
-        const chunkEndTime = Date.now();
-        const chunkSize = chunks[i].size;
-        const chunkTimeElapsed = chunkEndTime - chunkStartTime;
-        const uploadSpeed = chunkSize / (chunkTimeElapsed / 1000);
-        
-        // 添加到上传速度历史记录
-        uploadSpeeds.push(uploadSpeed);
-        
-        // 只保留最近5个分片的速度记录
-        if (uploadSpeeds.length > 5) {
-          uploadSpeeds.shift();
+          
+          // 计算平均上传速度
+          const avgSpeed = uploadSpeeds.reduce((a, b) => a + b, 0) / uploadSpeeds.length;
+          const speedText = formatSpeed(avgSpeed);
+          
+          // 估算剩余时间
+          const remainingChunks = totalChunks - uploadedChunksRef.current.length - 1;
+          const remainingSize = remainingChunks * chunks[i].size;
+          const estimatedTime = remainingSize / avgSpeed;
+          const timeText = formatTime(estimatedTime);
+          
+          setUploadStatus(`上传分片 ${i + 1}/${totalChunks} - ${speedText} - 剩余时间约 ${timeText}`);
+          
+          // 添加到已上传分片列表
+          uploadedChunksRef.current.push(i);
+          
+          // 更新断点续传信息
+          saveUploadState(identifier, {
+            fileName: selectedFile.name,
+            fileSize: selectedFile.size,
+            totalChunks,
+            uploadedChunks: uploadedChunksRef.current
+          });
+        } catch (error) {
+          console.error(`分片${i}上传失败:`, error);
+          setUploadError(`分片${i+1}上传失败: ${error.response?.data?.message || error.message || '未知错误'}`);
+          throw error; // 重新抛出错误以中断上传过程
         }
-        
-        // 计算平均上传速度
-        const avgSpeed = uploadSpeeds.reduce((a, b) => a + b, 0) / uploadSpeeds.length;
-        const speedText = formatSpeed(avgSpeed);
-        
-        // 估算剩余时间
-        const remainingChunks = totalChunks - uploadedChunksRef.current.length - 1;
-        const remainingSize = remainingChunks * chunks[i].size;
-        const estimatedTime = remainingSize / avgSpeed;
-        const timeText = formatTime(estimatedTime);
-        
-        setUploadStatus(`上传分片 ${i + 1}/${totalChunks} - ${speedText} - 剩余时间约 ${timeText}`);
-        
-        // 添加到已上传分片列表
-        uploadedChunksRef.current.push(i);
-        
-        // 更新断点续传信息
-        saveUploadState(identifier, {
-          fileName: selectedFile.name,
-          fileSize: selectedFile.size,
-          totalChunks,
-          uploadedChunks: uploadedChunksRef.current
-        });
       }
       
       // 所有分片上传完成，通知服务器合并
       setUploadStatus('完成上传，正在处理文件...');
+      
       const completeResponse = await uploadApi.completeChunkUpload({
         identifier,
         filename: selectedFile.name,
@@ -255,7 +265,24 @@ const EnhancedFileUploader = ({
       
       // 开始轮询处理进度
       if (fileCategory === 'main' && selectedFile.type.startsWith('video')) {
-        startProcessingPolling(completeResponse.data.data.processId);
+        const processId = completeResponse.data.data.processId;
+        if (processId) {
+          startProcessingPolling(processId);
+        } else {
+          setUploadStatus('上传成功');
+          setIsUploading(false);
+          
+          // 通知父组件上传完成
+          if (completeResponse.data.success) {
+            const fileData = completeResponse.data.data;
+            onFileUpload({
+              url: fileData.url,
+              size: selectedFile.size,
+              name: selectedFile.name,
+              type: selectedFile.type
+            });
+          }
+        }
       } else {
         setUploadStatus('上传成功');
         setIsUploading(false);

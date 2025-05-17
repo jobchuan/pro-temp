@@ -1,8 +1,7 @@
 // components/creator/EnhancedContentCard.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Tag, Tooltip, Menu, Dropdown, Progress, Button } from '../ui/common';
-import { formatDate, formatNumber } from '../../utils/formatter';
+import { Card, Tag, Tooltip, Button } from '../ui/common';
 
 const EnhancedContentCard = ({ 
   content, 
@@ -17,37 +16,9 @@ const EnhancedContentCard = ({
     onSelect(e.target.checked);
   };
   
-  const handleMenuClick = ({ key }) => {
+  const handleMenuAction = (action) => {
     setMenuVisible(false);
-    
-    switch (key) {
-      case 'edit':
-        onAction('edit', content._id);
-        break;
-      case 'preview':
-        setPreviewModalVisible(true);
-        break;
-      case 'duplicate':
-        onAction('duplicate', content._id);
-        break;
-      case 'publish':
-        onAction('status', { id: content._id, status: 'published' });
-        break;
-      case 'unpublish':
-        onAction('status', { id: content._id, status: 'draft' });
-        break;
-      case 'review':
-        onAction('status', { id: content._id, status: 'pending_review' });
-        break;
-      case 'archive':
-        onAction('status', { id: content._id, status: 'archived' });
-        break;
-      case 'delete':
-        onAction('delete', content._id);
-        break;
-      default:
-        break;
-    }
+    onAction(action, content._id);
   };
   
   // 获取状态显示文本和样式
@@ -113,23 +84,23 @@ const EnhancedContentCard = ({
   const isIncomplete = completionRate < 100 && content.status !== 'published';
   const hasCollaborators = content.collaboration?.isCollaborative;
   
-  // 下拉菜单项
-  const menu = (
-    <Menu onClick={handleMenuClick}>
-      <Menu.Item key="edit">编辑</Menu.Item>
-      <Menu.Item key="preview">预览</Menu.Item>
-      <Menu.Item key="duplicate">复制</Menu.Item>
-      <Menu.Divider />
-      {content.status !== 'published' && <Menu.Item key="publish">发布</Menu.Item>}
-      {content.status === 'published' && <Menu.Item key="unpublish">取消发布</Menu.Item>}
-      {content.status !== 'pending_review' && content.status !== 'published' && (
-        <Menu.Item key="review">提交审核</Menu.Item>
-      )}
-      {content.status !== 'archived' && <Menu.Item key="archive">归档</Menu.Item>}
-      <Menu.Divider />
-      <Menu.Item key="delete" danger>删除</Menu.Item>
-    </Menu>
-  );
+  // Custom dropdown menu component
+  const ActionDropdown = ({ children }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    
+    return (
+      <div className="custom-dropdown" onMouseLeave={() => setIsOpen(false)}>
+        <button className="more-btn" onClick={() => setIsOpen(!isOpen)}>
+          ⋮
+        </button>
+        {isOpen && (
+          <div className="dropdown-menu">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  };
   
   return (
     <Card 
@@ -163,7 +134,12 @@ const EnhancedContentCard = ({
         {isIncomplete && (
           <Tooltip title={`完成度: ${completionRate}%`}>
             <div className="completion-indicator">
-              <Progress percent={completionRate} size="small" />
+              <div className="progress-bar">
+                <div 
+                  className="progress-bar-fill" 
+                  style={{width: `${completionRate}%`}}
+                ></div>
+              </div>
             </div>
           </Tooltip>
         )}
@@ -236,14 +212,39 @@ const EnhancedContentCard = ({
           预览
         </Button>
         
-        <Dropdown 
-          overlay={menu} 
-          visible={menuVisible}
-          onVisibleChange={setMenuVisible}
-          trigger={['click']}
-        >
-          <Button className="more-btn">更多</Button>
-        </Dropdown>
+        <ActionDropdown>
+          <button onClick={() => handleMenuAction('edit')}>编辑</button>
+          <button onClick={() => handleMenuAction('preview')}>预览</button>
+          <button onClick={() => handleMenuAction('duplicate')}>复制</button>
+          <div className="dropdown-divider"></div>
+          
+          {content.status !== 'published' && 
+            <button onClick={() => handleMenuAction('status', { id: content._id, status: 'published' })}>
+              发布
+            </button>
+          }
+          
+          {content.status === 'published' && 
+            <button onClick={() => handleMenuAction('status', { id: content._id, status: 'draft' })}>
+              取消发布
+            </button>
+          }
+          
+          {content.status !== 'pending_review' && content.status !== 'published' && 
+            <button onClick={() => handleMenuAction('status', { id: content._id, status: 'pending_review' })}>
+              提交审核
+            </button>
+          }
+          
+          {content.status !== 'archived' && 
+            <button onClick={() => handleMenuAction('status', { id: content._id, status: 'archived' })}>
+              归档
+            </button>
+          }
+          
+          <div className="dropdown-divider"></div>
+          <button className="danger" onClick={() => handleMenuAction('delete')}>删除</button>
+        </ActionDropdown>
       </div>
       
       {previewModalVisible && (
@@ -344,6 +345,20 @@ const getCategoryText = (category) => {
     'other': '其他'
   };
   return categoryMap[category] || category;
+};
+
+const formatDate = (dateString, prefix = '') => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return `${prefix} ${date.toLocaleDateString('zh-CN', options)}`;
+};
+
+const formatNumber = (num) => {
+  if (num >= 10000) {
+    return (num / 10000).toFixed(1) + '万';
+  }
+  return num.toString();
 };
 
 export default EnhancedContentCard;

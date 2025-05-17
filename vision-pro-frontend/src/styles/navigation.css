@@ -475,3 +475,78 @@
 .collapsed .create-button .button-text {
   display: none;
 }
+/* 修改后的CSS部分 - 需要添加到navigation.css */
+
+/* 下拉菜单修改 */
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 200px;
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all var(--transition-normal);
+  z-index: 100;
+  border: 1px solid var(--neutral-200);
+  overflow: hidden;
+}
+
+/* 使用类切换而非hover触发 */
+.user-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--neutral-700);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  font-size: 0.875rem;
+  cursor: pointer;  /* 确保显示为可点击状态 */
+}
+
+.dropdown-item:hover {
+  background-color: var(--neutral-100);
+  color: var(--primary-color);
+}
+
+.dropdown-item .dropdown-icon {
+  font-size: 1rem;
+  margin-right: 0.75rem;
+  color: var(--neutral-500);
+}
+
+.user-avatar-container {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  user-select: none; /* 防止双击选中文本 */
+}
+
+/* 添加辅助样式以提高可点击性 */
+.dropdown-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+  display: none;
+}
+
+.dropdown-backdrop.active {
+  display: block;
+}

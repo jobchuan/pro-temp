@@ -2,16 +2,12 @@
 import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import UserMenu from './UserMenu'; // 导入新的UserMenu组件
 
 const EnhancedNavigation = () => {
-  const { currentUser, logout, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -62,30 +58,9 @@ const EnhancedNavigation = () => {
                   创作者中心
                 </NavLink>
               </li>
-              <li className="user-menu">
-                <div className="user-avatar-container">
-                  <img 
-                    src={currentUser.avatar || "/default-avatar.png"} 
-                    alt={currentUser.name} 
-                    className="user-avatar" 
-                  />
-                  <span className="user-name">{currentUser.name}</span>
-                  <span className="dropdown-icon">▼</span>
-                </div>
-                <div className="user-dropdown">
-                  <Link to="/profile" className="dropdown-item">
-                    <span className="dropdown-icon">👤</span>
-                    个人主页
-                  </Link>
-                  <Link to="/settings" className="dropdown-item">
-                    <span className="dropdown-icon">⚙️</span>
-                    账号设置
-                  </Link>
-                  <button onClick={handleLogout} className="dropdown-item logout-button">
-                    <span className="dropdown-icon">🚪</span>
-                    退出登录
-                  </button>
-                </div>
+              <li className="user-menu-list-item">
+                {/* 使用新的UserMenu组件替换原有下拉菜单 */}
+                <UserMenu />
               </li>
             </>
           ) : (

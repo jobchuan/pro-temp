@@ -1,6 +1,6 @@
 // components/creator/EnhancedContentFilters.jsx
 import React, { useState, useEffect } from 'react';
-import { DateRangePicker, Select, Input, Button, Checkbox, Tag } from '../ui/common';
+import { DatePicker, Select, Input, Button, Checkbox, Tag } from '../ui/common';
 import { creatorApi } from '../../services/apiService';
 
 const EnhancedContentFilters = ({ filters, onFilterChange, totalCount }) => {
@@ -126,7 +126,7 @@ const EnhancedContentFilters = ({ filters, onFilterChange, totalCount }) => {
     const parts = searchText.split('#');
     parts.pop(); // 移除正在输入的标签
     setSearchText(parts.join('#') + (parts.length > 0 ? '#' : '') + tag + ' ');
-    setTagSuggestions([]); // 清除建议
+    setTagSuggestions([]);
   };
   
   return (
@@ -252,7 +252,7 @@ const EnhancedContentFilters = ({ filters, onFilterChange, totalCount }) => {
             
             <div className="filter-group">
               <label>创建日期:</label>
-              <DateRangePicker
+              <DatePicker.RangePicker
                 value={dateRange}
                 onChange={handleDateRangeChange}
                 placeholder={['开始日期', '结束日期']}

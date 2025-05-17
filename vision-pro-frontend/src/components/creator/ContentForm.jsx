@@ -2,14 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { creatorApi } from '../../services/apiService';
-import FileUploader from './FileUploader';
+import FileUploader from './EnhancedFileUploader';
 import TagInput from './TagInput';
-import './FileUploader.css';  // 添加这一行导入CSS
+import { useAuth } from '../../contexts/AuthContext'; // 引入认证上下文
+import './FileUploader.css';
 
 const ContentForm = () => {
   const { contentId } = useParams();
   const navigate = useNavigate();
   const isEditing = !!contentId;
+  const { currentUser, logout } = useAuth(); // 获取当前用户信息和登出函数
   
   const [formData, setFormData] = useState({
     title: { 'zh-CN': '', 'en-US': '' },
@@ -39,22 +41,49 @@ const ContentForm = () => {
     }
   }, [contentId]);
   
+  // 检查认证状态
+  useEffect(() => {
+    if (!currentUser) {
+      setError('用户未登录或会话已过期，请重新登录');
+      // 可以选择自动重定向到登录页面
+      // navigate('/login');
+    }
+  }, [currentUser]);
+  
   const fetchContentDetails = async () => {
     try {
+      setLoading(true);
       const response = await creatorApi.getContentDetails(contentId);
       const content = response.data.data.content;
       setFormData({
-        title: content.title,
-        description: content.description,
-        contentType: content.contentType,
-        files: content.files,
-        tags: content.tags,
-        category: content.category,
-        pricing: content.pricing
+        title: content.title || { 'zh-CN': '', 'en-US': '' },
+        description: content.description || { 'zh-CN': '', 'en-US': '' },
+        contentType: content.contentType || '180_video',
+        files: content.files || {
+          main: { url: '', size: 0 },
+          thumbnail: { url: '', size: 0 }
+        },
+        tags: content.tags || [],
+        category: content.category || 'entertainment',
+        pricing: content.pricing || {
+          isFree: true,
+          price: 0
+        }
       });
     } catch (error) {
       console.error('获取内容详情失败:', error);
-      setError('无法加载内容详情。请稍后重试。');
+      
+      // 处理认证错误
+      if (error.response && error.response.status === 401) {
+        setError('认证已过期，请重新登录');
+        // 可以选择自动登出并重定向到登录页面
+        logout();
+        navigate('/login');
+      } else if (error.response && error.response.status === 403) {
+        setError('您没有权限访问此内容');
+      } else {
+        setError('无法加载内容详情。请稍后重试。');
+      }
     } finally {
       setLoading(false);
     }
@@ -96,47 +125,115 @@ const ContentForm = () => {
     });
   };
   
-const handleFileUpload = async (fileData, type) => {
-  // 更新表单数据
-  setFormData({
-    ...formData,
-    files: {
-      ...formData.files,
-      [type]: {
-        url: fileData.url,
-        size: fileData.size
+  const handleFileUpload = async (fileData, type) => {
+    // 更新表单数据
+    setFormData({
+      ...formData,
+      files: {
+        ...formData.files,
+        [type]: {
+          url: fileData.url,
+          size: fileData.size
+        }
       }
+    });
+    
+    if (type === 'main') {
+      setMainFile(fileData);
+    } else if (type === 'thumbnail') {
+      setThumbnailFile(fileData);
     }
-  });
+  };
   
-  if (type === 'main') {
-    setMainFile(fileData);
-  } else if (type === 'thumbnail') {
-    setThumbnailFile(fileData);
-  }
-};
+  const validateForm = () => {
+    // 表单验证
+    if (!formData.title['zh-CN'] && !formData.title['en-US']) {
+      setError('至少需要填写一种语言的标题');
+      return false;
+    }
+    
+    if (!formData.files.main.url) {
+      setError('请上传主内容文件');
+      return false;
+    }
+    
+    // 价格检查
+    if (!formData.pricing.isFree && (!formData.pricing.price || formData.pricing.price <= 0)) {
+      setError('对于付费内容，请设置有效的价格');
+      return false;
+    }
+    
+    return true;
+  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setSubmitting(true);
     setError(null);
     
     try {
-      // 首先上传文件（如果需要）
-      let updatedFormData = { ...formData };
-      
-      // 在真实实现中，这里需要上传文件并更新表单数据中的URL
+      // 准备请求数据
+      const requestData = {
+        ...formData,
+        // 确保所有必需的字段都存在
+        title: {
+          'zh-CN': formData.title['zh-CN'] || '',
+          'en-US': formData.title['en-US'] || ''
+        },
+        description: {
+          'zh-CN': formData.description['zh-CN'] || '',
+          'en-US': formData.description['en-US'] || ''
+        },
+        tags: formData.tags || [],
+        category: formData.category || 'entertainment',
+        pricing: {
+          isFree: formData.pricing.isFree,
+          price: formData.pricing.isFree ? 0 : parseFloat(formData.pricing.price)
+        }
+      };
       
       if (isEditing) {
-        await creatorApi.updateContent(contentId, updatedFormData);
+        await creatorApi.updateContent(contentId, requestData);
+        // 成功后显示消息并导航
+        alert('内容已成功更新');
+        navigate(`/creator/Enhancedcontents`);
       } else {
-        const response = await creatorApi.createContent(updatedFormData);
+        const response = await creatorApi.createContent(requestData);
         const newContentId = response.data.data._id;
+        // 成功后导航到新创建的内容
         navigate(`/creator/content/${newContentId}`);
       }
     } catch (error) {
       console.error('保存内容失败:', error);
-      setError('保存内容失败。请检查您的输入并重试。');
+      
+      // 处理不同的错误状态
+      if (error.response) {
+        if (error.response.status === 401) {
+          setError('认证已过期，请重新登录');
+          // 可以选择自动登出
+          logout();
+          navigate('/login');
+        } else if (error.response.status === 403) {
+          setError('您没有权限执行此操作。请确保您有创作者权限。');
+        } else if (error.response.status === 413) {
+          setError('上传的内容太大。请减小文件大小后重试。');
+        } else if (error.response.data && error.response.data.message) {
+          setError(`保存失败: ${error.response.data.message}`);
+        } else {
+          setError('保存内容失败。请检查您的网络连接并重试。');
+        }
+      } else if (error.request) {
+        // 请求已发送但没有收到响应
+        setError('服务器没有响应。请检查您的网络连接并重试。');
+      } else {
+        // 设置请求时发生的错误
+        setError(`发生错误: ${error.message}`);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -151,7 +248,17 @@ const handleFileUpload = async (fileData, type) => {
       <h1>{isEditing ? '编辑内容' : '创建新内容'}</h1>
       
       {error && (
-        <div className="error-message">{error}</div>
+        <div className="error-message">
+          {error}
+          {(error.includes('认证') || error.includes('登录')) && (
+            <button 
+              onClick={() => navigate('/login')}
+              className="error-action-button"
+            >
+              前往登录
+            </button>
+          )}
+        </div>
       )}
       
       <form onSubmit={handleSubmit} className="content-form">
@@ -166,7 +273,7 @@ const handleFileUpload = async (fileData, type) => {
               name="title.zh-CN"
               value={formData.title['zh-CN']}
               onChange={handleChange}
-              required
+              placeholder="请输入中文标题"
             />
           </div>
           
@@ -178,6 +285,7 @@ const handleFileUpload = async (fileData, type) => {
               name="title.en-US"
               value={formData.title['en-US']}
               onChange={handleChange}
+              placeholder="请输入英文标题"
             />
           </div>
           
@@ -189,6 +297,7 @@ const handleFileUpload = async (fileData, type) => {
               value={formData.description['zh-CN']}
               onChange={handleChange}
               rows="4"
+              placeholder="请输入中文描述"
             />
           </div>
           
@@ -200,6 +309,7 @@ const handleFileUpload = async (fileData, type) => {
               value={formData.description['en-US']}
               onChange={handleChange}
               rows="4"
+              placeholder="请输入英文描述"
             />
           </div>
           
@@ -250,32 +360,37 @@ const handleFileUpload = async (fileData, type) => {
           </div>
         </div>
         
-<div className="form-group">
-  <label>主内容文件</label>
-  <FileUploader
-    onFileUpload={(fileData) => handleFileUpload(fileData, 'main')}
-    accept={formData.contentType.includes('video') ? 'video/*' : 'image/*'}
-    currentFile={formData.files.main.url}
-    fileCategory="main"
-    maxFileSize={1024 * 1024 * 1024} // 1GB
-  />
-  <small>支持大文件上传，自动分片和断点续传。<br />
-  视频支持：MP4, MOV, WEBM (最大1GB)<br />
-  图片支持：JPG, PNG, WEBP</small>
-</div>
+        <div className="form-section">
+          <h2>文件上传</h2>
+          
+          <div className="form-group">
+            <label>主内容文件</label>
+            <FileUploader
+              onFileUpload={(fileData) => handleFileUpload(fileData, 'main')}
+              accept={formData.contentType.includes('video') ? 'video/*' : 'image/*'}
+              currentFile={formData.files.main.url}
+              fileCategory="main"
+              contentType={formData.contentType}
+              maxFileSize={1024 * 1024 * 1024} // 1GB
+            />
+            <small>支持大文件上传，自动分片和断点续传。<br />
+            视频支持：MP4, MOV, WEBM (最大1GB)<br />
+            图片支持：JPG, PNG, WEBP</small>
+          </div>
 
-<div className="form-group">
-  <label>缩略图</label>
-  <FileUploader
-    onFileUpload={(fileData) => handleFileUpload(fileData, 'thumbnail')}
-    accept="image/*"
-    currentFile={formData.files.thumbnail.url}
-    fileCategory="thumbnail"
-    maxFileSize={10 * 1024 * 1024} // 10MB
-    chunkSize={1 * 1024 * 1024} // 1MB
-  />
-  <small>请上传16:9宽高比的图片作为缩略图 (最大10MB)</small>
-</div>
+          <div className="form-group">
+            <label>缩略图</label>
+            <FileUploader
+              onFileUpload={(fileData) => handleFileUpload(fileData, 'thumbnail')}
+              accept="image/*"
+              currentFile={formData.files.thumbnail.url}
+              fileCategory="thumbnail"
+              maxFileSize={10 * 1024 * 1024} // 10MB
+              chunkSize={1 * 1024 * 1024} // 1MB
+            />
+            <small>请上传16:9宽高比的图片作为缩略图 (最大10MB)</small>
+          </div>
+        </div>
         
         <div className="form-section">
           <h2>定价</h2>
@@ -293,15 +408,16 @@ const handleFileUpload = async (fileData, type) => {
           
           {!formData.pricing.isFree && (
             <div className="form-group">
-              <label htmlFor="price">价格（人民币）</label>
+              <label htmlFor="pricing.price">价格（人民币）</label>
               <input
                 type="number"
-                id="price"
+                id="pricing.price"
                 name="pricing.price"
                 value={formData.pricing.price}
                 onChange={handleChange}
-                min="0"
+                min="0.01"
                 step="0.01"
+                placeholder="请输入价格"
               />
             </div>
           )}
@@ -311,7 +427,8 @@ const handleFileUpload = async (fileData, type) => {
           <button 
             type="button" 
             className="secondary-button"
-            onClick={() => navigate('/creator/contents')}
+            onClick={() => navigate('/creator/Enhancedcontents')}
+            disabled={submitting}
           >
             取消
           </button>

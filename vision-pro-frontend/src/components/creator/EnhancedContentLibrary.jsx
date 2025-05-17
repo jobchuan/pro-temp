@@ -195,8 +195,9 @@ const EnhancedContentLibrary = () => {
           break;
           
         case 'status':
-          await creatorApi.updateContentStatus(contentId, data.status);
-          message.success(`内容状态已更改为"${getStatusText(data.status)}"`);
+          const statusData = action.status;
+          await creatorApi.updateContentStatus(contentId, statusData);
+          message.success(`内容状态已更改为"${getStatusText(statusData)}"`);
           fetchContents();
           break;
           
@@ -365,7 +366,9 @@ const EnhancedContentLibrary = () => {
                 Object.keys(filters).some(key => 
                   ['status', 'contentType', 'category', 'search', 'tags'].includes(key) && 
                   filters[key]
-                ) ? "未找到匹配内容。尝试调整筛选条件。" : "还没有创建内容。点击"创建新内容"按钮开始创建。"
+                ) 
+                ? "未找到匹配内容。尝试调整筛选条件。" 
+                : "还没有创建内容。点击'创建新内容'按钮开始创建。"
               }
             >
               <Button type="primary" onClick={() => navigate('/creator/content/new')}>

@@ -2,14 +2,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import Navigation from './components/common/Navigation';
 import CreatorDashboard from './pages/CreatorDashboard';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './styles/main.css';
 import EnhancedNavigation from './components/common/EnhancedNavigation';
-import SidebarNavigation from './components/creator/SidebarNavigation';
+
 import './App.css';
 
 // 简单的首页组件
@@ -35,7 +34,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="App">
-          <Navigation />
+          <EnhancedNavigation />
           <main className="main-content">
             <Routes>
               {/* 公共路由 */}
