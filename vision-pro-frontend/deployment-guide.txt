@@ -1,0 +1,409 @@
+# Vision Pro创作者管理前端本地部署指南
+
+## 项目概述
+
+Vision Pro创作者管理前端是一个基于React开发的VR内容创建者管理平台，用于管理VR内容、分析数据、协作管理和收入管理等。
+
+## 前置条件
+
+- Node.js 16.x 或以上
+- npm 8.x 或以上 (或者 yarn 1.22.x+)
+- Git
+
+## 步骤一：创建基础项目结构
+
+1. 创建项目文件夹并初始化
+
+```bash
+mkdir vision-pro-frontend
+cd vision-pro-frontend
+npm init -y
+```
+
+2. 创建`package.json`文件
+
+```bash
+cat > package.json << 'EOF'
+{
+  "name": "vision-pro-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx",
+    "format": "prettier --write \"src/**/*.{js,jsx,less}\""
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.2.6",
+    "@reduxjs/toolkit": "^2.0.1",
+    "antd": "^5.12.1",
+    "axios": "^1.6.2",
+    "dayjs": "^1.11.10",
+    "i18next": "^23.7.8",
+    "lodash": "^4.17.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^13.5.0",
+    "react-query": "^3.39.3",
+    "react-redux": "^9.0.4",
+    "react-router-dom": "^6.20.1",
+    "recharts": "^2.10.3",
+    "redux": "^5.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "less": "^4.2.0",
+    "prettier": "^3.1.0",
+    "vite": "^5.0.7"
+  }
+}
+EOF
+```
+
+## 步骤二：创建缺失的关键文件
+
+1. 创建环境变量文件
+
+```bash
+cat > .env << 'EOF'
+VITE_API_BASE_URL=http://localhost:8000/api
+EOF
+```
+
+2. 创建令牌存储工具类
+
+```bash
+mkdir -p src/utils
+cat > src/utils/tokenStorage.js << 'EOF'
+// src/utils/tokenStorage.js
+
+/**
+ * 获取访问令牌
+ * @returns {string|null} - 访问令牌
+ */
+export const getToken = () => {
+  return localStorage.getItem('token')
+}
+
+/**
+ * 设置访问令牌
+ * @param {string} token - 访问令牌
+ */
+export const setToken = (token) => {
+  localStorage.setItem('token', token)
+}
+
+/**
+ * 获取刷新令牌
+ * @returns {string|null} - 刷新令牌
+ */
+export const getRefreshToken = () => {
+  return localStorage.getItem('refreshToken')
+}
+
+/**
+ * 设置刷新令牌
+ * @param {string} refreshToken - 刷新令牌
+ */
+export const setRefreshToken = (refreshToken) => {
+  localStorage.setItem('refreshToken', refreshToken)
+}
+
+/**
+ * 清除所有令牌
+ */
+export const clearTokens = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('refreshToken')
+}
+EOF
+```
+
+3. 创建React Query客户端配置
+
+```bash
+mkdir -p src/services
+cat > src/services/queryClient.js << 'EOF'
+// src/services/queryClient.js
+import { QueryClient } from 'react-query'
+
+// 创建和配置查询客户端
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // 窗口聚焦时不重新获取
+      retry: 1, // 失败后最多重试1次
+      staleTime: 60 * 1000, // 数据1分钟内视为新鲜
+    },
+  },
+})
+EOF
+```
+
+4. 创建基础样式文件
+
+```bash
+mkdir -p src/styles
+cat > src/styles/index.less << 'EOF'
+// src/styles/index.less
+
+// 导入Ant Design样式
+@import '~antd/dist/reset.css';
+
+// 全局变量
+:root {
+  --primary-color: #1677ff;
+  --background-color: #f0f2f5;
+  --border-radius-base: 6px;
+}
+
+// 全局样式
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
+}
+
+// 布局样式
+.app-layout {
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 0 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 64px;
+}
+
+.app-sider {
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.app-content {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.logo {
+  height: 64px;
+  padding: 16px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+// 页面通用样式
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+// 卡片样式
+.stats-card {
+  height: 100%;
+}
+
+// 表格样式
+.table-actions {
+  button {
+    padding: 0 8px;
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .app-content {
+    padding: 16px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+EOF
+```
+
+5. 创建基本类型定义文件
+
+```bash
+mkdir -p src/types
+cat > src/types/index.js << 'EOF'
+// src/types/index.js
+
+/**
+ * API响应类型
+ * @typedef {Object} ApiResponse
+ * @property {boolean} success - 请求是否成功
+ * @property {any} data - 响应数据
+ * @property {string} [message] - 响应消息
+ * @property {string} [error] - 错误代码
+ */
+
+/**
+ * 分页数据类型
+ * @typedef {Object} PaginationData
+ * @property {number} total - 总记录数
+ * @property {number} page - 当前页码
+ * @property {number} pages - 总页数
+ * @property {number} limit - 每页记录数
+ */
+
+/**
+ * 内容状态枚举
+ * @typedef {'draft'|'pending_review'|'approved'|'published'|'rejected'|'archived'} ContentStatus
+ */
+
+/**
+ * 内容类型枚举
+ * @typedef {'180_video'|'360_video'|'180_photo'|'360_photo'|'spatial_video'|'spatial_photo'} ContentType
+ */
+EOF
+```
+
+## 步骤三：安装依赖与启动项目
+
+1. 安装依赖
+
+```bash
+npm install
+```
+
+2. 创建Mock API服务器(可选)
+
+如果没有实际的后端API，可以使用json-server快速创建一个模拟API：
+
+```bash
+npm install -g json-server
+mkdir -p mock
+touch mock/db.json
+```
+
+将以下内容添加到`mock/db.json`：
+
+```json
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "profile": {
+        "avatar": null,
+        "displayName": "管理员"
+      }
+    }
+  ],
+  "contents": [
+    {
+      "_id": "content1",
+      "title": {
+        "zh-CN": "VR视频示例",
+        "en-US": "VR Video Example"
+      },
+      "description": {
+        "zh-CN": "这是一个示例VR视频",
+        "en-US": "This is a sample VR video"
+      },
+      "contentType": "360_video",
+      "status": "published",
+      "createdAt": "2023-12-01T08:00:00Z",
+      "updatedAt": "2023-12-01T10:00:00Z",
+      "tags": ["示例", "VR"],
+      "stats": {
+        "views": 1200,
+        "likes": 85
+      },
+      "files": {
+        "thumbnail": {
+          "url": "https://via.placeholder.com/300x200"
+        }
+      }
+    }
+  ],
+  "login": {
+    "success": true,
+    "data": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzAxNjI0MDAwLCJleHAiOjE3MDE3MTA0MDB9.this_is_a_fake_token",
+      "refreshToken": "refresh_token_example"
+    },
+    "message": "登录成功"
+  }
+}
+```
+
+启动模拟API服务器：
+
+```bash
+json-server --watch mock/db.json --port 8000 --middlewares ./mock/middleware.js
+```
+
+3. 启动开发服务器
+
+```bash
+npm run dev
+```
+
+## 步骤四：解决常见问题
+
+1. **API请求失败**
+   
+   如果API请求失败，检查以下几点：
+   - 确认API基础URL是否正确（`.env`文件中的`VITE_API_BASE_URL`）
+   - 检查网络请求是否有CORS问题
+   - 查看控制台网络请求详情
+
+2. **组件渲染错误**
+
+   如果遇到组件渲染错误：
+   - 检查组件是否正确导入
+   - 查看是否有props类型错误
+   - 确认所有依赖的组件都已定义
+
+3. **样式问题**
+
+   如果遇到样式问题：
+   - 确认LESS文件是否正确导入
+   - 检查className是否正确应用
+   - 查看是否有样式冲突
+
+## 开发提示
+
+1. 本项目使用React Query进行数据获取和缓存管理，参考`src/hooks/useContent.js`等文件了解如何使用。
+
+2. 状态管理使用Redux Toolkit，参考`src/store/slices`目录下的文件了解状态定义。
+
+3. 路由使用React Router，参考`src/App.jsx`了解路由配置。
+
+4. UI组件基于Ant Design，可参考其官方文档进行组件使用。
+
+5. 项目支持多语言，通过i18next实现，参考`src/locales`目录下的配置。
