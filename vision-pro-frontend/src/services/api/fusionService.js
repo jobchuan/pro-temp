@@ -8,7 +8,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 融合内容列表
    */
   async getFusions(params) {
-    return this.get('/creator/fusions', params)
+    return this.get('/fusions', params)
   }
 
   /**
@@ -17,7 +17,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 创建的融合内容
    */
   async createFusion(data) {
-    return this.post('/creator/fusions', data)
+    return this.post('/fusions', data)
   }
 
   /**
@@ -26,7 +26,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 融合内容详情
    */
   async getFusionDetail(fusionId) {
-    return this.get(`/creator/fusions/${fusionId}`)
+    return this.get(`/fusions/${fusionId}`)
   }
 
   /**
@@ -36,7 +36,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新后的融合内容
    */
   async updateFusion(fusionId, data) {
-    return this.put(`/creator/fusions/${fusionId}`, data)
+    return this.put(`/fusions/${fusionId}`, data)
   }
 
   /**
@@ -45,7 +45,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 删除响应
    */
   async deleteFusion(fusionId) {
-    return this.delete(`/creator/fusions/${fusionId}`)
+    return this.delete(`/fusions/${fusionId}`)
   }
 
   /**
@@ -54,7 +54,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 发布响应
    */
   async publishFusion(fusionId) {
-    return this.post(`/creator/fusions/${fusionId}/publish`)
+    return this.post(`/fusions/${fusionId}/publish`)
   }
 
   /**
@@ -63,7 +63,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 源列表
    */
   async getFusionSources(fusionId) {
-    return this.get(`/creator/fusions/${fusionId}/sources`)
+    return this.get(`/fusions/${fusionId}/sources`)
   }
 
   /**
@@ -73,7 +73,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 添加响应
    */
   async addFusionSource(fusionId, data) {
-    return this.post(`/creator/fusions/${fusionId}/sources`, data)
+    return this.post(`/fusions/${fusionId}/sources`, data)
   }
 
   /**
@@ -84,7 +84,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新响应
    */
   async updateFusionSource(fusionId, sourceId, data) {
-    return this.put(`/creator/fusions/${fusionId}/sources/${sourceId}`, data)
+    return this.put(`/fusions/${fusionId}/sources/${sourceId}`, data)
   }
 
   /**
@@ -94,7 +94,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 删除响应
    */
   async deleteFusionSource(fusionId, sourceId) {
-    return this.delete(`/creator/fusions/${fusionId}/sources/${sourceId}`)
+    return this.delete(`/fusions/${fusionId}/sources/${sourceId}`)
   }
 
   /**
@@ -104,7 +104,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新响应
    */
   async updateFusionSourceOrder(fusionId, sources) {
-    return this.put(`/creator/fusions/${fusionId}/sources/order`, { sources })
+    return this.put(`/fusions/${fusionId}/sources/order`, { sources })
   }
 
   /**
@@ -114,7 +114,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 分析数据
    */
   async getFusionAnalytics(fusionId, params) {
-    return this.get(`/creator/fusions/${fusionId}/analytics`, params)
+    return this.get(`/fusions/${fusionId}/analytics`, params)
   }
 
   /**
@@ -128,7 +128,7 @@ class FusionApiService extends BaseApiService {
     const formData = new FormData()
     formData.append('thumbnail', file)
     
-    return this.upload(`/creator/fusions/${fusionId}/thumbnail`, formData, onProgress)
+    return this.upload(`/fusions/${fusionId}/thumbnail`, formData, onProgress)
   }
 
   /**
@@ -137,7 +137,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 分享链接
    */
   async getFusionShareLink(fusionId) {
-    return this.get(`/creator/fusions/${fusionId}/share`)
+    return this.get(`/fusions/${fusionId}/share`)
   }
 
   /**
@@ -147,7 +147,7 @@ class FusionApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新响应
    */
   async updateFusionPermissions(fusionId, permissions) {
-    return this.put(`/creator/fusions/${fusionId}/permissions`, permissions)
+    return this.put(`/fusions/${fusionId}/permissions`, permissions)
   }
 }
 

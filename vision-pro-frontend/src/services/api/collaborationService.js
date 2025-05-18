@@ -8,7 +8,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 协作项目列表
    */
   async getCollaborations(params) {
-    return this.get('/creator/collaborations', params)
+    return this.get('/collaborations', params)
   }
 
   /**
@@ -17,7 +17,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 创建的协作项目
    */
   async createCollaboration(data) {
-    return this.post('/creator/collaborations', data)
+    return this.post('/collaborations', data)
   }
 
   /**
@@ -26,7 +26,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 协作项目详情
    */
   async getCollaborationDetail(collaborationId) {
-    return this.get(`/creator/collaborations/${collaborationId}`)
+    return this.get(`/collaborations/${collaborationId}`)
   }
 
   /**
@@ -36,7 +36,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新后的协作项目
    */
   async updateCollaboration(collaborationId, data) {
-    return this.put(`/creator/collaborations/${collaborationId}`, data)
+    return this.put(`/collaborations/${collaborationId}`, data)
   }
 
   /**
@@ -45,7 +45,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 删除响应
    */
   async deleteCollaboration(collaborationId) {
-    return this.delete(`/creator/collaborations/${collaborationId}`)
+    return this.delete(`/collaborations/${collaborationId}`)
   }
 
   /**
@@ -54,7 +54,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 协作者列表
    */
   async getCollaborators(collaborationId) {
-    return this.get(`/creator/collaborations/${collaborationId}/collaborators`)
+    return this.get(`/collaborations/${collaborationId}/collaborators`)
   }
 
   /**
@@ -63,7 +63,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 邀请响应
    */
   async inviteCollaborator(data) {
-    return this.post('/creator/collaborations/invite', data)
+    return this.post('/collaborations/invite', data)
   }
 
   /**
@@ -73,7 +73,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 移除响应
    */
   async removeCollaborator(collaborationId, collaboratorId) {
-    return this.delete(`/creator/collaborations/${collaborationId}/collaborators/${collaboratorId}`)
+    return this.delete(`/collaborations/${collaborationId}/collaborators/${collaboratorId}`)
   }
 
   /**
@@ -84,7 +84,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新响应
    */
   async updateCollaboratorRole(collaborationId, collaboratorId, role) {
-    return this.put(`/creator/collaborations/${collaborationId}/collaborators/${collaboratorId}`, { role })
+    return this.put(`/collaborations/${collaborationId}/collaborators/${collaboratorId}`, { role })
   }
 
   /**
@@ -93,7 +93,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 内容列表
    */
   async getCollaborationContents(collaborationId) {
-    return this.get(`/creator/collaborations/${collaborationId}/contents`)
+    return this.get(`/collaborations/${collaborationId}/contents`)
   }
 
   /**
@@ -103,7 +103,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 添加响应
    */
   async addContentToCollaboration(collaborationId, contentId) {
-    return this.post(`/creator/collaborations/${collaborationId}/contents`, { contentId })
+    return this.post(`/collaborations/${collaborationId}/contents`, { contentId })
   }
 
   /**
@@ -113,7 +113,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 移除响应
    */
   async removeContentFromCollaboration(collaborationId, contentId) {
-    return this.delete(`/creator/collaborations/${collaborationId}/contents/${contentId}`)
+    return this.delete(`/collaborations/${collaborationId}/contents/${contentId}`)
   }
 
   /**
@@ -122,7 +122,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 活动历史
    */
   async getCollaborationActivities(collaborationId) {
-    return this.get(`/creator/collaborations/${collaborationId}/activities`)
+    return this.get(`/collaborations/${collaborationId}/activities`)
   }
 
   /**
@@ -131,7 +131,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 发送响应
    */
   async sendMessage(data) {
-    return this.post('/creator/collaborations/message', data)
+    return this.post('/collaborations/message', data)
   }
 
   /**
@@ -141,7 +141,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新响应
    */
   async updateCollaborationStatus(collaborationId, status) {
-    return this.put(`/creator/collaborations/${collaborationId}/status`, { status })
+    return this.put(`/collaborations/${collaborationId}/status`, { status })
   }
   
   /**
@@ -151,7 +151,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 响应结果
    */
   async respondToInvite(inviteId, accept) {
-    return this.post(`/creator/collaborations/invites/${inviteId}/respond`, { accept })
+    return this.post(`/collaborations/invites/${inviteId}/respond`, { accept })
   }
   
   /**
@@ -159,7 +159,7 @@ class CollaborationApiService extends BaseApiService {
    * @returns {Promise<object>} - 邀请列表
    */
   async getInvites() {
-    return this.get('/creator/collaborations/invites')
+    return this.get('/collaborations/invites')
   }
 }
 
