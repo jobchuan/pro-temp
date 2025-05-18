@@ -9,7 +9,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 媒体资源列表
    */
   async getMediaList(params) {
-    return this.get('/creator/media', params)
+    return this.get('/media', params)
   }
 
   /**
@@ -32,7 +32,7 @@ class MediaApiService extends BaseApiService {
       formData.append('metadata', JSON.stringify(metadata))
     }
     
-    return httpClient.post('/creator/media/upload', formData, {
+    return httpClient.post('/media/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -67,7 +67,7 @@ class MediaApiService extends BaseApiService {
       formData.append('metadata', JSON.stringify(metadata))
     }
     
-    return httpClient.post('/creator/media/vr/upload', formData, {
+    return httpClient.post('/media/vr/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -86,7 +86,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 创建结果
    */
   async createFolder(data) {
-    return this.post('/creator/media/folder', data)
+    return this.post('/media/folder', data)
   }
 
   /**
@@ -95,7 +95,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 文件夹详情
    */
   async getFolderDetail(folderId) {
-    return this.get(`/creator/media/folder/${folderId}`)
+    return this.get(`/media/folder/${folderId}`)
   }
 
   /**
@@ -105,7 +105,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新结果
    */
   async renameFolder(folderId, data) {
-    return this.put(`/creator/media/folder/${folderId}`, data)
+    return this.put(`/media/folder/${folderId}`, data)
   }
 
   /**
@@ -115,7 +115,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新结果
    */
   async renameMedia(mediaId, data) {
-    return this.put(`/creator/media/${mediaId}`, data)
+    return this.put(`/media/${mediaId}`, data)
   }
 
   /**
@@ -125,7 +125,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 更新结果
    */
   async updateMediaMetadata(mediaId, metadata) {
-    return this.put(`/creator/media/${mediaId}/metadata`, metadata)
+    return this.put(`/media/${mediaId}/metadata`, metadata)
   }
 
   /**
@@ -135,7 +135,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 移动结果
    */
   async moveItems(items, targetFolderId) {
-    return this.post('/creator/media/move', {
+    return this.post('/media/move', {
       items,
       targetFolderId
     })
@@ -148,7 +148,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 复制结果
    */
   async copyMedia(mediaIds, targetFolderId) {
-    return this.post('/creator/media/copy', {
+    return this.post('/media/copy', {
       mediaIds,
       targetFolderId
     })
@@ -160,7 +160,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 删除结果
    */
   async deleteItems(items) {
-    return this.post('/creator/media/delete', { items })
+    return this.post('/media/delete', { items })
   }
   
   /**
@@ -168,7 +168,7 @@ class MediaApiService extends BaseApiService {
    * @returns {Promise<object>} - 用量统计
    */
   async getStorageUsage() {
-    return this.get('/creator/media/storage-usage')
+    return this.get('/media/storage-usage')
   }
 }
 
