@@ -1,0 +1,425 @@
+// src/pages/analytics/ContentAnalyticsPage.less
+
+.content-analytics-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+  }
+  
+  .content-info {
+    margin-bottom: 24px;
+    
+    .content-card {
+      .card-body {
+        display: flex;
+        
+        .content-thumbnail {
+          width: 160px;
+          height: 90px;
+          border-radius: 4px;
+          overflow: hidden;
+          margin-right: 24px;
+          flex-shrink: 0;
+          
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+        
+        .content-details {
+          flex: 1;
+          
+          .content-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+          }
+          
+          .content-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 12px;
+            
+            .meta-item {
+              display: flex;
+              align-items: center;
+              color: rgba(0, 0, 0, 0.65);
+              
+              .meta-icon {
+                margin-right: 8px;
+              }
+            }
+          }
+          
+          .content-description {
+            color: rgba(0, 0, 0, 0.65);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          
+          .content-tags {
+            .ant-tag {
+              margin-bottom: 8px;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .time-range-selector {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 24px;
+    
+    .range-buttons {
+      display: flex;
+      gap: 8px;
+      margin-right: 16px;
+    }
+  }
+  
+  .overview-stats {
+    margin-bottom: 24px;
+    
+    .stat-card {
+      height: 100%;
+      
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        
+        .stat-title {
+          font-size: 16px;
+          color: rgba(0, 0, 0, 0.85);
+          margin: 0;
+        }
+        
+        .trend-tag {
+          &.up {
+            color: #52c41a;
+          }
+          
+          &.down {
+            color: #ff4d4f;
+          }
+          
+          .anticon {
+            margin-right: 4px;
+          }
+        }
+      }
+      
+      .stat-value {
+        font-size: 32px;
+        font-weight: 500;
+        margin-bottom: 16px;
+      }
+      
+      .stat-footer {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+    }
+  }
+  
+  .trend-chart-section {
+    margin-bottom: 32px;
+    
+    .chart-card {
+      .ant-card-head {
+        border-bottom: none;
+      }
+    }
+  }
+  
+  .audience-section {
+    margin-bottom: 32px;
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .section-title {
+        font-size: 18px;
+        font-weight: 500;
+        margin: 0;
+      }
+    }
+    
+    .audience-tabs {
+      margin-bottom: 16px;
+    }
+    
+    .demographic-card, .geographic-card, .device-card, .source-card {
+      height: 100%;
+      
+      .chart-container {
+        height: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .legend-list {
+        margin-top: 16px;
+        
+        .legend-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+          
+          .item-label {
+            display: flex;
+            align-items: center;
+            
+            .color-dot {
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              margin-right: 8px;
+            }
+          }
+          
+          .item-value {
+            font-weight: 500;
+          }
+          
+          .item-percentage {
+            color: rgba(0, 0, 0, 0.45);
+            width: 50px;
+            text-align: right;
+          }
+        }
+      }
+    }
+  }
+  
+  .engagement-section {
+    margin-bottom: 32px;
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .section-title {
+        font-size: 18px;
+        font-weight: 500;
+        margin: 0;
+      }
+    }
+    
+    .engagement-card {
+      height: 100%;
+      
+      .engagement-metric {
+        margin-bottom: 24px;
+        
+        .metric-header {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          
+          .metric-name {
+            color: rgba(0, 0, 0, 0.65);
+          }
+          
+          .metric-value {
+            font-weight: 500;
+          }
+        }
+        
+        .ant-progress {
+          margin-bottom: 0;
+        }
+      }
+    }
+    
+    .watch-time-card {
+      .chart-container {
+        height: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+    
+    .hot-spots-card {
+      .hot-spots-chart {
+        height: 250px;
+        margin-bottom: 16px;
+      }
+      
+      .chart-legend {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 16px;
+        
+        .legend-item {
+          display: flex;
+          align-items: center;
+          margin-right: 16px;
+          
+          .color-box {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+  }
+  
+  .comments-section {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .section-title {
+        font-size: 18px;
+        font-weight: 500;
+        margin: 0;
+      }
+    }
+    
+    .comments-card {
+      .comment-list {
+        .comment-item {
+          margin-bottom: 16px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid #f0f0f0;
+          
+          &:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+          }
+          
+          .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            
+            .user-avatar {
+              margin-right: 12px;
+            }
+            
+            .user-name {
+              font-weight: 500;
+              margin-right: 8px;
+            }
+            
+            .comment-time {
+              color: rgba(0, 0, 0, 0.45);
+              font-size: 12px;
+            }
+          }
+          
+          .comment-content {
+            margin-bottom: 8px;
+          }
+          
+          .comment-actions {
+            display: flex;
+            gap: 16px;
+            color: rgba(0, 0, 0, 0.45);
+            
+            .action {
+              cursor: pointer;
+              
+              &:hover {
+                color: #1677ff;
+              }
+              
+              .anticon {
+                margin-right: 4px;
+              }
+            }
+          }
+        }
+      }
+      
+      .view-more {
+        text-align: center;
+        margin-top: 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .content-analytics-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+    
+    .content-info {
+      .content-card {
+        .card-body {
+          flex-direction: column;
+          
+          .content-thumbnail {
+            width: 100%;
+            height: 180px;
+            margin-right: 0;
+            margin-bottom: 16px;
+          }
+        }
+      }
+    }
+    
+    .time-range-selector {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .range-buttons {
+        margin-right: 0;
+        margin-bottom: 16px;
+      }
+      
+      .ant-picker {
+        width: 100%;
+      }
+    }
+    
+    .overview-stats {
+      .ant-col {
+        margin-bottom: 16px;
+      }
+    }
+  }
+}

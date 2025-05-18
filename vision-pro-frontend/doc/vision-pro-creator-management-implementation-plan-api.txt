@@ -1,0 +1,1579 @@
+    formData.append('chunk', chunkData.chunk);
+    formData.append('identifier', chunkData.identifier);
+    formData.append('chunkNumber', chunkData.chunkNumber.toString());
+    
+    return httpClient.post('/upload/chunk/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(percentCompleted);
+        }
+      }
+    });
+  }
+
+  // 完成分片上传
+  async completeChunkUpload(identifier: string): Promise<ApiResponse<ChunkCompleteResult>> {
+    return this.post<ChunkCompleteResult>('/upload/chunk/complete', { identifier });
+  }
+
+  // 取消上传
+  async cancelUpload(identifier: string): Promise<ApiResponse<{ message: string }>> {
+    return this.delete<{ message: string }>(`/upload/chunk/${identifier}`);
+  }
+
+  // 获取上传进度
+  async getUploadProgress(identifier: string): Promise<ApiResponse<UploadProgressResult>> {
+    return this.get<UploadProgressResult>(`/upload/chunk/${identifier}/progress`);
+  }
+}
+
+export const uploadApiService = new UploadApiService();
+```
+
+### 分析数据API服务
+
+```typescript
+// src/services/api/analyticsService.ts
+import { BaseApiService } from './base';
+import { 
+  AnalyticsOverview, 
+  ContentAnalytics, 
+  AnalyticsTrends,
+  AudienceAnalytics
+} from '../../types/analytics';
+import { ApiResponse } from '../../types/api';
+
+class AnalyticsApiService extends BaseApiService {
+  // 获取分析概览
+  async getAnalyticsOverview(): Promise<ApiResponse<AnalyticsOverview>> {
+    return this.get<AnalyticsOverview>('/creator/analytics/overview');
+  }
+
+  // 获取内容分析
+  async getContentAnalytics(contentId: string, period: string): Promise<ApiResponse<ContentAnalytics>> {
+    return this.get<ContentAnalytics>(`/creator/analytics/contents/${contentId}`, { period });
+  }
+
+  // 获取分析趋势
+  async getAnalyticsTrends(params: { period: string; metric: string }): Promise<ApiResponse<AnalyticsTrends>> {
+    return this.get<AnalyticsTrends>('/creator/analytics/trends', params);
+  }
+
+  // 获取受众分析
+  async getAudienceAnalytics(): Promise<ApiResponse<AudienceAnalytics>> {
+    return this.get<AudienceAnalytics>('/creator/analytics/audience');
+  }
+}
+
+export const analyticsApiService = new AnalyticsApiService();
+```
+
+### 收入管理API服务
+
+```typescript
+// src/services/api/incomeService.ts
+import { BaseApiService } from './base';
+import { 
+  IncomeOverview, 
+  IncomeDetails, 
+  WithdrawalRequest,
+  WithdrawalResult
+} from '../../types/income';
+import { ApiResponse, PaginationData } from '../../types/api';
+
+class IncomeApiService extends BaseApiService {
+  // 获取收入概览
+  async getIncomeOverview(): Promise<ApiResponse<IncomeOverview>> {
+    return this.get<IncomeOverview>('/creator/income/overview');
+  }
+
+  // 获取收入明细
+  async getIncomeDetails(params: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    source?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ApiResponse<{ incomes: IncomeDetails[]; pagination: PaginationData }>> {
+    return this.get<{ incomes: IncomeDetails[]; pagination: PaginationData }>('/creator/income/details', params);
+  }
+
+  // 申请提现
+  async requestWithdrawal(data: WithdrawalRequest): Promise<ApiResponse<WithdrawalResult>> {
+    return this.post<WithdrawalResult>('/creator/income/withdraw', data);
+  }
+}
+
+export const incomeApiService = new IncomeApiService();
+```
+
+### 协作管理API服务
+
+```typescript
+// src/services/api/collaborationService.ts
+import { BaseApiService } from './base';
+import { 
+  Collaboration, 
+  CollaborationDetail,
+  CollaboratorInvite, 
+  CollaboratorPermissions
+} from '../../types/collaboration';
+import { ApiResponse, PaginationData } from '../../types/api';
+
+class CollaborationApiService extends BaseApiService {
+  // 邀请协作者
+  async inviteCollaborator(contentId: string, data: CollaboratorInvite): Promise<ApiResponse<Collaboration>> {
+    return this.post<Collaboration>(`/collaborations/content/${contentId}/invite`, data);
+  }
+
+  // 接受协作邀请
+  async acceptInvitation(collaborationId: string): Promise<ApiResponse<Collaboration>> {
+    return this.post<Collaboration>(`/collaborations/${collaborationId}/accept`, {});
+  }
+
+  // 拒绝协作邀请
+  async declineInvitation(collaborationId: string): Promise<ApiResponse<Collaboration>> {
+    return this.post<Collaboration>(`/collaborations/${collaborationId}/decline`, {});
+  }
+
+  // 获取协作详情
+  async getCollaborationDetail(collaborationId: string): Promise<ApiResponse<CollaborationDetail>> {
+    return this.get<CollaborationDetail>(`/collaborations/${collaborationId}`);
+  }
+
+  // 更新协作者权限
+  async updateCollaboratorPermissions(
+    collaborationId: string, 
+    collaboratorId: string, 
+    permissions: CollaboratorPermissions
+  ): Promise<ApiResponse<Collaboration>> {
+    return this.put<Collaboration>(
+      `/collaborations/${collaborationId}/collaborator/${collaboratorId}/permissions`, 
+      { permissions }
+    );
+  }
+
+  // 移除协作者
+  async removeCollaborator(collaborationId: string, collaboratorId: string): Promise<ApiResponse<Collaboration>> {
+    return this.delete<Collaboration>(`/collaborations/${collaborationId}/collaborator/${collaboratorId}`);
+  }
+
+  // 获取用户的协作列表
+  async getUserCollaborations(params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+  }): Promise<ApiResponse<{ collaborations: Collaboration[]; pagination: PaginationData }>> {
+    return this.get<{ collaborations: Collaboration[]; pagination: PaginationData }>('/collaborations/user/list', params);
+  }
+}
+
+export const collaborationApiService = new CollaborationApiService();
+```
+
+### 评论管理API服务
+
+```typescript
+// src/services/api/commentService.ts
+import { BaseApiService } from './base';
+import { Comment, CommentReply } from '../../types/comment';
+import { ApiResponse, PaginationData } from '../../types/api';
+
+class CommentApiService extends BaseApiService {
+  // 获取创作者评论
+  async getCreatorComments(params: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    status?: string;
+  }): Promise<ApiResponse<{ comments: Comment[]; pagination: PaginationData }>> {
+    return this.get<{ comments: Comment[]; pagination: PaginationData }>('/creator/comments', params);
+  }
+
+  // 回复评论
+  async replyToComment(commentId: string, data: CommentReply): Promise<ApiResponse<{ comment: Comment }>> {
+    return this.post<{ comment: Comment }>(`/creator/comments/${commentId}/reply`, data);
+  }
+
+  // 置顶/取消置顶评论
+  async pinComment(commentId: string, isPinned: boolean): Promise<ApiResponse<{ comment: Comment }>> {
+    return this.put<{ comment: Comment }>(`/creator/comments/${commentId}/pin`, { isPinned });
+  }
+
+  // 获取内容评论
+  async getContentComments(contentId: string, params: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+  }): Promise<ApiResponse<{ comments: Comment[]; pagination: PaginationData }>> {
+    return this.get<{ comments: Comment[]; pagination: PaginationData }>(`/interactions/content/${contentId}/comments`, params);
+  }
+
+  // 添加评论
+  async addComment(contentId: string, data: {
+    text: string;
+    parentId?: string;
+    spatialAnchor?: any;
+  }): Promise<ApiResponse<Comment>> {
+    return this.post<Comment>(`/interactions/content/${contentId}/comments`, data);
+  }
+
+  // 删除评论
+  async deleteComment(commentId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.delete<{ message: string }>(`/interactions/comments/${commentId}`);
+  }
+}
+
+export const commentApiService = new CommentApiService();
+```
+
+### 融合内容API服务
+
+```typescript
+// src/services/api/fusionService.ts
+import { BaseApiService } from './base';
+import { 
+  Fusion, 
+  FusionDetail, 
+  FusionCreateData, 
+  FusionUpdateData,
+  FusionContentSettings,
+  FusionContentOrder,
+  FusionAnalytics
+} from '../../types/fusion';
+import { ApiResponse, PaginationData } from '../../types/api';
+
+class FusionApiService extends BaseApiService {
+  // 获取融合内容列表
+  async getFusionList(params: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    category?: string;
+    status?: string;
+  }): Promise<ApiResponse<{ fusions: Fusion[]; pagination: PaginationData }>> {
+    return this.get<{ fusions: Fusion[]; pagination: PaginationData }>('/fusions', params);
+  }
+
+  // 创建融合内容
+  async createFusion(data: FusionCreateData): Promise<ApiResponse<Fusion>> {
+    return this.post<Fusion>('/fusions', data);
+  }
+
+  // 获取融合内容详情
+  async getFusionDetail(fusionId: string): Promise<ApiResponse<{ fusion: FusionDetail; stats: any }>> {
+    return this.get<{ fusion: FusionDetail; stats: any }>(`/fusions/${fusionId}`);
+  }
+
+  // 更新融合内容
+  async updateFusion(fusionId: string, data: FusionUpdateData): Promise<ApiResponse<Fusion>> {
+    return this.put<Fusion>(`/fusions/${fusionId}`, data);
+  }
+
+  // 删除融合内容
+  async deleteFusion(fusionId: string): Promise<ApiResponse<{ fusionId: string }>> {
+    return this.delete<{ fusionId: string }>(`/fusions/${fusionId}`);
+  }
+
+  // 添加内容到融合
+  async addContentToFusion(fusionId: string, data: {
+    contentId: string;
+    order: number;
+    settings: FusionContentSettings;
+  }): Promise<ApiResponse<Fusion>> {
+    return this.post<Fusion>(`/fusions/${fusionId}/contents`, data);
+  }
+
+  // 从融合中移除内容
+  async removeContentFromFusion(fusionId: string, contentId: string): Promise<ApiResponse<Fusion>> {
+    return this.delete<Fusion>(`/fusions/${fusionId}/contents/${contentId}`);
+  }
+
+  // 更新融合中的内容设置
+  async updateContentInFusion(fusionId: string, contentId: string, data: {
+    settings: FusionContentSettings;
+    order: number;
+  }): Promise<ApiResponse<Fusion>> {
+    return this.put<Fusion>(`/fusions/${fusionId}/contents/${contentId}`, data);
+  }
+
+  // 重新排序融合内容
+  async reorderFusionContents(fusionId: string, contentOrders: FusionContentOrder[]): Promise<ApiResponse<Fusion>> {
+    return this.put<Fusion>(`/fusions/${fusionId}/contents/reorder`, { contentOrders });
+  }
+
+  // 获取融合内容分析
+  async getFusionAnalytics(fusionId: string, period: string): Promise<ApiResponse<FusionAnalytics>> {
+    return this.get<FusionAnalytics>(`/fusions/${fusionId}/analytics`, { period });
+  }
+}
+
+export const fusionApiService = new FusionApiService();
+```
+
+## API Hooks 实现
+
+使用React Query集成API服务，提供数据获取、缓存和状态管理能力。
+
+### 用户Hooks
+
+```typescript
+// src/hooks/useUser.ts
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { userApiService } from '../services/api/userService';
+import { UpdateProfileData, ChangePasswordData } from '../types/user';
+
+export const useCurrentUser = () => {
+  return useQuery('currentUser', () => userApiService.getCurrentUser(), {
+    staleTime: 5 * 60 * 1000, // 数据5分钟内不重新获取
+    cacheTime: 10 * 60 * 1000, // 缓存10分钟
+  });
+};
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation(
+    (data: UpdateProfileData) => userApiService.updateProfile(data),
+    {
+      onSuccess: () => {
+        // 更新缓存的用户数据
+        queryClient.invalidateQueries('currentUser');
+      },
+    }
+  );
+};
+
+export const useChangePassword = () => {
+  return useMutation(
+    (data: ChangePasswordData) => userApiService.changePassword(data)
+  );
+};
+```
+
+### 内容Hooks
+
+```typescript
+// src/hooks/useContent.ts
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from 'react-query';
+import { contentApiService } from '../services/api/contentService';
+import { ContentListParams, ContentCreateData, ContentUpdateData } from '../types/content';
+
+// 获取内容列表
+export const useContentList = (params: ContentListParams) => {
+  return useQuery(
+    ['contentList', params],
+    () => contentApiService.getContentList(params),
+    {
+      staleTime: 60 * 1000, // 1分钟
+      keepPreviousData: true,
+    }
+  );
+};
+
+// 获取用户内容列表（无限滚动版本）
+export const useUserContentInfiniteList = (params: ContentListParams) => {
+  return useInfiniteQuery(
+    ['userContentList', params],
+    async ({ pageParam = 1 }) => {
+      const response = await contentApiService.getUserContentList({
+        ...params,
+        page: pageParam,
+      });
+      return response;
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const { pagination } = lastPage.data;
+        return pagination.page < pagination.pages ? pagination.page + 1 : undefined;
+      },
+      staleTime: 60 * 1000, // 1分钟
+    }
+  );
+};
+
+// 获取内容详情
+export const useContentDetail = (contentId: string, enabled = true) => {
+  return useQuery(
+    ['contentDetail', contentId],
+    () => contentApiService.getContentDetail(contentId),
+    {
+      enabled,
+      staleTime: 2 * 60 * 1000, // 2分钟
+    }
+  );
+};
+
+// 创建内容
+export const useCreateContent = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation(
+    (data: ContentCreateData) => contentApiService.createContent(data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('userContentList');
+      },
+    }
+  );
+};
+
+// 更新内容
+export const useUpdateContent = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation(
+    ({ contentId, data }: { contentId: string; data: ContentUpdateData }) => 
+      contentApiService.updateContent(contentId, data),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['contentDetail', variables.contentId]);
+        queryClient.invalidateQueries('userContentList');
+      },
+    }
+  );
+};
+
+// 删除内容
+export const useDeleteContent = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation(
+    (contentId: string) => contentApiService.deleteContent(contentId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('userContentList');
+      },
+    }
+  );
+};
+```
+
+### 上传Hooks
+
+```typescript
+// src/hooks/useUpload.ts
+import { useState, useCallback } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import { uploadApiService } from '../services/api/uploadService';
+import { SingleUploadResult, ChunkInitData } from '../types/upload';
+
+// 单文件上传Hook
+export const useSingleUpload = () => {
+  const [progress, setProgress] = useState(0);
+  
+  const mutation = useMutation(
+    (file: File) => uploadApiService.uploadSingleFile(file, setProgress)
+  );
+  
+  return {
+    upload: mutation.mutate,
+    uploadAsync: mutation.mutateAsync,
+    isUploading: mutation.isLoading,
+    result: mutation.data?.data as SingleUploadResult | undefined,
+    error: mutation.error,
+    progress,
+  };
+};
+
+// 分片上传Hook
+export const useChunkUpload = () => {
+  const [identifier, setIdentifier] = useState<string | null>(null);
+  const [totalProgress, setTotalProgress] = useState(0);
+  const [status, setStatus] = useState<'idle' | 'initializing' | 'uploading' | 'completing' | 'completed' | 'error'>('idle');
+  
+  // 初始化分片上传
+  const initMutation = useMutation(
+    (data: ChunkInitData) => uploadApiService.initChunkUpload(data),
+    {
+      onSuccess: (response) => {
+        setIdentifier(response.data.identifier);
+        setStatus('uploading');
+      },
+      onError: () => {
+        setStatus('error');
+      }
+    }
+  );
+  
+  // 上传分片
+  const uploadChunkMutation = useMutation(
+    (chunkData: { chunk: Blob, identifier: string, chunkNumber: number }) => 
+      uploadApiService.uploadChunk(chunkData, (chunkProgress) => {
+        // 分片进度不更新总进度，总进度由服务端返回
+      })
+  );
+  
+  // 完成上传
+  const completeUploadMutation = useMutation(
+    (identifier: string) => uploadApiService.completeChunkUpload(identifier),
+    {
+      onSuccess: () => {
+        setStatus('completed');
+        setTotalProgress(100);
+      },
+      onError: () => {
+        setStatus('error');
+      }
+    }
+  );
+  
+  // 查询上传进度
+  const { data: progressData, refetch: refetchProgress } = useQuery(
+    ['uploadProgress', identifier],
+    () => uploadApiService.getUploadProgress(identifier!),
+    {
+      enabled: !!identifier && status === 'uploading',
+      refetchInterval: 2000, // 每2秒查询一次进度
+      onSuccess: (response) => {
+        const { progress } = response.data;
+        setTotalProgress(parseInt(progress));
+      }
+    }
+  );
+  
+  // 取消上传
+  const cancelUploadMutation = useMutation(
+    (identifier: string) => uploadApiService.cancelUpload(identifier),
+    {
+      onSuccess: () => {
+        setStatus('idle');
+        setTotalProgress(0);
+        setIdentifier(null);
+      }
+    }
+  );
+  
+  // 开始上传
+  const startUpload = useCallback(async (file: File, chunkSize = 5 * 1024 * 1024) => {
+    try {
+      setStatus('initializing');
+      
+      // 计算分片数量
+      const totalChunks = Math.ceil(file.size / chunkSize);
+      
+      // 初始化上传
+      const initResponse = await initMutation.mutateAsync({
+        fileName: file.name,
+        fileSize: file.size,
+        chunkSize,
+        totalChunks
+      });
+      
+      const uploadIdentifier = initResponse.data.identifier;
+      setIdentifier(uploadIdentifier);
+      
+      // 上传分片
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * chunkSize;
+        const end = Math.min(start + chunkSize, file.size);
+        const chunk = file.slice(start, end);
+        
+        await uploadChunkMutation.mutateAsync({
+          chunk,
+          identifier: uploadIdentifier,
+          chunkNumber: i + 1
+        });
+        
+        // 刷新进度
+        await refetchProgress();
+      }
+      
+      // 完成上传
+      setStatus('completing');
+      const completeResponse = await completeUploadMutation.mutateAsync(uploadIdentifier);
+      
+      return completeResponse.data;
+    } catch (error) {
+      setStatus('error');
+      throw error;
+    }
+  }, [initMutation, uploadChunkMutation, completeUploadMutation, refetchProgress]);
+  
+  // 取消上传
+  const cancelUpload = useCallback(() => {
+    if (identifier) {
+      cancelUploadMutation.mutate(identifier);
+    } else {
+      setStatus('idle');
+      setTotalProgress(0);
+    }
+  }, [identifier, cancelUploadMutation]);
+  
+  return {
+    startUpload,
+    cancelUpload,
+    progress: totalProgress,
+    status,
+    isUploading: status === 'initializing' || status === 'uploading' || status === 'completing',
+    result: completeUploadMutation.data?.data,
+    error: initMutation.error || uploadChunkMutation.error || completeUploadMutation.error
+  };
+};
+```
+
+## 组件集成示例
+
+### 内容列表页面
+
+演示如何在React组件中集成API Hooks来获取和显示内容列表数据。
+
+```tsx
+// src/pages/ContentManagement/ContentList.tsx
+import React, { useState } from 'react';
+import { Table, Card, Button, Select, Input, Tag, Space, Pagination } from 'antd';
+import { useContentList } from '../../hooks/useContent';
+import { ContentListFilters } from '../../components/content/ContentListFilters';
+import { ContentActionsMenu } from '../../components/content/ContentActionsMenu';
+import { ContentGridView } from '../../components/content/ContentGridView';
+import { ContentStatus } from '../../components/content/ContentStatus';
+import { ContentListParams } from '../../types/content';
+
+const ContentListPage: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [filters, setFilters] = useState<ContentListParams>({
+    page: 1,
+    limit: 20,
+    sort: '-createdAt',
+    status: undefined,
+    contentType: undefined,
+    search: undefined
+  });
+  
+  const { data, isLoading, error } = useContentList(filters);
+  
+  // 处理筛选变更
+  const handleFilterChange = (updatedFilters: Partial<ContentListParams>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...updatedFilters,
+      page: 1 // 重置到第一页
+    }));
+  };
+  
+  // 处理分页变更
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      page,
+      limit: pageSize || prev.limit
+    }));
+  };
+  
+  // 渲染表格视图
+  const renderTableView = () => {
+    const columns = [
+      {
+        title: '缩略图',
+        dataIndex: 'files',
+        key: 'thumbnail',
+        render: (files: any) => (
+          <img 
+            src={files?.thumbnail?.url || '/placeholder-image.png'} 
+            alt="Thumbnail" 
+            style={{ width: 80, height: 45, objectFit: 'cover' }} 
+          />
+        )
+      },
+      {
+        title: '标题',
+        dataIndex: 'title',
+        key: 'title',
+        render: (title: any, record: any) => (
+          <div>
+            <div>{title['zh-CN']}</div>
+            <div style={{ fontSize: '12px', color: '#999' }}>
+              {record.contentType === '180_video' && '180° 视频'}
+              {record.contentType === '360_video' && '360° 视频'}
+              {record.contentType === '180_photo' && '180° 照片'}
+              {record.contentType === '360_photo' && '360° 照片'}
+              {record.contentType === 'spatial_video' && '空间视频'}
+              {record.contentType === 'spatial_photo' && '空间照片'}
+            </div>
+          </div>
+        )
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        key: 'status',
+        render: (status: string) => <ContentStatus status={status} />
+      },
+      {
+        title: '数据',
+        key: 'stats',
+        render: (record: any) => (
+          <div>
+            <div>{record.stats?.views || 0} 次观看</div>
+            <div>{record.stats?.likes || 0} 次点赞</div>
+          </div>
+        )
+      },
+      {
+        title: '操作',
+        key: 'action',
+        render: (record: any) => <ContentActionsMenu content={record} />
+      }
+    ];
+    
+    return (
+      <Table 
+        columns={columns}
+        dataSource={data?.data.data}
+        rowKey="_id"
+        loading={isLoading}
+        pagination={false}
+        rowSelection={{
+          type: 'checkbox',
+          onChange: (selectedRowKeys) => {
+            console.log('Selected rows:', selectedRowKeys);
+          }
+        }}
+      />
+    );
+  };
+  
+  return (
+    <div className="content-management-page">
+      <div className="page-header">
+        <h1>内容管理</h1>
+        <Button type="primary" href="/content/create">+ 创建新内容</Button>
+      </div>
+      
+      <Card>
+        <ContentListFilters 
+          filters={filters}
+          onFilterChange={handleFilterChange}
+        />
+        
+        <div className="view-toggle">
+          <Space>
+            <span>视图:</span>
+            <Button 
+              type={viewMode === 'table' ? 'primary' : 'default'}
+              onClick={() => setViewMode('table')}
+            >
+              表格
+            </Button>
+            <Button 
+              type={viewMode === 'grid' ? 'primary' : 'default'}
+              onClick={() => setViewMode('grid')}
+            >
+              卡片
+            </Button>
+          </Space>
+        </div>
+        
+        {error ? (
+          <div className="error-message">
+            加载失败: {(error as Error).message}
+          </div>
+        ) : viewMode === 'table' ? (
+          renderTableView()
+        ) : (
+          <ContentGridView 
+            contents={data?.data.data || []}
+            loading={isLoading}
+          />
+        )}
+        
+        <div className="pagination-container">
+          <Pagination
+            current={filters.page}
+            pageSize={filters.limit}
+            total={data?.data.pagination.total || 0}
+            onChange={handlePageChange}
+            showSizeChanger
+            showTotal={(total) => `共 ${total} 项`}
+          />
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default ContentListPage;
+```
+
+### 内容编辑页面
+
+演示如何集成API Hooks进行内容创建和编辑。
+
+```tsx
+// src/pages/ContentManagement/ContentEdit.tsx
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Form, Input, Select, Button, Card, message, Tabs, Switch } from 'antd';
+import { useContentDetail, useUpdateContent, useCreateContent } from '../../hooks/useContent';
+import { useSingleUpload, useChunkUpload } from '../../hooks/useUpload';
+import { ContentPreview } from '../../components/content/ContentPreview';
+import { ThumbnailUploader } from '../../components/upload/ThumbnailUploader';
+import { ContentTags } from '../../components/content/ContentTags';
+import { ContentPricing } from '../../components/content/ContentPricing';
+import { ContentCategory } from '../../components/content/ContentCategory';
+
+const { TabPane } = Tabs;
+
+const ContentEditPage: React.FC = () => {
+  const { contentId } = useParams<{ contentId: string }>();
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const [activeLanguage, setActiveLanguage] = useState('zh-CN');
+  const isEditing = !!contentId;
+  
+  // 获取内容详情
+  const { data: contentData, isLoading: isLoadingContent } = useContentDetail(
+    contentId || '', 
+    isEditing
+  );
+  
+  // 更新内容
+  const updateContent = useUpdateContent();
+  
+  // 创建内容
+  const createContent = useCreateContent();
+  
+  // 缩略图上传
+  const thumbnailUpload = useSingleUpload();
+  
+  // 主文件上传
+  const mainFileUpload = useChunkUpload();
+  
+  // 表单提交处理
+  const handleSubmit = async (values: any) => {
+    try {
+      // 处理表单数据，构建API请求所需数据结构
+      const formData = {
+        title: {
+          'zh-CN': values.title_zhCN || '',
+          'en-US': values.title_enUS || '',
+          'ja-JP': values.title_jaJP || '',
+          'ko-KR': values.title_koKR || '',
+        },
+        description: {
+          'zh-CN': values.description_zhCN || '',
+          'en-US': values.description_enUS || '',
+          'ja-JP': values.description_jaJP || '',
+          'ko-KR': values.description_koKR || '',
+        },
+        contentType: values.contentType,
+        category: values.category,
+        tags: values.tags || [],
+        pricing: {
+          isFree: !values.isPaid,
+          price: values.price || 0,
+          currency: values.currency || 'CNY',
+        },
+        // 其他表单字段...
+      };
+      
+      if (isEditing) {
+        // 更新现有内容
+        await updateContent.mutateAsync({
+          contentId,
+          data: formData,
+        });
+        message.success('内容已更新');
+      } else {
+        // 创建新内容
+        const result = await createContent.mutateAsync(formData);
+        message.success('内容已创建');
+        
+        // 导航到新创建的内容编辑页面
+        navigate(`/content/edit/${result.data._id}`);
+      }
+    } catch (error) {
+      message.error('操作失败: ' + (error as Error).message);
+    }
+  };
+  
+  // 上传主文件
+  const handleMainFileUpload = async (file: File) => {
+    try {
+      // 使用分片上传大文件
+      const result = await mainFileUpload.startUpload(file);
+      
+      // 更新表单中的文件信息
+      form.setFieldsValue({
+        mainFileUrl: result.url,
+        mainFileSize: result.size,
+      });
+      
+      message.success('文件上传成功');
+    } catch (error) {
+      message.error('文件上传失败: ' + (error as Error).message);
+    }
+  };
+  
+  // 上传缩略图
+  const handleThumbnailUpload = async (file: File) => {
+    try {
+      await thumbnailUpload.uploadAsync(file);
+      
+      if (thumbnailUpload.result) {
+        // 更新表单中的缩略图URL
+        form.setFieldsValue({
+          thumbnailUrl: thumbnailUpload.result.url,
+        });
+        
+        message.success('缩略图上传成功');
+      }
+    } catch (error) {
+      message.error('缩略图上传失败: ' + (error as Error).message);
+    }
+  };
+  
+  // 加载内容数据到表单
+  useEffect(() => {
+    if (contentData && isEditing) {
+      const content = contentData.data;
+      
+      // 设置表单字段值
+      form.setFieldsValue({
+        title_zhCN: content.title['zh-CN'],
+        title_enUS: content.title['en-US'],
+        title_jaJP: content.title['ja-JP'],
+        title_koKR: content.title['ko-KR'],
+        description_zhCN: content.description['zh-CN'],
+        description_enUS: content.description['en-US'],
+        description_jaJP: content.description['ja-JP'],
+        description_koKR: content.description['ko-KR'],
+        contentType: content.contentType,
+        category: content.category,
+        tags: content.tags,
+        isPaid: !content.pricing.isFree,
+        price: content.pricing.price,
+        currency: content.pricing.currency,
+        // 其他字段...
+      });
+    }
+  }, [contentData, isEditing, form]);
+  
+  return (
+    <div className="content-edit-page">
+      <div className="page-header">
+        <h1>{isEditing ? '编辑内容' : '创建新内容'}</h1>
+        <div>
+          <Button onClick={() => navigate(-1)}>取消</Button>
+          <Button type="primary" htmlType="submit" form="contentForm">
+            {isEditing ? '保存' : '创建'}
+          </Button>
+        </div>
+      </div>
+      
+      <div className="edit-content-layout">
+        <div className="preview-column">
+          <ContentPreview 
+            contentType={form.getFieldValue('contentType')}
+            fileUrl={form.getFieldValue('mainFileUrl')}
+            thumbnailUrl={form.getFieldValue('thumbnailUrl')}
+          />
+          
+          <ThumbnailUploader
+            onUpload={handleThumbnailUpload}
+            uploading={thumbnailUpload.isUploading}
+            progress={thumbnailUpload.progress}
+            imageUrl={form.getFieldValue('thumbnailUrl')}
+          />
+        </div>
+        
+        <div className="form-column">
+          <Card loading={isLoadingContent}>
+            <Form
+              id="contentForm"
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+              initialValues={{
+                contentType: '360_video',
+                category: 'other',
+                isPaid: false,
+                currency: 'CNY',
+              }}
+            >
+              <Tabs 
+                activeKey={activeLanguage} 
+                onChange={setActiveLanguage}
+                tabPosition="top"
+              >
+                <TabPane tab="中文" key="zh-CN">
+                  <Form.Item 
+                    name="title_zhCN" 
+                    label="标题" 
+                    rules={[{ required: true, message: '请输入标题' }]}
+                  >
+                    <Input placeholder="输入内容标题" />
+                  </Form.Item>
+                  
+                  <Form.Item name="description_zhCN" label="描述">
+                    <Input.TextArea rows={4} placeholder="输入内容描述" />
+                  </Form.Item>
+                </TabPane>
+                
+                <TabPane tab="英文" key="en-US">
+                  <Form.Item name="title_enUS" label="标题">
+                    <Input placeholder="输入英文标题" />
+                  </Form.Item>
+                  
+                  <Form.Item name="description_enUS" label="描述">
+                    <Input.TextArea rows={4} placeholder="输入英文描述" />
+                  </Form.Item>
+                </TabPane>
+                
+                <TabPane tab="日文" key="ja-JP">
+                  <Form.Item name="title_jaJP" label="标题">
+                    <Input placeholder="输入日文标题" />
+                  </Form.Item>
+                  
+                  <Form.Item name="description_jaJP" label="描述">
+                    <Input.TextArea rows={4} placeholder="输入日文描述" />
+                  </Form.Item>
+                </TabPane>
+                
+                <TabPane tab="韩文" key="ko-KR">
+                  <Form.Item name="title_koKR" label="标题">
+                    <Input placeholder="输入韩文标题" />
+                  </Form.Item>
+                  
+                  <Form.Item name="description_koKR" label="描述">
+                    <Input.TextArea rows={4} placeholder="输入韩文描述" />
+                  </Form.Item>
+                </TabPane>
+              </Tabs>
+              
+              <Form.Item 
+                name="contentType" 
+                label="内容类型" 
+                rules={[{ required: true, message: '请选择内容类型' }]}
+              >
+                <Select>
+                  <Select.Option value="180_video">180° 视频</Select.Option>
+                  <Select.Option value="360_video">360° 视频</Select.Option>
+                  <Select.Option value="180_photo">180° 照片</Select.Option>
+                  <Select.Option value="360_photo">360° 照片</Select.Option>
+                  <Select.Option value="spatial_video">空间视频</Select.Option>
+                  <Select.Option value="spatial_photo">空间照片</Select.Option>
+                </Select>
+              </Form.Item>
+              
+              <Form.Item name="category" label="分类">
+                <ContentCategory />
+              </Form.Item>
+              
+              <Form.Item name="tags" label="标签">
+                <ContentTags />
+              </Form.Item>
+              
+              <Form.Item name="isPaid" label="付费内容" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+              
+              {form.getFieldValue('isPaid') && (
+                <ContentPricing form={form} />
+              )}
+              
+              {/* 隐藏字段，存储上传后的文件URL */}
+              <Form.Item name="mainFileUrl" hidden>
+                <Input />
+              </Form.Item>
+              
+              <Form.Item name="mainFileSize" hidden>
+                <Input />
+              </Form.Item>
+              
+              <Form.Item name="thumbnailUrl" hidden>
+                <Input />
+              </Form.Item>
+            </Form>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ContentEditPage;
+```
+
+## 断网处理策略
+
+为了提供更好的用户体验，API集成方案应包含断网情况下的优雅处理。
+
+### 网络状态监控
+
+```typescript
+// src/hooks/useNetworkStatus.ts
+import { useState, useEffect } from 'react';
+
+export const useNetworkStatus = () => {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+  
+  return { isOnline };
+};
+```
+
+### 离线操作队列
+
+```typescript
+// src/services/offlineQueue.ts
+import localforage from 'localforage';
+
+// 定义离线操作类型
+export interface OfflineOperation {
+  id: string;
+  type: 'create' | 'update' | 'delete';
+  resource: string;
+  data: any;
+  timestamp: number;
+}
+
+// 创建离线操作存储
+const offlineStore = localforage.createInstance({
+  name: 'visionProCreator',
+  storeName: 'offlineOperations'
+});
+
+// 添加操作到队列
+export const addToOfflineQueue = async (operation: Omit<OfflineOperation, 'id' | 'timestamp'>) => {
+  const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  const timestamp = Date.now();
+  
+  const offlineOp: OfflineOperation = {
+    id,
+    ...operation,
+    timestamp
+  };
+  
+  await offlineStore.setItem(id, offlineOp);
+  return offlineOp;
+};
+
+// 获取所有离线操作
+export const getOfflineOperations = async (): Promise<OfflineOperation[]> => {
+  const operations: OfflineOperation[] = [];
+  
+  await offlineStore.iterate((value: OfflineOperation) => {
+    operations.push(value);
+  });
+  
+  // 按时间戳排序
+  return operations.sort((a, b) => a.timestamp - b.timestamp);
+};
+
+// 移除操作
+export const removeOfflineOperation = async (id: string) => {
+  await offlineStore.removeItem(id);
+};
+
+// 清空所有操作
+export const clearOfflineOperations = async () => {
+  await offlineStore.clear();
+};
+```
+
+### 离线模式组件
+
+```tsx
+// src/components/common/OfflineStatusBar.tsx
+import React from 'react';
+import { Alert, Button } from 'antd';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { getOfflineOperations } from '../../services/offlineQueue';
+import { useQuery } from 'react-query';
+
+export const OfflineStatusBar: React.FC = () => {
+  const { isOnline } = useNetworkStatus();
+  
+  // 获取离线操作数量
+  const { data: offlineOps } = useQuery(
+    'offlineOperations',
+    getOfflineOperations,
+    {
+      enabled: !isOnline,
+      refetchInterval: !isOnline ? 30000 : false, // 离线时每30秒检查一次
+    }
+  );
+  
+  if (isOnline) {
+    // 检查是否有待同步的操作
+    if (offlineOps && offlineOps.length > 0) {
+      return (
+        <Alert
+          type="warning"
+          message={`您有 ${offlineOps.length} 个操作在离线状态下保存，需要同步`}
+          banner
+          action={
+            <Button size="small" type="primary">
+              立即同步
+            </Button>
+          }
+        />
+      );
+    }
+    return null;
+  }
+  
+  return (
+    <Alert
+      type="error"
+      message="您已离线，操作将临时保存并在网络恢复后同步"
+      banner
+    />
+  );
+};
+```
+
+## 优化策略
+
+### 数据预取
+
+为了提高用户体验，对即将访问的页面进行数据预取。
+
+```typescript
+// src/utils/prefetch.ts
+import { queryClient } from '../services/queryClient';
+import { contentApiService } from '../services/api/contentService';
+import { analyticsApiService } from '../services/api/analyticsService';
+
+// 预取内容详情
+export const prefetchContentDetail = (contentId: string) => {
+  queryClient.prefetchQuery(
+    ['contentDetail', contentId],
+    () => contentApiService.getContentDetail(contentId),
+    {
+      staleTime: 60 * 1000, // 1分钟内不重新获取
+    }
+  );
+};
+
+// 预取首页数据
+export const prefetchDashboardData = () => {
+  // 预取分析概览
+  queryClient.prefetchQuery(
+    'analyticsOverview',
+    () => analyticsApiService.getAnalyticsOverview(),
+    {
+      staleTime: 5 * 60 * 1000, // 5分钟内不重新获取
+    }
+  );
+  
+  // 预取内容列表（第一页）
+  queryClient.prefetchQuery(
+    ['contentList', { page: 1, limit: 20 }],
+    () => contentApiService.getContentList({ page: 1, limit: 20 }),
+    {
+      staleTime: 60 * 1000, // 1分钟内不重新获取
+    }
+  );
+};
+```
+
+### API请求优化
+
+```typescript
+// src/services/http/debounce.ts
+import { useRef, useCallback } from 'react';
+import { debounce, throttle } from 'lodash';
+
+// 防抖请求Hook
+export const useDebouncedRequest = <T extends (...args: any[]) => Promise<any>>(
+  request: T,
+  delay = 300
+) => {
+  const debouncedFn = useRef(
+    debounce((args: Parameters<T>, resolve: any, reject: any) => {
+      request(...args)
+        .then(resolve)
+        .catch(reject);
+    }, delay)
+  ).current;
+  
+  const debouncedRequest = useCallback(
+    (...args: Parameters<T>) => {
+      return new Promise((resolve, reject) => {
+        debouncedFn(args, resolve, reject);
+      });
+    },
+    [debouncedFn]
+  );
+  
+  return debouncedRequest;
+};
+
+// 节流请求Hook
+export const useThrottledRequest = <T extends (...args: any[]) => Promise<any>>(
+  request: T,
+  limit = 500
+) => {
+  const throttledFn = useRef(
+    throttle((args: Parameters<T>, resolve: any, reject: any) => {
+      request(...args)
+        .then(resolve)
+        .catch(reject);
+    }, limit)
+  ).current;
+  
+  const throttledRequest = useCallback(
+    (...args: Parameters<T>) => {
+      return new Promise((resolve, reject) => {
+        throttledFn(args, resolve, reject);
+      });
+    },
+    [throttledFn]
+  );
+  
+  return throttledRequest;
+};
+```
+
+### 批量操作API
+
+```typescript
+// src/services/api/batchOperations.ts
+import { BaseApiService } from './base';
+import { ApiResponse } from '../../types/api';
+
+class BatchOperationsApiService extends BaseApiService {
+  // 批量更新内容状态
+  async batchUpdateContentStatus(
+    contentIds: string[],
+    status: string
+  ): Promise<ApiResponse<{ updatedCount: number }>> {
+    return this.put<{ updatedCount: number }>('/creator/contents/batch/status', {
+      contentIds,
+      status
+    });
+  }
+  
+  // 批量添加标签
+  async batchAddTags(
+    contentIds: string[],
+    tags: string[]
+  ): Promise<ApiResponse<{ updatedCount: number; addedTags: string[] }>> {
+    return this.put<{ updatedCount: number; addedTags: string[] }>('/creator/contents/batch/tags/add', {
+      contentIds,
+      tags
+    });
+  }
+}
+
+export const batchOperationsApiService = new BatchOperationsApiService();
+```
+
+## 错误处理策略
+
+### 全局错误处理
+
+```typescript
+// src/services/errorHandler.ts
+import { message, notification } from 'antd';
+import { AxiosError } from 'axios';
+
+// API错误类型
+export type ApiError = {
+  success: false;
+  error: string;
+  message: string;
+};
+
+// 处理API错误
+export const handleApiError = (error: unknown): ApiError => {
+  if (error instanceof Error) {
+    // Axios错误
+    if ((error as AxiosError).isAxiosError) {
+      const axiosError = error as AxiosError<ApiError>;
+      
+      // 服务器返回的错误
+      if (axiosError.response?.data) {
+        return axiosError.response.data as ApiError;
+      }
+      
+      // 网络错误
+      if (axiosError.code === 'ECONNABORTED') {
+        return {
+          success: false,
+          error: 'error.request_timeout',
+          message: '请求超时，请稍后重试'
+        };
+      }
+      
+      if (!axiosError.response) {
+        return {
+          success: false,
+          error: 'error.network_error',
+          message: '网络错误，请检查您的网络连接'
+        };
+      }
+      
+      // 其他HTTP错误
+      return {
+        success: false,
+        error: `error.http_${axiosError.response.status}`,
+        message: `HTTP错误 ${axiosError.response.status}: ${axiosError.response.statusText}`
+      };
+    }
+    
+    // 其他错误
+    return {
+      success: false,
+      error: 'error.unknown',
+      message: error.message
+    };
+  }
+  
+  // 未知错误
+  return {
+    success: false,
+    error: 'error.unknown',
+    message: '发生未知错误'
+  };
+};
+
+// 显示错误消息
+export const showErrorMessage = (error: unknown) => {
+  const apiError = handleApiError(error);
+  
+  // 对特定错误类型进行特殊处理
+  if (apiError.error === 'error.unauthorized') {
+    // 401错误交给拦截器处理
+    return;
+  }
+  
+  if (apiError.error === 'error.forbidden') {
+    notification.error({
+      message: '访问被拒绝',
+      description: '您没有执行此操作的权限'
+    });
+    return;
+  }
+  
+  if (apiError.error === 'error.validation_error') {
+    message.error(apiError.message || '表单验证失败');
+    return;
+  }
+  
+  if (apiError.error === 'error.server_error') {
+    notification.error({
+      message: '服务器错误',
+      description: '服务器处理请求时发生错误，请稍后重试'
+    });
+    return;
+  }
+  
+  // 默认错误处理
+  message.error(apiError.message || '操作失败');
+};
+```
+
+### 组件级错误边界
+
+```tsx
+// src/components/common/ErrorBoundary.tsx
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Result, Button } from 'antd';
+
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+export class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // 可以记录错误到日志服务
+    console.error('UI渲染错误:', error, errorInfo);
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      // 自定义回退UI
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+      
+      // 默认错误UI
+      return (
+        <Result
+          status="error"
+          title="渲染出错"
+          subTitle={this.state.error?.message || '页面渲染时发生错误'}
+          extra={[
+            <Button type="primary" key="reload" onClick={() => window.location.reload()}>
+              刷新页面
+            </Button>,
+          ]}
+        />
+      );
+    }
+    
+    return this.props.children;
+  }
+}
+```
+
+## 国际化集成
+
+配置与API集成的国际化处理。
+
+```typescript
+// src/services/http/i18n.ts
+import i18n from 'i18next';
+import httpClient from './client';
+
+// 根据当前语言设置API请求头
+export const setupI18nForApi = () => {
+  i18n.on('languageChanged', (lng) => {
+    // 更新HTTP客户端的Accept-Language头
+    httpClient.defaults.headers['Accept-Language'] = lng;
+  });
+  
+  // 初始设置
+  httpClient.defaults.headers['Accept-Language'] = i18n.language;
+};
+```
+
+## 结论
+
+本API集成方案提供了一个结构化的框架，用于连接Vision Pro创作者管理前端与后端API。通过分层设计、类型安全的接口和状态管理，方案实现了代码的可维护性、可扩展性和可靠性。
+
+主要优势包括：
+
+1. **类型安全**：使用TypeScript确保API请求和响应的类型安全
+2. **可维护性**：模块化设计使代码易于维护和扩展
+3. **状态管理**：集成React Query提供缓存、重试和状态同步
+4. **性能优化**：通过预取、缓存和批量操作提高性能
+5. **离线支持**：实现离线操作队列，提升用户体验
+6. **错误处理**：全面的错误处理和恢复策略
+
+通过本方案，团队可以高效地集成前后端，快速实现复杂的创作者管理功能，同时确保高质量的用户体验。

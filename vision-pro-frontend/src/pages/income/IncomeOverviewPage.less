@@ -1,0 +1,355 @@
+// src/pages/income/IncomeOverviewPage.less
+
+.income-overview-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      
+      .ant-select,
+      .ant-picker {
+        margin-right: 8px;
+      }
+    }
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .overview-stats {
+    margin-bottom: 24px;
+    
+    .stat-trend {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      
+      .increase {
+        color: #52c41a;
+        margin-right: 8px;
+      }
+      
+      .decrease {
+        color: #f5222d;
+        margin-right: 8px;
+      }
+      
+      .trend-label {
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 12px;
+      }
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
+      margin-top: 4px;
+    }
+  }
+  
+  .income-distribution {
+    .placeholder-chart {
+      height: 240px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      color: rgba(0, 0, 0, 0.45);
+      margin-bottom: 16px;
+    }
+    
+    .distribution-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        margin-right: 16px;
+        
+        .legend-color {
+          width: 16px;
+          height: 16px;
+          border-radius: 4px;
+          margin-right: 8px;
+          
+          &.subscription {
+            background-color: #1677ff;
+          }
+          
+          &.purchase {
+            background-color: #52c41a;
+          }
+          
+          &.ads {
+            background-color: #faad14;
+          }
+          
+          &.other {
+            background-color: #d9d9d9;
+          }
+        }
+        
+        .legend-label {
+          margin-right: 8px;
+        }
+        
+        .legend-value {
+          color: rgba(0, 0, 0, 0.65);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+  
+  .income-trend {
+    .placeholder-chart {
+      height: 240px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      color: rgba(0, 0, 0, 0.45);
+    }
+    
+    .card-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .top-content-income {
+    .content-cell {
+      display: flex;
+      align-items: center;
+      
+      .content-thumbnail {
+        width: 40px;
+        height: 30px;
+        border-radius: 2px;
+        margin-right: 8px;
+        object-fit: cover;
+      }
+      
+      .content-title {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+  
+  .action-buttons {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .income-overview-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+    }
+  }
+}
+
+// src/pages/income/IncomeDetailsPage.less
+
+.income-details-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .table-toolbar {
+    margin-bottom: 16px;
+    
+    .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .content-cell {
+    display: flex;
+    align-items: center;
+    
+    .content-thumbnail {
+      width: 40px;
+      height: 30px;
+      border-radius: 2px;
+      margin-right: 8px;
+      object-fit: cover;
+    }
+    
+    .content-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  
+  .income-id {
+    font-family: monospace;
+    color: rgba(0, 0, 0, 0.65);
+  }
+  
+  .amount {
+    font-weight: 500;
+    color: #52c41a;
+  }
+}
+
+@media (max-width: 768px) {
+  .income-details-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+    }
+  }
+}
+
+// src/pages/income/WithdrawalPage.less
+
+.withdrawal-page {
+  .page-header {
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+  }
+  
+  .withdrawal-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .withdrawal-steps {
+    margin-bottom: 24px;
+  }
+  
+  .withdrawal-card, .processing-card, .success-card, .history-card {
+    margin-bottom: 24px;
+  }
+  
+  .balance-info {
+    display: flex;
+    justify-content: space-around;
+    padding: 16px 0;
+    
+    .balance-item {
+      text-align: center;
+      
+      .balance-label {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.45);
+        margin-bottom: 8px;
+      }
+      
+      .balance-value {
+        font-size: 24px;
+        font-weight: 500;
+        color: #1677ff;
+      }
+    }
+  }
+  
+  .verification-code-input {
+    display: flex;
+    
+    .ant-input {
+      flex: 1;
+      margin-right: 8px;
+    }
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .confirm-content {
+    .confirm-item {
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .withdrawal-page {
+    .balance-info {
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .verification-code-input {
+      flex-direction: column;
+      
+      .ant-input {
+        margin-right: 0;
+        margin-bottom: 8px;
+      }
+    }
+  }
+}

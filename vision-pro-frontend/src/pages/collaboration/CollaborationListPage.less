@@ -1,0 +1,363 @@
+// src/pages/collaboration/CollaborationListPage.less
+
+.collaboration-list-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .filter-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .filter-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .collaboration-title {
+    .title-main {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .title-sub {
+      display: flex;
+      align-items: center;
+      
+      .content-count {
+        margin-left: 8px;
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+    }
+  }
+  
+  .collaborators {
+    .ant-avatar-group {
+      .ant-avatar {
+        border: 2px solid #fff;
+      }
+    }
+  }
+  
+  .delete-confirmation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    .warning-icon {
+      font-size: 32px;
+      color: #ff4d4f;
+      margin-bottom: 16px;
+    }
+    
+    .warning-text {
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+  
+  .role-option {
+    font-weight: 500;
+  }
+  
+  .role-description {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+    margin-top: 4px;
+  }
+  
+  .form-actions {
+    margin-bottom: 0;
+    text-align: right;
+  }
+}
+
+@media (max-width: 768px) {
+  .collaboration-list-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+      }
+    }
+    
+    .filter-toolbar {
+      flex-direction: column;
+      gap: 16px;
+      
+      .filter-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  }
+}
+
+// src/pages/collaboration/CollaborationDetailPage.less
+
+.collaboration-detail-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      
+      h1 {
+        margin: 0;
+      }
+      
+      .back-link {
+        padding: 0;
+      }
+      
+      .header-separator {
+        margin: 0 12px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .detail-tabs {
+    margin-bottom: 24px;
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    
+    .ant-btn {
+      margin-top: 16px;
+    }
+  }
+  
+  // 概览样式
+  .overview-container {
+    .info-card {
+      margin-bottom: 24px;
+    }
+    
+    .creator-info {
+      display: flex;
+      align-items: center;
+      
+      .creator-name {
+        margin-left: 8px;
+      }
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+  }
+  
+  // 协作者样式
+  .collaborators-container {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      h3 {
+        margin: 0;
+      }
+    }
+    
+    .collaborator-info {
+      display: flex;
+      flex-direction: column;
+      
+      .collaborator-email {
+        color: rgba(0, 0, 0, 0.65);
+      }
+      
+      .collaborator-joined {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+    }
+  }
+  
+  // 内容列表样式
+  .contents-container {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      h3 {
+        margin: 0;
+      }
+    }
+    
+    .content-info {
+      display: flex;
+      align-items: center;
+      
+      .content-thumbnail {
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 8px;
+      }
+      
+      .content-meta {
+        display: flex;
+        flex-direction: column;
+        
+        .content-title {
+          font-weight: 500;
+          margin-bottom: 4px;
+        }
+      }
+    }
+    
+    .creator-info {
+      display: flex;
+      align-items: center;
+      
+      .creator-name {
+        margin-left: 8px;
+      }
+    }
+  }
+  
+  // 活动历史样式
+  .activities-container {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      h3 {
+        margin: 0;
+      }
+    }
+    
+    .activity-item {
+      margin-bottom: 16px;
+      
+      .activity-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        
+        .activity-user {
+          font-weight: 500;
+          margin-right: 8px;
+        }
+        
+        .activity-time {
+          font-size: 12px;
+          color: rgba(0, 0, 0, 0.45);
+        }
+      }
+      
+      .activity-content {
+        .message-content {
+          background-color: #f5f5f5;
+          padding: 12px;
+          border-radius: 4px;
+          word-break: break-word;
+        }
+        
+        .action-content {
+          color: rgba(0, 0, 0, 0.85);
+        }
+      }
+    }
+  }
+  
+  .role-option {
+    font-weight: 500;
+  }
+  
+  .role-description {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+    margin-top: 4px;
+  }
+  
+  .form-actions {
+    margin-bottom: 0;
+    text-align: right;
+  }
+}
+
+@media (max-width: 768px) {
+  .collaboration-detail-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+      }
+    }
+    
+    .overview-container {
+      .action-buttons {
+        justify-content: center;
+      }
+    }
+  }
+}

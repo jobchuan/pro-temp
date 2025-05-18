@@ -6,7 +6,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 /**
  * 错误边界组件，用于捕获子组件树中的JavaScript错误，并显示备用UI
  */
-class ErrorBoundary extends Component {
+export class ErrorBoundary extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -62,4 +62,5 @@ class ErrorBoundary extends Component {
   }
 }
 
+// 同时提供默认导出
 export default ErrorBoundary

@@ -1,4 +1,4 @@
-// vite.config.js
+// vite.config.js - 修复LESS配置
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -6,6 +6,18 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true, // 启用LESS的JavaScript功能
+        // 移除全局引入,让每个文件自己导入
+        // additionalData: '@import "src/styles/variables.less";',
+        modifyVars: {
+          'primary-color': '#1677ff',
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -25,12 +37,13 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:5001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   },
+  base: '/',
   build: {
     outDir: 'dist',
     sourcemap: true,

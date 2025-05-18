@@ -1,0 +1,98 @@
+// src/pages/notification/NotificationsPage.less
+
+.notifications-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h2 {
+      margin: 0;
+    }
+  }
+  
+  .tab-content {
+    min-height: 300px;
+  }
+  
+  .notification-item {
+    transition: background-color 0.3s;
+    
+    &.unread {
+      background-color: rgba(24, 144, 255, 0.05);
+    }
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .notification-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      
+      .title-text {
+        font-weight: 500;
+      }
+      
+      .type-tag {
+        margin-left: 8px;
+      }
+    }
+    
+    .notification-desc {
+      .notification-content {
+        margin-bottom: 4px;
+      }
+      
+      .notification-time {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+    }
+  }
+  
+  .load-more-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    padding: 10px 0;
+  }
+  
+  .empty-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  // 处理通知列表的响应式样式
+  @media (max-width: 768px) {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+      }
+    }
+    
+    .notification-item {
+      .ant-list-item-meta-avatar {
+        margin-right: 12px;
+      }
+      
+      .notification-title {
+        flex-direction: column;
+        align-items: flex-start;
+        
+        .type-tag {
+          margin-left: 0;
+          margin-top: 4px;
+        }
+      }
+    }
+  }
+}

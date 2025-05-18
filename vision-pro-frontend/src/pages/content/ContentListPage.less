@@ -1,0 +1,219 @@
+// src/pages/content/ContentListPage.less
+
+.content-list-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+  }
+  
+  .filter-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 16px;
+    
+    .search-filter {
+      flex: 1;
+      min-width: 200px;
+      max-width: 300px;
+    }
+    
+    .dropdown-filters {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .view-toggle {
+      margin-left: 16px;
+    }
+  }
+  
+  .batch-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    
+    .batch-info {
+      display: flex;
+      align-items: center;
+      
+      .ant-checkbox {
+        margin-right: 8px;
+      }
+    }
+    
+    .batch-actions {
+      display: flex;
+      gap: 8px;
+    }
+  }
+  
+  .content-table {
+    .content-thumbnail {
+      width: 80px;
+      height: 60px;
+      overflow: hidden;
+      border-radius: 4px;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    
+    .content-title {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .content-type {
+      .ant-tag {
+        margin-right: 4px;
+      }
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 4px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .stat-label {
+        color: rgba(0, 0, 0, 0.45);
+        margin-right: 4px;
+      }
+      
+      .stat-value {
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .content-card-grid {
+    margin-top: 16px;
+    
+    .content-card {
+      transition: all 0.3s;
+      
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-4px);
+      }
+      
+      .card-thumbnail {
+        position: relative;
+        height: 150px;
+        overflow: hidden;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .card-status {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+        }
+      }
+      
+      .card-content {
+        .card-title {
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-bottom: 8px;
+        }
+        
+        .card-info {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          
+          .card-stats {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+  
+  .loading-container, .error-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    padding: 24px;
+    
+    .ant-btn {
+      margin-top: 16px;
+    }
+  }
+  
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+    padding-bottom: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-list-page {
+    .filter-toolbar {
+      flex-direction: column;
+      align-items: flex-start;
+      
+      .search-filter {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .dropdown-filters {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .view-toggle {
+        margin-left: 0;
+        align-self: flex-end;
+      }
+    }
+    
+    .batch-toolbar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      
+      .batch-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  }
+}

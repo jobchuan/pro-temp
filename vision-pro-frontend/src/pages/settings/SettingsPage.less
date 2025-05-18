@@ -1,0 +1,212 @@
+.settings-page {
+  h2 {
+    margin-bottom: 24px;
+  }
+  
+  .settings-card {
+    margin-bottom: 24px;
+    
+    .ant-card-head {
+      border-bottom: none;
+    }
+    
+    .ant-form-item-label {
+      font-weight: 500;
+    }
+    
+    .ant-form-item:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .form-actions {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  // 时间选择器相关样式
+  .time-range-picker {
+    display: flex;
+    align-items: flex-end;
+    margin-top: 16px;
+    
+    .ant-typography {
+      margin: 0 12px;
+      padding-bottom: 10px;
+    }
+    
+    .ant-form-item {
+      margin-bottom: 0;
+      flex: 1;
+    }
+  }
+  
+  // 通知设置特有样式
+  &.notification-settings {
+    .ant-checkbox-group {
+      display: flex;
+      flex-direction: column;
+      
+      .ant-checkbox-wrapper {
+        margin-left: 0;
+        margin-bottom: 12px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+  
+  // 个人资料页面特有样式
+  &.profile-settings {
+    .avatar-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .ant-upload {
+        margin-bottom: 16px;
+      }
+    }
+    
+    .profile-section {
+      margin-bottom: 24px;
+      
+      .section-title {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 16px;
+      }
+    }
+    
+    .account-settings-card {
+      .settings-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        
+        .link-info {
+          h4 {
+            margin-bottom: 4px;
+          }
+        }
+      }
+    }
+  }
+  
+  // 安全设置页面特有样式
+  &.security-settings {
+    .security-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .option-info {
+        .option-title {
+          display: flex;
+          align-items: center;
+          margin-bottom: 4px;
+          
+          .ant-tag {
+            margin-left: 8px;
+          }
+        }
+      }
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      h4 {
+        margin-bottom: 0;
+      }
+    }
+    
+    .device-info {
+      div {
+        margin-bottom: 4px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+    
+    .two-factor-steps {
+      margin-bottom: 24px;
+    }
+    
+    .step-completed {
+      text-align: center;
+      padding: 24px 0;
+      
+      .success-icon {
+        margin-bottom: 16px;
+      }
+    }
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .settings-page {
+    .time-range-picker {
+      flex-direction: column;
+      align-items: flex-start;
+      
+      .ant-typography {
+        margin: 8px 0;
+      }
+      
+      .ant-form-item {
+        width: 100%;
+        margin-bottom: 16px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+    
+    &.profile-settings {
+      .account-settings-card {
+        .settings-link {
+          flex-direction: column;
+          align-items: flex-start;
+          
+          .link-info {
+            margin-bottom: 16px;
+          }
+        }
+      }
+    }
+    
+    &.security-settings {
+      .security-option {
+        flex-direction: column;
+        align-items: flex-start;
+        
+        .option-info {
+          margin-bottom: 16px;
+        }
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        
+        h4 {
+          margin-bottom: 16px;
+        }
+      }
+    }
+  }
+}

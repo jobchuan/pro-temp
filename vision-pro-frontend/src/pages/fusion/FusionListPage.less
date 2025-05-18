@@ -1,0 +1,222 @@
+// src/pages/fusion/FusionListPage.less
+
+.fusion-list-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .filter-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .right-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .fusion-title {
+    display: flex;
+    align-items: center;
+    
+    .thumbnail {
+      width: 60px;
+      height: 40px;
+      margin-right: 12px;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+      
+      .placeholder-thumbnail {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        font-size: 20px;
+        color: #1677ff;
+      }
+    }
+    
+    .title-info {
+      overflow: hidden;
+      
+      .title-main {
+        font-weight: 500;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .title-sub {
+        display: flex;
+        align-items: center;
+        
+        .content-count {
+          margin-left: 8px;
+          font-size: 12px;
+          color: rgba(0, 0, 0, 0.45);
+        }
+      }
+    }
+  }
+  
+  .creator-info {
+    display: flex;
+    align-items: center;
+    
+    .creator-name {
+      margin-left: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  
+  .card-view {
+    .ant-card {
+      height: 100%;
+      
+      .card-cover {
+        position: relative;
+        height: 150px;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .placeholder-cover {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: #f5f5f5;
+          font-size: 32px;
+          color: #1677ff;
+        }
+        
+        .cover-status {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          z-index: 1;
+        }
+      }
+      
+      .card-description {
+        .fusion-type {
+          margin-bottom: 8px;
+          
+          .content-count {
+            margin-left: 8px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+          }
+        }
+        
+        .creator-info {
+          margin-bottom: 4px;
+          
+          span {
+            margin-left: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+        
+        .created-time {
+          font-size: 12px;
+          color: rgba(0, 0, 0, 0.45);
+        }
+      }
+    }
+  }
+  
+  .pagination-container {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .delete-confirmation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    .warning-icon {
+      font-size: 32px;
+      color: #ff4d4f;
+      margin-bottom: 16px;
+    }
+    
+    .warning-text {
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .fusion-list-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+      }
+    }
+    
+    .filter-toolbar {
+      flex-direction: column;
+      gap: 16px;
+      
+      .right-filters {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  }
+}

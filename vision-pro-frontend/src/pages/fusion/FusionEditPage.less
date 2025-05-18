@@ -1,0 +1,298 @@
+// src/pages/fusion/FusionEditPage.less
+
+.fusion-edit-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+  }
+  
+  .fusion-form {
+    .form-section {
+      margin-bottom: 32px;
+      
+      .section-title {
+        margin-bottom: 16px;
+        font-size: 16px;
+        font-weight: 500;
+      }
+    }
+    
+    .basic-info {
+      .title-row {
+        display: flex;
+        gap: 16px;
+        
+        .title-input {
+          flex: 1;
+        }
+      }
+    }
+    
+    .content-selection {
+      .content-list {
+        margin-bottom: 16px;
+        
+        .ant-table {
+          .content-title-cell {
+            display: flex;
+            align-items: center;
+            
+            .content-thumbnail {
+              width: 60px;
+              height: 40px;
+              object-fit: cover;
+              border-radius: 4px;
+              margin-right: 12px;
+            }
+            
+            .content-info {
+              .content-title {
+                font-weight: 500;
+                margin-bottom: 4px;
+              }
+              
+              .content-meta {
+                font-size: 12px;
+                color: rgba(0, 0, 0, 0.45);
+              }
+            }
+          }
+        }
+      }
+      
+      .add-content-btn {
+        width: 100%;
+        height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 1px dashed #d9d9d9;
+        border-radius: 4px;
+        transition: all 0.3s;
+        
+        &:hover {
+          border-color: #1677ff;
+        }
+        
+        .anticon {
+          font-size: 24px;
+          margin-bottom: 8px;
+        }
+        
+        .add-text {
+          color: rgba(0, 0, 0, 0.45);
+        }
+      }
+    }
+    
+    .preview-section {
+      .preview-container {
+        width: 100%;
+        height: 360px;
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        
+        .preview-placeholder {
+          color: rgba(255, 255, 255, 0.65);
+          text-align: center;
+          
+          .anticon {
+            font-size: 48px;
+            margin-bottom: 16px;
+          }
+          
+          .placeholder-text {
+            font-size: 16px;
+          }
+        }
+        
+        .preview-frame {
+          width: 100%;
+          height: 100%;
+          border: none;
+        }
+        
+        .preview-controls {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: rgba(0, 0, 0, 0.5);
+          padding: 8px 16px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          
+          .control-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            
+            .control-btn {
+              color: #fff;
+              background: transparent;
+              border: none;
+              font-size: 20px;
+              cursor: pointer;
+              
+              &:hover {
+                opacity: 0.8;
+              }
+            }
+          }
+          
+          .control-right {
+            .fullscreen-btn {
+              color: #fff;
+              background: transparent;
+              border: none;
+              font-size: 20px;
+              cursor: pointer;
+              
+              &:hover {
+                opacity: 0.8;
+              }
+            }
+          }
+        }
+      }
+      
+      .preview-options {
+        margin-top: 16px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+    }
+    
+    .publishing-options {
+      .visibility-options {
+        margin-bottom: 24px;
+      }
+      
+      .scheduling-options {
+        margin-bottom: 24px;
+      }
+      
+      .seo-options {
+        margin-bottom: 24px;
+      }
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #f0f0f0;
+      
+      button {
+        min-width: 120px;
+      }
+    }
+  }
+  
+  // 内容选择对话框
+  .content-select-modal {
+    .filter-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      
+      .search-input {
+        flex: 1;
+      }
+    }
+    
+    .content-grid {
+      margin-top: 16px;
+      
+      .content-card {
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        
+        &:hover {
+          transform: translateY(-4px);
+        }
+        
+        &.selected {
+          border-color: #1677ff;
+        }
+        
+        .ant-card-cover {
+          position: relative;
+          
+          .selected-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #1677ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .fusion-edit-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+    
+    .fusion-form {
+      .basic-info {
+        .title-row {
+          flex-direction: column;
+        }
+      }
+      
+      .preview-section {
+        .preview-container {
+          height: 240px;
+        }
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

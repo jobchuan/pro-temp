@@ -1,0 +1,440 @@
+// src/pages/collaboration/CollaborationDetailPage.less
+
+.collaboration-detail-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    .header-title {
+      h1 {
+        margin: 0 0 8px 0;
+      }
+      
+      .header-meta {
+        display: flex;
+        align-items: center;
+        color: rgba(0, 0, 0, 0.45);
+        
+        .status-tag {
+          margin-right: 16px;
+        }
+        
+        .created-info {
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+  }
+  
+  .project-tabs {
+    margin-bottom: 16px;
+    
+    .ant-tabs-nav {
+      margin-bottom: 16px;
+    }
+  }
+  
+  .tab-content {
+    min-height: 400px;
+  }
+  
+  // 概览标签页
+  .overview-tab {
+    .section {
+      margin-bottom: 24px;
+    }
+    
+    .project-info {
+      .info-card {
+        .info-content {
+          margin-bottom: 16px;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          .info-label {
+            color: rgba(0, 0, 0, 0.45);
+            margin-bottom: 4px;
+          }
+          
+          .info-value {
+            color: rgba(0, 0, 0, 0.85);
+            
+            .ant-tag {
+              margin-right: 8px;
+            }
+          }
+        }
+      }
+    }
+    
+    .project-description {
+      .description-card {
+        .card-content {
+          color: rgba(0, 0, 0, 0.85);
+          white-space: pre-line;
+        }
+      }
+    }
+    
+    .team-members {
+      .members-card {
+        .member-list {
+          .ant-avatar-group {
+            margin-bottom: 16px;
+          }
+          
+          .member-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            
+            &:last-child {
+              border-bottom: none;
+            }
+            
+            .member-avatar {
+              margin-right: 12px;
+            }
+            
+            .member-info {
+              flex: 1;
+              
+              .member-name {
+                font-weight: 500;
+                margin-bottom: 4px;
+              }
+              
+              .member-role {
+                color: rgba(0, 0, 0, 0.45);
+                font-size: 12px;
+              }
+            }
+            
+            .member-actions {
+              .more-btn {
+                color: rgba(0, 0, 0, 0.45);
+                
+                &:hover {
+                  color: rgba(0, 0, 0, 0.85);
+                }
+              }
+            }
+          }
+        }
+        
+        .add-member-btn {
+          width: 100%;
+          margin-top: 16px;
+        }
+      }
+    }
+  }
+  
+  // 内容标签页
+  .contents-tab {
+    .filter-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .filter-left {
+        display: flex;
+        gap: 16px;
+      }
+    }
+    
+    .content-list {
+      .content-item {
+        .content-title-cell {
+          display: flex;
+          align-items: center;
+          
+          .content-thumbnail {
+            width: 60px;
+            height: 40px;
+            border-radius: 4px;
+            margin-right: 12px;
+            overflow: hidden;
+            
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+          
+          .content-info {
+            .title {
+              font-weight: 500;
+              margin-bottom: 4px;
+            }
+            
+            .meta {
+              color: rgba(0, 0, 0, 0.45);
+              font-size: 12px;
+              
+              .content-type {
+                margin-right: 8px;
+              }
+            }
+          }
+        }
+        
+        .assign-cell {
+          .assignee {
+            display: flex;
+            align-items: center;
+            
+            .assignee-avatar {
+              margin-right: 8px;
+            }
+          }
+        }
+      }
+    }
+    
+    .add-content-btn {
+      margin-top: 16px;
+    }
+  }
+  
+  // 任务标签页
+  .tasks-tab {
+    .task-filter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .filter-left {
+        display: flex;
+        gap: 16px;
+      }
+    }
+    
+    .task-list {
+      .task-item {
+        margin-bottom: 16px;
+        border-radius: 4px;
+        transition: all 0.3s;
+        
+        &:hover {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+        }
+        
+        .task-header {
+          display: flex;
+          align-items: center;
+          padding: 12px 16px;
+          border-bottom: 1px solid #f0f0f0;
+          
+          .task-checkbox {
+            margin-right: 12px;
+          }
+          
+          .task-title {
+            flex: 1;
+            font-weight: 500;
+            margin: 0;
+            
+            &.completed {
+              text-decoration: line-through;
+              color: rgba(0, 0, 0, 0.45);
+            }
+          }
+          
+          .task-tags {
+            margin: 0 16px;
+            
+            .ant-tag {
+              margin-right: 8px;
+              
+              &:last-child {
+                margin-right: 0;
+              }
+            }
+          }
+          
+          .task-actions {
+            .more-btn {
+              color: rgba(0, 0, 0, 0.45);
+              
+              &:hover {
+                color: rgba(0, 0, 0, 0.85);
+              }
+            }
+          }
+        }
+        
+        .task-content {
+          padding: 12px 16px;
+          
+          .task-description {
+            margin-bottom: 16px;
+            color: rgba(0, 0, 0, 0.65);
+          }
+          
+          .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            .task-assignee {
+              display: flex;
+              align-items: center;
+              
+              .assignee-avatar {
+                margin-right: 8px;
+              }
+              
+              .assignee-name {
+                color: rgba(0, 0, 0, 0.65);
+              }
+            }
+            
+            .task-due {
+              color: rgba(0, 0, 0, 0.45);
+              font-size: 12px;
+              
+              &.overdue {
+                color: #ff4d4f;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    .add-task-btn {
+      width: 100%;
+      margin-top: 16px;
+    }
+  }
+  
+  // 文件标签页
+  .files-tab {
+    .filter-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .filter-left {
+        display: flex;
+        gap: 16px;
+      }
+    }
+    
+    .file-list {
+      .file-item {
+        .file-name-cell {
+          display: flex;
+          align-items: center;
+          
+          .file-icon {
+            margin-right: 12px;
+            font-size: 24px;
+          }
+          
+          .file-info {
+            .file-name {
+              font-weight: 500;
+              margin-bottom: 4px;
+            }
+            
+            .file-meta {
+              color: rgba(0, 0, 0, 0.45);
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+    
+    .upload-btn {
+      margin-top: 16px;
+    }
+  }
+  
+  // 活动记录标签页
+  .activity-tab {
+    .activity-timeline {
+      padding: 16px;
+      
+      .ant-timeline-item-content {
+        .activity-item {
+          .activity-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            
+            .user-avatar {
+              margin-right: 8px;
+            }
+            
+            .user-name {
+              font-weight: 500;
+              margin-right: 8px;
+            }
+            
+            .activity-time {
+              color: rgba(0, 0, 0, 0.45);
+              font-size: 12px;
+            }
+          }
+          
+          .activity-content {
+            color: rgba(0, 0, 0, 0.85);
+          }
+          
+          .activity-meta {
+            margin-top: 8px;
+            
+            .meta-link {
+              color: #1677ff;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .collaboration-detail-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+    
+    .filter-toolbar, .task-filter {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .filter-left {
+        width: 100%;
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  }
+}

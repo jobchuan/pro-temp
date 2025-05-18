@@ -1,0 +1,54 @@
+// src/pages/error/ErrorPage.less
+
+.not-found-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  
+  .ant-result {
+    max-width: 500px;
+    padding: 48px 32px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    .ant-result-title {
+      font-size: 72px;
+      line-height: 1.2;
+      color: #1677ff;
+    }
+    
+    .ant-result-subtitle {
+      font-size: 20px;
+      margin-bottom: 24px;
+    }
+    
+    .ant-result-extra {
+      margin-top: 32px;
+      
+      .ant-btn {
+        height: 40px;
+        padding: 0 24px;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .not-found-page {
+    .ant-result {
+      margin: 16px;
+      padding: 32px 24px;
+      
+      .ant-result-title {
+        font-size: 56px;
+      }
+      
+      .ant-result-subtitle {
+        font-size: 16px;
+      }
+    }
+  }
+}

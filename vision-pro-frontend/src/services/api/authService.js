@@ -2,6 +2,7 @@
 import { BaseApiService } from './base'
 import { setToken, setRefreshToken } from '@/utils/tokenStorage'
 
+// 确保BaseApiService正确导入后再使用
 class AuthApiService extends BaseApiService {
   /**
    * 用户登录
@@ -82,6 +83,7 @@ class AuthApiService extends BaseApiService {
   }
 }
 
+// 创建服务实例
 export const authApiService = new AuthApiService()
 
 // 导出刷新令牌函数以便HTTP客户端使用

@@ -1,0 +1,111 @@
+// src/components/notification/NotificationPopover.less
+
+.notification-btn {
+  font-size: 16px;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-popover {
+  width: 360px;
+  
+  .ant-popover-inner-content {
+    padding: 0;
+  }
+  
+  .notification-popover-content {
+    .popover-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      
+      h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+    }
+    
+    .notification-tabs {
+      .ant-tabs-nav {
+        margin-bottom: 0;
+        padding: 0 16px;
+      }
+      
+      .ant-list {
+        max-height: 400px;
+        overflow-y: auto;
+        
+        .ant-list-item {
+          padding: 12px 16px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+          
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+          }
+          
+          &.unread {
+            background-color: rgba(24, 144, 255, 0.05);
+          }
+          
+          .notification-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            .ant-tag {
+              margin-left: 8px;
+              font-size: 11px;
+              line-height: 16px;
+              height: 18px;
+              padding: 0 4px;
+            }
+          }
+          
+          .notification-content {
+            .content-text {
+              margin-bottom: 4px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            
+            .content-time {
+              font-size: 12px;
+              color: rgba(0, 0, 0, 0.45);
+            }
+          }
+        }
+      }
+    }
+    
+    .popover-footer {
+      display: flex;
+      justify-content: center;
+      padding: 8px 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      padding: 32px 0;
+    }
+    
+    .ant-empty {
+      margin: 32px 0;
+    }
+  }
+}
+
+// 响应式调整
+@media (max-width: 480px) {
+  .notification-popover {
+    width: 300px;
+  }
+}

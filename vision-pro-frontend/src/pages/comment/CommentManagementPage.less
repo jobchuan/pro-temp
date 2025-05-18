@@ -1,0 +1,414 @@
+// src/pages/comment/CommentManagementPage.less
+
+.comment-management-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .filter-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .filter-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .comment-cell {
+    .comment-author {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      
+      .ant-avatar {
+        margin-right: 8px;
+      }
+      
+      .author-name {
+        font-weight: 500;
+        margin-right: 8px;
+        
+        .featured-icon {
+          color: #faad14;
+          margin-left: 4px;
+        }
+      }
+      
+      .comment-time {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+    }
+    
+    .comment-content {
+      .comment-text {
+        margin-bottom: 8px;
+      }
+      
+      .comment-replies {
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .content-cell {
+    display: flex;
+    align-items: center;
+    
+    .content-thumbnail {
+      width: 60px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    
+    .content-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .no-content {
+      color: rgba(0, 0, 0, 0.45);
+      font-style: italic;
+    }
+  }
+  
+  .count-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .column-title-with-sort {
+    display: flex;
+    align-items: center;
+    
+    .ant-btn {
+      margin-left: 4px;
+      padding: 0 4px;
+    }
+  }
+  
+  // 回复模态框样式
+  .original-comment {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    
+    .comment-author {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      
+      .ant-avatar {
+        margin-right: 8px;
+      }
+      
+      .author-name {
+        font-weight: 500;
+      }
+    }
+    
+    .comment-content {
+      color: rgba(0, 0, 0, 0.65);
+    }
+  }
+  
+  // 评论详情抽屉样式
+  .comment-detail {
+    .main-comment {
+      margin-bottom: 24px;
+      
+      .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        
+        .commenter-info {
+          display: flex;
+          align-items: center;
+          
+          .ant-avatar {
+            margin-right: 12px;
+          }
+          
+          .commenter-meta {
+            display: flex;
+            flex-direction: column;
+            
+            .commenter-name {
+              font-weight: 500;
+              margin-bottom: 4px;
+              
+              .featured-icon {
+                color: #faad14;
+                margin-left: 4px;
+              }
+            }
+            
+            .commenter-email {
+              font-size: 12px;
+              color: rgba(0, 0, 0, 0.45);
+            }
+          }
+        }
+      }
+      
+      .comment-content {
+        margin-bottom: 16px;
+        
+        .comment-text {
+          margin-bottom: 8px;
+        }
+        
+        .comment-meta {
+          display: flex;
+          justify-content: space-between;
+          font-size: 12px;
+          color: rgba(0, 0, 0, 0.45);
+          
+          .comment-stats {
+            display: flex;
+            gap: 12px;
+          }
+        }
+      }
+      
+      .related-content {
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 16px;
+        
+        .section-title {
+          font-weight: 500;
+          margin-bottom: 8px;
+        }
+        
+        .content-info {
+          display: flex;
+          align-items: center;
+          
+          .content-thumbnail {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 12px;
+          }
+          
+          .content-meta {
+            display: flex;
+            flex-direction: column;
+            
+            .content-title {
+              font-weight: 500;
+              margin-bottom: 4px;
+            }
+            
+            .content-type {
+              font-size: 12px;
+              color: rgba(0, 0, 0, 0.45);
+            }
+          }
+        }
+      }
+      
+      .comment-actions {
+        margin-top: 16px;
+      }
+    }
+    
+    .reply-item {
+      width: 100%;
+      
+      .reply-author {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        
+        .ant-avatar {
+          margin-right: 8px;
+        }
+        
+        .author-info {
+          display: flex;
+          flex-direction: column;
+          
+          .author-name {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            
+            .ant-tag {
+              margin-left: 4px;
+            }
+          }
+          
+          .reply-time {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+          }
+        }
+      }
+      
+      .reply-content {
+        margin-left: 40px;
+      }
+    }
+  }
+  
+  // 举报详情抽屉样式
+  .report-detail {
+    .reported-comment {
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+      
+      .section-title {
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+      
+      .comment-content {
+        .commenter-info {
+          display: flex;
+          align-items: center;
+          margin-bottom: 8px;
+          
+          .ant-avatar {
+            margin-right: 8px;
+          }
+          
+          .commenter-name {
+            font-weight: 500;
+          }
+        }
+        
+        .comment-text {
+          color: rgba(0, 0, 0, 0.65);
+        }
+      }
+    }
+    
+    .report-item {
+      width: 100%;
+      
+      .reporter-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        
+        .ant-avatar {
+          margin-right: 8px;
+        }
+        
+        .reporter-meta {
+          display: flex;
+          flex-direction: column;
+          
+          .reporter-name {
+            font-weight: 500;
+          }
+          
+          .report-time {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+          }
+        }
+      }
+      
+      .report-reason {
+        .reason-type {
+          margin-bottom: 4px;
+        }
+        
+        .reason-description {
+          color: rgba(0, 0, 0, 0.65);
+          font-size: 13px;
+        }
+      }
+    }
+    
+    .report-actions {
+      margin-top: 24px;
+    }
+  }
+  
+  // 删除确认对话框样式
+  .delete-confirmation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    .warning-icon {
+      font-size: 32px;
+      color: #ff4d4f;
+      margin-bottom: 16px;
+    }
+    
+    .warning-text {
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .comment-management-page {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .header-actions {
+        width: 100%;
+      }
+    }
+    
+    .filter-toolbar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      .filter-actions {
+        width: 100%;
+      }
+    }
+  }
+}

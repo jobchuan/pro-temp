@@ -2,7 +2,10 @@
 import axios from 'axios'
 import { message } from 'antd'
 import { getToken, setToken, clearTokens } from '@/utils/tokenStorage'
-import { refreshToken } from '@/services/api/authService'
+
+// 先声明refreshToken变量，稍后再导入函数
+// 这样避免循环依赖问题
+let refreshTokenFunc
 
 // 创建axios实例
 const httpClient = axios.create({
@@ -46,7 +49,14 @@ httpClient.interceptors.response.use(
       originalRequest._retry = true
       
       try {
-        const newToken = await refreshToken()
+        // 动态导入refreshToken函数，避免循环依赖
+        if (!refreshTokenFunc) {
+          // 导入整个模块而不是解构，防止循环引用问题
+          const authModule = await import('../api/authService')
+          refreshTokenFunc = authModule.refreshToken
+        }
+        
+        const newToken = await refreshTokenFunc()
         setToken(newToken)
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`
         return httpClient(originalRequest)

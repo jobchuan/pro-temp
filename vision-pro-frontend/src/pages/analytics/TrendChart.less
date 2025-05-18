@@ -1,0 +1,91 @@
+// src/components/analytics/TrendChart.less
+
+.trend-chart-wrapper {
+  padding: 16px 0;
+  
+  .chart-controls {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    
+    .ant-radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      
+      .ant-radio-button-wrapper {
+        margin-bottom: 8px;
+      }
+    }
+  }
+  
+  .chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+  }
+  
+  .chart-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 14px;
+  }
+  
+  .custom-tooltip {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    
+    .tooltip-date {
+      margin: 0 0 8px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.85);
+    }
+    
+    .tooltip-metric {
+      margin: 0;
+      
+      .tooltip-label {
+        margin-right: 8px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+      
+      .tooltip-value {
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .trend-chart-wrapper {
+    .chart-controls {
+      .ant-radio-group {
+        .ant-radio-button-wrapper {
+          padding: 0 12px;
+        }
+      }
+    }
+    
+    .chart-container {
+      min-height: 240px;
+    }
+  }
+}
